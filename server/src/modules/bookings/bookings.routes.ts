@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { validate } from "../../middlewares/validate.middleware"
-import { createBooking } from "./bookings.controller"
+import { cancelBooking, createBooking } from "./bookings.controller"
 import { createBookingSchema } from "./bookings.schema"
 import { protect } from "../../middlewares/auth.middleware"
 
@@ -12,5 +12,8 @@ router.post(
   validate(createBookingSchema),
   createBooking
 )
+
+router.patch("/:id/cancel", protect, cancelBooking)
+
 
 export default router
