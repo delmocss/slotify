@@ -3,7 +3,7 @@ import { getBookings } from "../api/dashboard.api"
 import StatsCards from "../components/StatsCards"
 import BookingsTable from "../components/BookingsTable"
 import { useState } from "react"
-
+import BookingsChart from "../components/BookingsChart"
 
 
 export default function DashboardHomePage() {
@@ -77,6 +77,8 @@ export default function DashboardHomePage() {
       </div>
 
       <StatsCards bookings={filteredBookings} />
+      <BookingsChart bookings={bookings} />
+
 
       <div>
         <h2 className="text-xl font-semibold mb-3">
