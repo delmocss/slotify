@@ -6,6 +6,7 @@ import RegisterPage from "../features/auth/pages/RegisterPage"
 import ProtectedRoute from "../components/ProtectedRoute"
 import ServicesPage from "../features/services/pages/ServicesPage"
 import WorkingHoursPage from "../features/working-hours/pages/WorkingHoursPage"
+import PublicBookingPage from "../features/public-booking/pages/PublicBookingPage"
 
 export const router = createBrowserRouter([
     {
@@ -56,7 +57,16 @@ export const router = createBrowserRouter([
                 element: <WorkingHoursPage />,
             },
         ],
+    },
+    {
+        path: "/b/:businessId",
+        element: <PublicLayout />,
+        children: [
+            {
+                index: true,
+                element: <PublicBookingPage />,
+            },
+        ],
     }
-
 
 ])
