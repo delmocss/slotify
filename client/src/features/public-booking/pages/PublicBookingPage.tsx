@@ -31,6 +31,9 @@ export default function PublicBookingPage() {
     const next = (nextStep: Step) => setStep(nextStep)
     const back = () => setStep("service")
 
+    const [selectedTime, setSelectedTime] = useState<string>("")
+
+
     return (
         <div className="max-w-xl mx-auto space-y-6">
             <h1 className="text-3xl font-bold text-center">
@@ -117,6 +120,54 @@ export default function PublicBookingPage() {
                         </button>
                     </motion.div>
                 )}
+
+                {step === "time" && (
+                    <motion.div
+                        key="time"
+                        initial={{ opacity: 0, x: 40 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -40 }}
+                        transition={{ duration: 0.25 }}
+                        className="space-y-6"
+                    >
+                        <p className="font-semibold">
+                            {selectedService?.name} — {selectedDate}
+                        </p>
+
+                        <div className="grid grid-cols-3 gap-3">
+                            {availableSlots.map((slot) => (
+                                <button
+                                    key={slot}
+                                    onClick={() => setSelectedTime(slot)}
+                                    className={`p-3 rounded border transition 
+            ${selectedTime === slot
+                                            ? "bg-black text-white"
+                                            : "hover:bg-gray-100"
+                                        }`}
+                                >
+                                    {slot}
+                                </button>
+                            ))}
+                        </div>
+
+                        {selectedTime && (
+                            <button
+                                onClick={() => next("client")}
+                                className="w-full bg-black text-white py-2 rounded"
+                            >
+                                Continue
+                            </button>
+                        )}
+
+                        <button
+                            onClick={() => setStep("date")}
+                            className="text-gray-500"
+                        >
+                            Back
+                        </button>
+                    </motion.div>
+                )}
+
 
             </AnimatePresence>
         </div>
