@@ -25,3 +25,12 @@ export async function cancelBooking(
 
   res.json(result)
 }
+
+export async function getBookings(
+  req: Request,
+  res: Response
+) {
+  const result = await service.getAll(req.businessId!)
+  res.json(result)
+}
+
