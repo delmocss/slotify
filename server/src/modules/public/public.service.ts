@@ -26,16 +26,25 @@ export class PublicService {
         serviceId: string,
         date: string
     ) {
+        const business = await this.getBusinessBySlug(slug)
+
         return this.availabilityService.getAvailability(
-            slug,
+            business.id, // ✅ UUID real
             serviceId,
             date
         )
     }
 
+
     async createBooking(slug: string, data: any) {
-        return this.bookingsService.create(slug, data)
+        const business = await this.getBusinessBySlug(slug)
+
+        return this.bookingsService.create(
+            business.id,   // 👈 UUID real
+            data
+        )
     }
+
 
     async getBusinessBySlug(slug: string) {
         const result = await pool.query(
@@ -47,7 +56,8 @@ export class PublicService {
             throw new AppError("Business not found", 404)
         }
 
-        return result.rows[0]
+        return result.rows[0] // { id: 'uuid' }
     }
+
 
 }

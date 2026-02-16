@@ -9,12 +9,12 @@ import { createBookingSchema } from "../bookings/bookings.schema"
 
 const router = Router()
 
-router.get("/:businessId/services", getPublicServices)
+router.get("/:slug/services", getPublicServices)
 
-router.get("/:businessId/availability", getPublicAvailability)
+router.get("/:slug/availability", getPublicAvailability)
 
 router.post(
-  "/:businessId/bookings",
+  "/:slug/bookings",
   validate(createBookingSchema),
   createPublicBooking
 )

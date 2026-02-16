@@ -7,22 +7,23 @@ export async function getPublicServices(
   req: Request,
   res: Response
 ) {
-  const businessId = Array.isArray(req.params.businessId)
-    ? req.params.businessId[0]
-    : req.params.businessId
+  const slug = Array.isArray(req.params.slug)
+    ? req.params.slug[0]
+    : req.params.slug
 
-  const result = await service.getServices(businessId)
+  const result = await service.getServices(slug)
 
   res.json(result)
 }
+
 
 export async function getPublicAvailability(
   req: Request,
   res: Response
 ) {
-  const businessId = Array.isArray(req.params.businessId)
-    ? req.params.businessId[0]
-    : req.params.businessId
+  const slug = Array.isArray(req.params.slug)
+    ? req.params.slug[0]
+    : req.params.slug
   const serviceId = Array.isArray(req.query.serviceId)
     ? req.query.serviceId[0]
     : req.query.serviceId
@@ -31,7 +32,7 @@ export async function getPublicAvailability(
     : req.query.date
 
   const slots = await service.getAvailability(
-    businessId,
+    slug,
     serviceId as string,
     date as string
   )
@@ -43,12 +44,12 @@ export async function createPublicBooking(
   req: Request,
   res: Response
 ) {
-  const businessId = Array.isArray(req.params.businessId)
-    ? req.params.businessId[0]
-    : req.params.businessId
+  const slug = Array.isArray(req.params.slug)
+    ? req.params.slug[0]
+    : req.params.slug
 
   const result = await service.createBooking(
-    businessId,
+    slug,
     req.body
   )
 

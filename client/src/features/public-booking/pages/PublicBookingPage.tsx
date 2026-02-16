@@ -11,7 +11,7 @@ import { useToast } from "../../../components/ui/toast/useToast"
 type Step = "service" | "date" | "time" | "client" | "success"
 
 export default function PublicBookingPage() {
-    const { businessId } = useParams()
+    const { slug } = useParams()
     const { addToast } = useToast()
 
     const [step, setStep] = useState<Step>("service")
@@ -21,16 +21,18 @@ export default function PublicBookingPage() {
     const [availableSlots, setAvailableSlots] = useState<string[]>([])
 
     const { data: services } = useQuery({
-        queryKey: ["public-services", businessId],
-        queryFn: () => getPublicServices(businessId!),
+        queryKey: ["public-services", slug],
+        queryFn: () => getPublicServices(slug!),
     })
 
     const availabilityQuery = useQuery({
-        queryKey: ["availability", businessId, selectedService?.id, selectedDate],
+        queryKey: ["availability", slug, selectedService?.id, selectedDate],
         queryFn: () =>
-            getAvailability(businessId!, selectedService.id, selectedDate),
+            getAvailability(slug!, selectedService.id, selectedDate),
         enabled: !!selectedService && !!selectedDate,
     })
+    console.log("Availability data:", availabilityQuery.data)
+
 
     const next = (nextStep: Step) => setStep(nextStep)
     const back = () => setStep("service")
@@ -40,7 +42,7 @@ export default function PublicBookingPage() {
     const [bookingSuccess, setBookingSuccess] = useState<any>(null)
 
     const bookingMutation = useMutation({
-        mutationFn: (data: any) => createBooking(businessId!, data),
+        mutationFn: (data: any) => createBooking(slug!, data),
         onSuccess: (data) => {
             addToast("Booking confirmed successfully")
             setStep("success")

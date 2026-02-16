@@ -12,14 +12,13 @@ export const app = express()
 
 app.use(cors())
 app.use(express.json())
-app.use(errorHandler)
 app.use("/auth", authRoutes)
 app.use("/services", servicesRoutes)
 app.use("/working-hours", workingHoursRoutes)
 app.use("/availability", availabilityRoutes)
 app.use("/bookings", bookingsRoutes)
 app.use("/public", publicRoutes)
-
+app.use(errorHandler)
 app.get("/health", (_, res) => {
   res.json({ status: "ok" })
 })
