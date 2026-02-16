@@ -1,15 +1,22 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { cancelBooking } from "../api/dashboard.api"
+import { useToast } from "../../../components/ui/toast/useToast"
 
 export default function BookingsTable({ bookings }: any) {
   const queryClient = useQueryClient()
+  const { addToast } = useToast()
 
   const mutation = useMutation({
-    mutationFn: cancelBooking,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["bookings"] })
-    },
-  })
+  mutationFn: cancelBooking,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["bookings"] })
+    addToast("Booking cancelled successfully")
+  },
+  onError: () => {
+    addToast("Failed to cancel booking", "error")
+  },
+})
+
 
   return (
     <div className="bg-white shadow rounded">
