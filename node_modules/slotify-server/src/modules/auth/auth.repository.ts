@@ -23,4 +23,13 @@ export class AuthRepository {
 
     return result.rows[0]
   }
+
+  async findById(id: string) {
+  const result = await pool.query(
+    "SELECT id, name, email FROM businesses WHERE id = $1",
+    [id]
+  )
+  return result.rows[0]
+}
+
 }

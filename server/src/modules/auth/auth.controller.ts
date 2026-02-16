@@ -12,3 +12,12 @@ export async function login(req: Request, res: Response) {
   const result = await service.login(req.body)
   res.json(result)
 }
+
+export async function getMe(req: Request, res: Response) {
+  const businessId = req.businessId!
+
+  const result = await service.getMe(businessId)
+
+  res.json(result)
+}
+
