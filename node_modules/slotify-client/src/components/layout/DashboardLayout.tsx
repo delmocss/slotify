@@ -1,13 +1,12 @@
 import { Outlet } from "react-router-dom"
+import Sidebar from "./Sidebar"
 
 export default function DashboardLayout() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="p-4 bg-white shadow">
-        <h1 className="font-bold">Slotify Dashboard</h1>
-      </header>
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar />
 
-      <main className="p-6">
+      <main className="flex-1 p-8">
         <Outlet />
       </main>
     </div>
