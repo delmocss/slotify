@@ -106,4 +106,9 @@ export class BookingsService {
   return result.rows[0]
 }
 
+async getAll(businessId: string) {
+  return this.repo.findAll(businessId)
+}
+
+
 }
