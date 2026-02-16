@@ -8,11 +8,18 @@ export function useAuth() {
     queryKey: ["me"],
     queryFn: getMe,
     enabled: !!token,
+    retry: false,
   })
+
+  const logout = () => {
+    localStorage.removeItem("token")
+    window.location.href = "/login"
+  }
 
   return {
     user: query.data,
     isLoading: query.isLoading,
     isAuthenticated: !!query.data,
+    logout,
   }
 }

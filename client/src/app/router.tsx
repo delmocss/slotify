@@ -9,7 +9,7 @@ import WorkingHoursPage from "../features/working-hours/pages/WorkingHoursPage"
 import PublicBookingPage from "../features/public-booking/pages/PublicBookingPage"
 import LandingPage from "../features/landing/LandingPage"
 import DashboardHomePage from "../features/dashboard/pages/DashboardHomePage"
-
+import PublicRoute from "../components/PublicRoute"
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -27,12 +27,21 @@ export const router = createBrowserRouter([
     },
     {
         path: "/login",
-        element: <LoginPage />,
+        element: (
+            <PublicRoute>
+                <LoginPage />
+            </PublicRoute>
+        ),
     },
     {
         path: "/register",
-        element: <RegisterPage />,
+        element: (
+            <PublicRoute>
+                <RegisterPage />
+            </PublicRoute>
+        ),
     },
+
     {
         path: "/dashboard",
         element: (
