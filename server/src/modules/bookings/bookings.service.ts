@@ -87,4 +87,23 @@ export class BookingsService {
       client.release()
     }
   }
+
+  async cancel(businessId: string, bookingId: string) {
+  const result = await pool.query(
+    `
+    UPDATE bookings
+    SET status = 'cancelled'
+    WHERE id = $1 AND business_id = $2
+    RETURNING *
+    `,
+    [bookingId, businessId]
+  )
+
+  if (!result.rows.length) {
+    throw new AppError("Booking not found", 404)
+  }
+
+  return result.rows[0]
+}
+
 }
