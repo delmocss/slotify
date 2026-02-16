@@ -20,7 +20,7 @@ export const router = createBrowserRouter([
                 element: <LandingPage />,
             },
             {
-                path: "b/:businessId",
+                path: "b/:slug",
                 element: <PublicBookingPage />,
             },
         ],
@@ -76,7 +76,7 @@ export const router = createBrowserRouter([
         ],
     },
     {
-        path: "/b/:businessId",
+        path: "/b/:slug",
         element: <PublicLayout />,
         children: [
             {

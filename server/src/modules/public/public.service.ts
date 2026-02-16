@@ -22,19 +22,19 @@ export class PublicService {
 
 
     async getAvailability(
-        businessId: string,
+        slug: string,
         serviceId: string,
         date: string
     ) {
         return this.availabilityService.getAvailability(
-            businessId,
+            slug,
             serviceId,
             date
         )
     }
 
-    async createBooking(businessId: string, data: any) {
-        return this.bookingsService.create(businessId, data)
+    async createBooking(slug: string, data: any) {
+        return this.bookingsService.create(slug, data)
     }
 
     async getBusinessBySlug(slug: string) {
