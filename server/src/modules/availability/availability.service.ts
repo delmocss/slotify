@@ -82,6 +82,20 @@ export class AvailabilityService {
       return true
     })
 
-    return availableSlots.map(slot => slot.start)
+    // 7️⃣ Filtrar slots pasados si es hoy
+    const today = new Date().toISOString().split("T")[0]
+    let finalSlots = availableSlots
+
+    if (date === today) {
+      const now = new Date()
+      const currentMinutes = now.getHours() * 60 + now.getMinutes()
+
+      finalSlots = availableSlots.filter(slot => {
+        const slotMinutes = timeToMinutes(slot.start)
+        return slotMinutes > currentMinutes
+      })
+    }
+
+    return finalSlots.map(slot => slot.start)
   }
 }

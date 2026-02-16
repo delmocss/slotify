@@ -12,6 +12,23 @@ export class BookingsService {
     try {
       await client.query("BEGIN")
 
+      const today = new Date().toISOString().split("T")[0]
+
+      if (data.date < today) {
+        throw new AppError("Cannot book past dates", 400)
+      }
+
+      // Validar que no se reserve un slot que ya pasó (mismo día)
+      if (data.date === today) {
+        const now = new Date()
+        const currentMinutes = now.getHours() * 60 + now.getMinutes()
+        const slotMinutes = timeToMinutes(data.start_time)
+
+        if (slotMinutes <= currentMinutes) {
+          throw new AppError("Cannot book past time slots", 400)
+        }
+      }
+
       // 1️⃣ Obtener servicio
       const serviceResult = await client.query(
         `SELECT duration_minutes 
