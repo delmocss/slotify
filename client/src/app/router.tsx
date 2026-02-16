@@ -4,6 +4,7 @@ import PublicLayout from "../components/layout/PublicLayout"
 import LoginPage from "../features/auth/pages/LoginPage"
 import RegisterPage from "../features/auth/pages/RegisterPage"
 import ProtectedRoute from "../components/ProtectedRoute"
+import ServicesPage from "../features/services/pages/ServicesPage"
 
 export const router = createBrowserRouter([
     {
@@ -21,5 +22,21 @@ export const router = createBrowserRouter([
                 <DashboardLayout />
             </ProtectedRoute>
         ),
+
+    },
+    {
+        path: "/dashboard/services",
+        element: (
+            <ProtectedRoute>
+                <DashboardLayout />
+            </ProtectedRoute>
+        ),
+        children: [
+            {
+                index: true,
+                element: <ServicesPage />,
+            },
+        ],
     }
+
 ])
