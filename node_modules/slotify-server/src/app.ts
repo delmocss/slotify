@@ -5,6 +5,7 @@ import servicesRoutes from "./modules/services/services.routes"
 import workingHoursRoutes from "./modules/working-hours/working-hours.routes"
 import availabilityRoutes from "./modules/availability/availability.routes"
 import bookingsRoutes from "./modules/bookings/bookings.routes"
+import publicRoutes from "./modules/public/public.routes"
 
 export const app = express()
 
@@ -15,6 +16,7 @@ app.use("/services", servicesRoutes)
 app.use("/working-hours", workingHoursRoutes)
 app.use("/availability", availabilityRoutes)
 app.use("/bookings", bookingsRoutes)
+app.use("/public", publicRoutes)
 
 app.get("/health", (_, res) => {
   res.json({ status: "ok" })
