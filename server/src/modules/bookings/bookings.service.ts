@@ -1,6 +1,7 @@
 import { pool } from "../../config/db"
 import { BookingsRepository } from "./bookings.repository"
 import { timeToMinutes } from "../availability/availability.utils"
+import { AppError } from "../../utils/appError"
 
 export class BookingsService {
   private repo = new BookingsRepository()
@@ -20,7 +21,7 @@ export class BookingsService {
       )
 
       const service = serviceResult.rows[0]
-      if (!service) throw new Error("Service not found")
+      if (!service) throw new AppError("Service not found", 404)
 
       const duration = service.duration_minutes
 
@@ -54,7 +55,7 @@ export class BookingsService {
       )
 
       if (conflicts.rows.length > 0) {
-        throw new Error("Slot already booked")
+        throw new AppError("Slot already booked", 409)
       }
 
       // 4️⃣ Crear booking

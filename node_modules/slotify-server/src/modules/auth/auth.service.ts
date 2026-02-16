@@ -1,6 +1,7 @@
 import { AuthRepository } from "./auth.repository"
 import { hashPassword, comparePassword } from "../../utils/hash.utils"
 import { generateToken } from "../../utils/jwt.utils"
+import { AppError } from "../../utils/appError"
 
 export class AuthService {
     private repo = new AuthRepository()
@@ -13,7 +14,7 @@ export class AuthService {
         const existing = await this.repo.findByEmail(data.email)
 
         if (existing) {
-            throw new Error("Email already in use")
+            throw new AppError("Email already in use", 409)
         }
 
         const password_hash = await hashPassword(data.password)
@@ -36,7 +37,7 @@ export class AuthService {
         const business = await this.repo.findByEmail(data.email)
 
         if (!business) {
-            throw new Error("Invalid credentials")
+            throw new AppError("Invalid credentials", 401)
         }
 
         const valid = await comparePassword(
@@ -45,7 +46,7 @@ export class AuthService {
         )
 
         if (!valid) {
-            throw new Error("Invalid credentials")
+            throw new AppError("Invalid credentials", 401)
         }
 
         const token = generateToken({ businessId: business.id })
@@ -57,7 +58,7 @@ export class AuthService {
         const business = await this.repo.findById(businessId)
 
         if (!business) {
-            throw new Error("Business not found")
+            throw new AppError("Business not found", 404)
         }
 
         return business

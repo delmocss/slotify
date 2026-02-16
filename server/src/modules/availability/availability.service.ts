@@ -4,6 +4,7 @@ import {
   timeToMinutes,
   hasConflict,
 } from "./availability.utils"
+import { AppError } from "../../utils/appError"
 
 export class AvailabilityService {
   async getAvailability(
@@ -18,7 +19,7 @@ export class AvailabilityService {
     )
 
     const service = serviceResult.rows[0]
-    if (!service) throw new Error("Service not found")
+    if (!service) throw new AppError("Service not found", 404)
 
     const duration = service.duration_minutes
 

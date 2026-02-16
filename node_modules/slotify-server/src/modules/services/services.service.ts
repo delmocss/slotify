@@ -1,4 +1,5 @@
 import { ServicesRepository } from "./services.repository"
+import { AppError } from "../../utils/appError"
 
 export class ServicesService {
   private repo = new ServicesRepository()
@@ -15,7 +16,7 @@ export class ServicesService {
     const service = await this.repo.update(id, businessId, data)
 
     if (!service) {
-      throw new Error("Service not found")
+      throw new AppError("Service not found", 404)
     }
 
     return service
