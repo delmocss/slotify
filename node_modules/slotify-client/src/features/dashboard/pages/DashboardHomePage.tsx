@@ -4,9 +4,11 @@ import StatsCards from "../components/StatsCards"
 import BookingsTable from "../components/BookingsTable"
 import { useState } from "react"
 import BookingsChart from "../components/BookingsChart"
+import { useAuth } from "../../auth/hooks/useAuth"
 
 
 export default function DashboardHomePage() {
+  const { user } = useAuth()
   const [statusFilter, setStatusFilter] = useState("all")
   const [dateFilter, setDateFilter] = useState("")
   const [search, setSearch] = useState("")
@@ -40,6 +42,21 @@ export default function DashboardHomePage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Dashboard</h1>
+
+      {user?.slug && (
+        <div className="bg-blue-50 border border-blue-200 p-4 rounded">
+          <p className="text-sm text-gray-600 mb-1">Your public booking page:</p>
+          <a
+            href={`http://localhost:3000/b/${user.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline font-medium"
+          >
+            http://localhost:3000/b/{user.slug}
+          </a>
+        </div>
+      )}
+
       <div className="bg-white p-4 shadow rounded flex gap-4 flex-wrap items-end">
         <div>
           <label className="text-sm text-gray-500">Status</label>

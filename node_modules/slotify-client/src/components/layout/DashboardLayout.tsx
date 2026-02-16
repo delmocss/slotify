@@ -3,10 +3,10 @@ import Sidebar from "./Sidebar"
 
 export default function DashboardLayout() {
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <Sidebar />
 
-      <main className="flex-1 p-8">
+      <main className="max-w-7xl mx-auto p-8">
         <Outlet />
       </main>
     </div>
