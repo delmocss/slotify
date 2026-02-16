@@ -7,11 +7,22 @@ import ProtectedRoute from "../components/ProtectedRoute"
 import ServicesPage from "../features/services/pages/ServicesPage"
 import WorkingHoursPage from "../features/working-hours/pages/WorkingHoursPage"
 import PublicBookingPage from "../features/public-booking/pages/PublicBookingPage"
+import LandingPage from "../features/landing/LandingPage"
 
 export const router = createBrowserRouter([
     {
         path: "/",
-        element: <Navigate to="/login" replace />,
+        element: <PublicLayout />,
+        children: [
+            {
+                index: true,
+                element: <LandingPage />,
+            },
+            {
+                path: "b/:businessId",
+                element: <PublicBookingPage />,
+            },
+        ],
     },
     {
         path: "/login",
