@@ -8,6 +8,7 @@ import ServicesPage from "../features/services/pages/ServicesPage"
 import WorkingHoursPage from "../features/working-hours/pages/WorkingHoursPage"
 import PublicBookingPage from "../features/public-booking/pages/PublicBookingPage"
 import LandingPage from "../features/landing/LandingPage"
+import DashboardHomePage from "../features/dashboard/pages/DashboardHomePage"
 
 export const router = createBrowserRouter([
     {
@@ -39,6 +40,11 @@ export const router = createBrowserRouter([
                 <DashboardLayout />
             </ProtectedRoute>
         ),
+        children: [{
+            index: true,
+            element: <DashboardHomePage />,
+        }
+        ],
 
     },
     {
