@@ -22,8 +22,14 @@ export default function DashboardHomePage() {
       return false
     }
 
-    if (dateFilter && b.date !== dateFilter) {
-      return false
+    if (dateFilter) {
+      const bookingDate = new Date(b.date)
+        .toISOString()
+        .split("T")[0]
+
+      if (bookingDate !== dateFilter) {
+        return false
+      }
     }
 
     if (
@@ -35,6 +41,7 @@ export default function DashboardHomePage() {
 
     return true
   })
+
 
 
   if (isLoading) return <div>Loading...</div>
