@@ -6,11 +6,13 @@ import workingHoursRoutes from "./modules/working-hours/working-hours.routes"
 import availabilityRoutes from "./modules/availability/availability.routes"
 import bookingsRoutes from "./modules/bookings/bookings.routes"
 import publicRoutes from "./modules/public/public.routes"
+import { errorHandler } from "./middlewares/error.middleware"
 
 export const app = express()
 
 app.use(cors())
 app.use(express.json())
+app.use(errorHandler)
 app.use("/auth", authRoutes)
 app.use("/services", servicesRoutes)
 app.use("/working-hours", workingHoursRoutes)
