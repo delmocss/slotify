@@ -7,6 +7,7 @@ import availabilityRoutes from "./modules/availability/availability.routes"
 import bookingsRoutes from "./modules/bookings/bookings.routes"
 import publicRoutes from "./modules/public/public.routes"
 import { errorHandler } from "./middlewares/error.middleware"
+import analyticsRoutes from "./modules/analytics/analytics.routes"
 
 export const app = express()
 
@@ -18,6 +19,7 @@ app.use("/working-hours", workingHoursRoutes)
 app.use("/availability", availabilityRoutes)
 app.use("/bookings", bookingsRoutes)
 app.use("/public", publicRoutes)
+app.use("/analytics", analyticsRoutes)
 app.use(errorHandler)
 app.get("/health", (_, res) => {
   res.json({ status: "ok" })
