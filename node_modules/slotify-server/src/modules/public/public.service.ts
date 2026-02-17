@@ -59,5 +59,19 @@ export class PublicService {
         return result.rows[0] // { id: 'uuid' }
     }
 
+    async getBusinessInfo(slug: string) {
+        const result = await pool.query(
+            "SELECT name FROM businesses WHERE slug = $1",
+            [slug]
+        )
+
+        if (!result.rows.length) {
+            throw new AppError("Business not found", 404)
+        }
+
+        return result.rows[0]
+    }
+
+
 
 }

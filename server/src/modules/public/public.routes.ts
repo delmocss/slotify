@@ -3,6 +3,7 @@ import {
   getPublicServices,
   getPublicAvailability,
   createPublicBooking,
+  getPublicBusiness,
 } from "./public.controller"
 import { validate } from "../../middlewares/validate.middleware"
 import { createBookingSchema } from "../bookings/bookings.schema"
@@ -18,5 +19,7 @@ router.post(
   validate(createBookingSchema),
   createPublicBooking
 )
+
+router.get("/:slug", getPublicBusiness)
 
 export default router
