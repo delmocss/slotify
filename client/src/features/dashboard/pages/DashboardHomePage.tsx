@@ -9,6 +9,7 @@ import { useAuth } from "../../auth/hooks/useAuth"
 
 export default function DashboardHomePage() {
   const { user } = useAuth()
+  const publicUrl = `${window.location.origin}/b/${user?.slug}`
   const [statusFilter, setStatusFilter] = useState("all")
   const [dateFilter, setDateFilter] = useState("")
   const [search, setSearch] = useState("")
@@ -45,6 +46,7 @@ export default function DashboardHomePage() {
 
 
   if (isLoading) return <div>Loading...</div>
+  console.log("USER FROM DASHBOARD:", user)
 
   return (
     <div className="space-y-6">
@@ -63,6 +65,7 @@ export default function DashboardHomePage() {
           </a>
         </div>
       )}
+      
 
       <div className="bg-white p-4 shadow rounded flex gap-4 flex-wrap items-end">
         <div>

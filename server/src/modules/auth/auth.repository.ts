@@ -31,7 +31,7 @@ export class AuthRepository {
 
     async findById(id: string) {
         const result = await pool.query(
-            "SELECT id, name, email FROM businesses WHERE id = $1",
+            "SELECT id, name, email, slug FROM businesses WHERE id = $1",
             [id]
         )
         return result.rows[0]
