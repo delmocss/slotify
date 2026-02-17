@@ -11,7 +11,7 @@ export async function getPublicServices(
     ? req.params.slug[0]
     : req.params.slug
 
-  const result = await service.getServices(slug)
+  const result = await service.getServices(slug as string)
 
   res.json(result)
 }
@@ -32,13 +32,25 @@ export async function getPublicAvailability(
     : req.query.date
 
   const slots = await service.getAvailability(
-    slug,
+    slug as string,
     serviceId as string,
     date as string
   )
 
   res.json({ date, slots })
 }
+
+export async function getPublicBusiness(
+  req: Request,
+  res: Response
+) {
+  const slug = Array.isArray(req.params.slug)
+    ? req.params.slug[0]
+    : req.params.slug
+  const result = await service.getBusinessInfo(slug as string)
+  res.json(result)
+}
+
 
 export async function createPublicBooking(
   req: Request,
@@ -49,7 +61,7 @@ export async function createPublicBooking(
     : req.params.slug
 
   const result = await service.createBooking(
-    slug,
+    slug as string,
     req.body
   )
 
