@@ -50,16 +50,16 @@ export default function DashboardHomePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-white">Dashboard</h1>
 
       {user?.slug && (
-        <div className="bg-blue-50 border border-blue-200 p-4 rounded">
-          <p className="text-sm text-gray-600 mb-1">Your public booking page:</p>
+        <div className="bg-surface border border-white/5 rounded-xl p-6">
+          <p className="text-sm text-gray-400 mb-1">Your public booking page:</p>
           <a
             href={`http://localhost:3000/b/${user.slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:underline font-medium"
+            className="text-gray-400 hover:underline font-medium"
           >
             http://localhost:3000/b/{user.slug}
           </a>
@@ -67,13 +67,13 @@ export default function DashboardHomePage() {
       )}
       
 
-      <div className="bg-white p-4 shadow rounded flex gap-4 flex-wrap items-end">
+      <div className="bg-surface border border-white/5 rounded-xl p-6 flex gap-4 flex-wrap items-end">
         <div>
-          <label className="text-sm text-gray-500">Status</label>
+          <label className="text-sm text-gray-300">Status</label>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="block border p-2 rounded"
+            className="block bg-ashSoft border border-white/10 text-white placeholder-gray-400 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper"
           >
             <option value="all">All</option>
             <option value="confirmed">Confirmed</option>
@@ -82,23 +82,23 @@ export default function DashboardHomePage() {
         </div>
 
         <div>
-          <label className="text-sm text-gray-500">Date</label>
+          <label className="text-sm text-gray-300">Date</label>
           <input
             type="date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="block border p-2 rounded"
+            className="block bg-ashSoft border border-white/10 text-white placeholder-gray-400 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper"
           />
         </div>
 
         <div>
-          <label className="text-sm text-gray-500">Search Client</label>
+          <label className="text-sm text-gray-300">Search Client</label>
           <input
             type="text"
             placeholder="Client name"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="block border p-2 rounded"
+            className="block bg-ashSoft border border-white/10 text-white placeholder-gray-400 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper"
           />
         </div>
       </div>
@@ -108,7 +108,7 @@ export default function DashboardHomePage() {
 
 
       <div>
-        <h2 className="text-xl font-semibold mb-3">
+        <h2 className="text-xl font-semibold mb-3 text-white">
           Recent Bookings
         </h2>
         <BookingsTable bookings={filteredBookings} />

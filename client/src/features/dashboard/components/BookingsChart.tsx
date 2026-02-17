@@ -33,8 +33,8 @@ export default function BookingsChart({ bookings }: Props) {
   })
 
   return (
-    <div className="bg-white p-6 shadow rounded">
-      <h3 className="text-lg font-semibold mb-4">
+    <div className="bg-surface border border-white/5 rounded-xl p-6">
+      <h3 className="text-lg font-semibold mb-4 text-white">
         Bookings (Last 7 Days)
       </h3>
 
