@@ -23,23 +23,23 @@ export const router = createBrowserRouter([
                 path: "b/:slug",
                 element: <PublicBookingPage />,
             },
+            {
+                path: "login",
+                element: (
+                    <PublicRoute>
+                        <LoginPage />
+                    </PublicRoute>
+                ),
+            },
+            {
+                path: "register",
+                element: (
+                    <PublicRoute>
+                        <RegisterPage />
+                    </PublicRoute>
+                ),
+            },
         ],
-    },
-    {
-        path: "/login",
-        element: (
-            <PublicRoute>
-                <LoginPage />
-            </PublicRoute>
-        ),
-    },
-    {
-        path: "/register",
-        element: (
-            <PublicRoute>
-                <RegisterPage />
-            </PublicRoute>
-        ),
     },
 
     {

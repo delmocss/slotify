@@ -71,7 +71,7 @@ export default function WorkingHoursPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="bg-surface border border-white/5 rounded-xl p-6 text-white space-y-6">
       <h2 className="text-2xl font-bold">Working Hours</h2>
 
       <div className="grid gap-4">
@@ -90,7 +90,7 @@ export default function WorkingHoursPage() {
 
       <button
         onClick={handleSave}
-        className="bg-black text-white px-6 py-2 rounded"
+        className="bg-copper text-white hover:brightness-95 transition px-6 py-2 rounded"
       >
         Save
       </button>

@@ -12,10 +12,10 @@ export default function ServiceCard({ service }: any) {
   })
 
   return (
-    <div className="bg-white p-4 shadow rounded flex justify-between items-center">
+    <div className="bg-surface border border-white/5 rounded-xl p-6 flex justify-between items-center">
       <div>
-        <h3 className="font-bold">{service.name}</h3>
-        <p className="text-sm text-gray-500">
+        <h3 className="font-bold text-white">{service.name}</h3>
+        <p className="text-sm text-gray-400">
           {service.duration_minutes} min — ${service.price}
         </p>
       </div>

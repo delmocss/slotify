@@ -60,32 +60,33 @@ export default function PublicBookingPage() {
 
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="max-w-xl mx-auto bg-white p-8 rounded-xl shadow-lg space-y-6"
-        >
-            <h1 className="text-3xl font-bold text-center">
-                {businessQuery.data?.name}
-            </h1>
+        <div className="min-h-screen w-full bg-gradient-to-br from-[#2f302c] via-[#3B3C36] to-black flex items-center justify-center px-8 py-16">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="max-w-4xl w-full bg-[#2A2B27] p-16 rounded-3xl border border-white/5 shadow-2xl text-white"
+            >
+                <h1 className="text-4xl font-bold text-center mb-8">
+                    {businessQuery.data?.name}
+                </h1>
 
-            <div className="flex justify-center gap-4 text-sm">
-                <span className={step === "service" ? "font-bold" : ""}>
-                    Service
-                </span>
-                <span className={step === "date" ? "font-bold" : ""}>
-                    Date
-                </span>
-                <span className={step === "time" ? "font-bold" : ""}>
-                    Time
-                </span>
-                <span className={step === "client" ? "font-bold" : ""}>
-                    Details
-                </span>
-            </div>
+                <div className="flex justify-center gap-4 text-sm">
+                    <span className={step === "service" ? "font-bold" : ""}>
+                        Service
+                    </span>
+                    <span className={step === "date" ? "font-bold" : ""}>
+                        Date
+                    </span>
+                    <span className={step === "time" ? "font-bold" : ""}>
+                        Time
+                    </span>
+                    <span className={step === "client" ? "font-bold" : ""}>
+                        Details
+                    </span>
+                </div>
 
-            <AnimatePresence mode="wait">
+                <AnimatePresence mode="wait">
                 {step === "service" && (
                     <motion.div
                         key="service"
@@ -103,10 +104,14 @@ export default function PublicBookingPage() {
                                         setSelectedService(service)
                                         next("date")
                                     }}
-                                    className="border rounded-lg p-4 text-left hover:shadow-md transition"
+                                    className={`border border-white/10 rounded-2xl p-6 transition-all duration-200 hover:scale-[1.02] ${
+                                        selectedService?.id === service.id
+                                            ? "bg-copper text-white"
+                                            : "bg-ashSoft/80 hover:bg-ashSoft text-white"
+                                    }`}
                                 >
                                     <p className="font-semibold">{service.name}</p>
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-sm text-white/70">
                                         {service.duration_minutes} min
                                     </p>
                                     <p className="text-sm font-medium mt-2">
@@ -136,7 +141,7 @@ export default function PublicBookingPage() {
                             value={selectedDate}
                             min={new Date().toISOString().split("T")[0]}
                             onChange={(e) => setSelectedDate(e.target.value)}
-                            className="border p-2 rounded w-full"
+                            className="w-full bg-ashSoft border border-white/10 text-white placeholder-gray-400 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper"
                         />
 
                         {availabilityQuery.isLoading && (
@@ -156,7 +161,7 @@ export default function PublicBookingPage() {
                                     setAvailableSlots(availabilityQuery.data.slots)
                                     next("time")
                                 }}
-                                className="bg-black text-white px-4 py-2 rounded"
+                                className="bg-copper text-white hover:brightness-95 transition px-4 py-2 rounded"
                             >
                                 Continue
                             </button>
@@ -191,8 +196,8 @@ export default function PublicBookingPage() {
                                     onClick={() => setSelectedTime(slot)}
                                     className={`p-3 rounded border transition 
             ${selectedTime === slot
-                                            ? "bg-black text-white"
-                                            : "hover:bg-gray-100"
+                                            ? "bg-copper text-white"
+                                            : "bg-ashSoft hover:bg-ash border border-white/5 text-white"
                                         }`}
                                 >
                                     {slot}
@@ -203,7 +208,7 @@ export default function PublicBookingPage() {
                         {selectedTime && (
                             <button
                                 onClick={() => next("client")}
-                                className="w-full bg-black text-white py-2 rounded"
+                                className="w-full bg-copper text-white hover:brightness-95 transition py-2 rounded"
                             >
                                 Continue
                             </button>
@@ -231,6 +236,13 @@ export default function PublicBookingPage() {
                             {selectedService?.name} — {selectedDate} at {selectedTime}
                         </p>
 
+                        <p className="text-gray-400 text-sm">
+                            You are booking:{" "}
+                            <span className="text-white font-medium">
+                                {selectedService?.name}
+                            </span>
+                        </p>
+
                         <form
                             onSubmit={(e) => {
                                 e.preventDefault()
@@ -251,7 +263,7 @@ export default function PublicBookingPage() {
                                 name="name"
                                 placeholder="Your name"
                                 required
-                                className="w-full border p-2 rounded"
+                                className="w-full bg-ashSoft border border-white/10 text-white placeholder-gray-400 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper"
                             />
 
                             <input
@@ -259,7 +271,7 @@ export default function PublicBookingPage() {
                                 type="email"
                                 placeholder="Your email"
                                 required
-                                className="w-full border p-2 rounded"
+                                className="w-full bg-ashSoft border border-white/10 text-white placeholder-gray-400 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper"
                             />
 
                             {bookingMutation.isError && (
@@ -271,7 +283,7 @@ export default function PublicBookingPage() {
                             <button
                                 type="submit"
                                 disabled={bookingMutation.isPending}
-                                className="w-full bg-black text-white py-2 rounded"
+                                className="w-full bg-copper text-white hover:brightness-95 transition py-2 rounded"
                             >
                                 {bookingMutation.isPending
                                     ? "Booking..."
@@ -323,7 +335,8 @@ export default function PublicBookingPage() {
                     </motion.div>
                 )}
 
-            </AnimatePresence>
-        </motion.div>
+                </AnimatePresence>
+            </motion.div>
+        </div>
     )
 }

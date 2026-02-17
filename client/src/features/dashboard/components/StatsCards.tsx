@@ -15,19 +15,19 @@ export default function StatsCards({ bookings }: Props) {
 
   return (
     <div className="grid grid-cols-3 gap-4">
-      <div className="bg-white p-4 shadow rounded">
-        <p className="text-gray-500 text-sm">Bookings Today</p>
-        <p className="text-2xl font-bold">{todayCount}</p>
+      <div className="bg-surface border border-white/5 rounded-xl p-6">
+        <p className="text-gray-400 text-sm">Bookings Today</p>
+        <p className="text-2xl font-bold text-white">{todayCount}</p>
       </div>
 
-      <div className="bg-white p-4 shadow rounded">
-        <p className="text-gray-500 text-sm">Total Confirmed</p>
-        <p className="text-2xl font-bold">{confirmedCount}</p>
+      <div className="bg-surface border border-white/5 rounded-xl p-6">
+        <p className="text-gray-400 text-sm">Total Confirmed</p>
+        <p className="text-2xl font-bold text-white">{confirmedCount}</p>
       </div>
 
-      <div className="bg-white p-4 shadow rounded">
-        <p className="text-gray-500 text-sm">Total Bookings</p>
-        <p className="text-2xl font-bold">{bookings.length}</p>
+      <div className="bg-surface border border-white/5 rounded-xl p-6">
+        <p className="text-gray-400 text-sm">Total Bookings</p>
+        <p className="text-2xl font-bold text-white">{bookings.length}</p>
       </div>
     </div>
   )

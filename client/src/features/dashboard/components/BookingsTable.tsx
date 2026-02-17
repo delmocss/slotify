@@ -19,21 +19,21 @@ export default function BookingsTable({ bookings }: any) {
 
 
   return (
-    <div className="bg-white shadow rounded">
-      <table className="w-full text-left">
-        <thead className="border-b">
-          <tr>
-            <th className="p-3">Date</th>
-            <th className="p-3">Time</th>
-            <th className="p-3">Client</th>
-            <th className="p-3">Service</th>
-            <th className="p-3">Status</th>
+    <div className="bg-surface border border-white/5 rounded-xl overflow-hidden">
+      <table className="w-full text-left text-white">
+        <thead className="bg-ashSoft text-gray-300">
+          <tr className="border-b border-white/5">
+            <th className="p-3 text-gray-300">Date</th>
+            <th className="p-3 text-gray-300">Time</th>
+            <th className="p-3 text-gray-300">Client</th>
+            <th className="p-3 text-gray-300">Service</th>
+            <th className="p-3 text-gray-300">Status</th>
             <th className="p-3"></th>
           </tr>
         </thead>
         <tbody>
           {bookings.map((booking: any) => (
-            <tr key={booking.id} className="border-b">
+            <tr key={booking.id} className="border-b border-white/5 hover:bg-white/5 transition">
               <td className="p-3">{booking.date}</td>
               <td className="p-3">{booking.start_time}</td>
               <td className="p-3">{booking.client_name}</td>

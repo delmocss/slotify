@@ -15,9 +15,9 @@ export default function DaySchedule({
   onChange,
 }: Props) {
   return (
-    <div className="bg-white p-4 shadow rounded space-y-3">
+    <div className="bg-surface border border-white/5 rounded-xl p-6 space-y-3">
       <div className="flex justify-between items-center">
-        <h3 className="font-bold">{label}</h3>
+        <h3 className="font-bold text-gray-300">{label}</h3>
 
         <input
           type="checkbox"
@@ -39,7 +39,7 @@ export default function DaySchedule({
                 newSlots[index].start_time = e.target.value
                 onChange({ ...value, slots: newSlots })
               }}
-              className="border p-2 rounded"
+              className="bg-ashSoft border border-white/10 text-white p-2 rounded-md focus:ring-2 focus:ring-copper"
             />
 
             <input
@@ -50,7 +50,7 @@ export default function DaySchedule({
                 newSlots[index].end_time = e.target.value
                 onChange({ ...value, slots: newSlots })
               }}
-              className="border p-2 rounded"
+              className="bg-ashSoft border border-white/10 text-white p-2 rounded-md focus:ring-2 focus:ring-copper"
             />
           </div>
         ))}
@@ -64,7 +64,7 @@ export default function DaySchedule({
               slots: [...value.slots, { start_time: "09:00", end_time: "17:00" }],
             })
           }
-          className="text-sm text-blue-500"
+          className="text-sm text-gray-300"
         >
           + Add time range
         </button>
