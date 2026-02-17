@@ -5,6 +5,10 @@ export async function getPublicServices(slug: string) {
     return response.data
 }
 
+export async function getPublicBusiness(slug: string) {
+    const response = await api.get(`/public/${slug}`)
+    return response.data
+}
 
 export async function getAvailability(
     slug: string,
