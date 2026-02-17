@@ -51,7 +51,7 @@ export class BookingsRepository {
             `
     SELECT 
       b.id,
-      b.date,
+      TO_CHAR(b.date, 'YYYY-MM-DD') as date,
       b.start_time,
       b.status,
       b.client_name,
