@@ -1,8 +1,17 @@
+import Card from "@/components/ui/Card"
+
 type Props = {
   bookings: any[]
+  metrics?: {
+    total_revenue: number
+    revenue_this_month: number
+    bookings_last_7_days: number
+    total_bookings: number
+    cancelled_bookings: number
+  }
 }
 
-export default function StatsCards({ bookings }: Props) {
+export default function StatsCards({ bookings, metrics }: Props) {
   const today = new Date().toISOString().split("T")[0]
 
   const todayCount = bookings.filter(
@@ -14,20 +23,27 @@ export default function StatsCards({ bookings }: Props) {
   ).length
 
   return (
-    <div className="grid grid-cols-3 gap-4">
-      <div className="bg-surface border border-white/5 rounded-xl p-6">
-        <p className="text-gray-400 text-sm">Bookings Today</p>
-        <p className="text-2xl font-bold text-white">{todayCount}</p>
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <Card title="Total Revenue" value={`€${metrics?.total_revenue ?? 0}`} />
+        <Card title="Revenue This Month" value={`€${metrics?.revenue_this_month ?? 0}`} />
+        <Card title="Bookings (7 days)" value={metrics?.bookings_last_7_days ?? 0} />
+        <Card
+          title="Cancel Rate"
+          value={
+            metrics?.total_bookings
+              ? `${Math.round(
+                  (metrics.cancelled_bookings / metrics.total_bookings) * 100
+                )}%`
+              : "0%"
+          }
+        />
       </div>
 
-      <div className="bg-surface border border-white/5 rounded-xl p-6">
-        <p className="text-gray-400 text-sm">Total Confirmed</p>
-        <p className="text-2xl font-bold text-white">{confirmedCount}</p>
-      </div>
-
-      <div className="bg-surface border border-white/5 rounded-xl p-6">
-        <p className="text-gray-400 text-sm">Total Bookings</p>
-        <p className="text-2xl font-bold text-white">{bookings.length}</p>
+      <div className="grid grid-cols-3 gap-4">
+        <Card title="Bookings Today" value={todayCount} />
+        <Card title="Total Confirmed" value={confirmedCount} />
+        <Card title="Total Bookings" value={bookings.length} />
       </div>
     </div>
   )
