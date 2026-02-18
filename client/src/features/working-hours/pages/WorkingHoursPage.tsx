@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { getWorkingHours, updateWorkingHours } from "../api/workingHours.api"
 import DaySchedule from "../components/DaySchedule"
 import { useState, useEffect } from "react"
+import { useToast } from "../../../components/ui/toast/useToast"
 
 const days = [
   "Sunday",
@@ -15,6 +16,7 @@ const days = [
 
 export default function WorkingHoursPage() {
   const queryClient = useQueryClient()
+  const { addToast } = useToast()
 
   const { data, isLoading } = useQuery({
     queryKey: ["working-hours"],
@@ -25,6 +27,10 @@ export default function WorkingHoursPage() {
     mutationFn: updateWorkingHours,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["working-hours"] })
+      addToast("Working hours saved successfully")
+    },
+    onError: () => {
+      addToast("Failed to save working hours", "error")
     },
   })
 
@@ -90,9 +96,10 @@ export default function WorkingHoursPage() {
 
       <button
         onClick={handleSave}
-        className="bg-copper text-white hover:brightness-95 transition px-6 py-2 rounded"
+        disabled={mutation.isPending}
+        className="bg-copper text-white hover:brightness-95 transition px-6 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Save
+        {mutation.isPending ? "Saving..." : "Save"}
       </button>
     </div>
   )
