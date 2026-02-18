@@ -24,4 +24,33 @@ export class AnalyticsService {
 
     return result.rows[0]
   }
+
+  async exportBookings(
+  businessId: string,
+  from: string,
+  to: string
+) {
+  const result = await pool.query(
+    `
+    SELECT 
+      TO_CHAR(b.date, 'YYYY-MM-DD') as date,
+      b.start_time,
+      b.status,
+      b.client_name,
+      b.client_email,
+      s.name as service_name,
+      s.price
+    FROM bookings b
+    JOIN services s ON s.id = b.service_id
+    WHERE b.business_id = $1
+      AND b.date BETWEEN $2 AND $3
+    ORDER BY b.date ASC
+    `,
+    [businessId, from, to]
+  )
+
+  return result.rows
 }
+
+}
+
