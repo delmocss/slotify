@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { getBookings } from "../api/dashboard.api"
+import { getBookings, getMetrics } from "../api/dashboard.api"
 import StatsCards from "../components/StatsCards"
 import BookingsTable from "../components/BookingsTable"
 import { useState } from "react"
@@ -17,6 +17,12 @@ export default function DashboardHomePage() {
     queryKey: ["bookings"],
     queryFn: getBookings,
   })
+
+  const { data: metrics } = useQuery({
+  queryKey: ["metrics"],
+  queryFn: getMetrics,
+})
+
 
   const filteredBookings = bookings.filter((b: any) => {
     if (statusFilter !== "all" && b.status !== statusFilter) {

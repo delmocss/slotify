@@ -9,3 +9,8 @@ export async function cancelBooking(id: string) {
   const res = await api.patch(`/bookings/${id}/cancel`)
   return res.data
 }
+
+export async function getMetrics() {
+  const res = await api.get("/analytics/metrics")
+  return res.data
+}
