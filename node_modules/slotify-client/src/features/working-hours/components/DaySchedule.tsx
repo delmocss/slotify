@@ -30,7 +30,7 @@ export default function DaySchedule({
 
       {value.enabled &&
         value.slots.map((slot, index) => (
-          <div key={index} className="flex gap-2">
+          <div key={index} className="flex gap-2 items-center">
             <input
               type="time"
               value={slot.start_time}
@@ -39,7 +39,7 @@ export default function DaySchedule({
                 newSlots[index].start_time = e.target.value
                 onChange({ ...value, slots: newSlots })
               }}
-              className="bg-ashSoft border border-white/10 text-white p-2 rounded-md focus:ring-2 focus:ring-copper"
+              className="bg-ashSoft border border-white/10 text-white p-2 rounded-md focus:ring-2 focus:ring-copper flex-1"
             />
 
             <input
@@ -50,8 +50,20 @@ export default function DaySchedule({
                 newSlots[index].end_time = e.target.value
                 onChange({ ...value, slots: newSlots })
               }}
-              className="bg-ashSoft border border-white/10 text-white p-2 rounded-md focus:ring-2 focus:ring-copper"
+              className="bg-ashSoft border border-white/10 text-white p-2 rounded-md focus:ring-2 focus:ring-copper flex-1"
             />
+
+            <button
+              type="button"
+              onClick={() => {
+                const newSlots = value.slots.filter((_: any, i: number) => i !== index)
+                onChange({ ...value, slots: newSlots })
+              }}
+              className="px-3 py-2 rounded-md bg-red-500/20 text-red-400 hover:bg-red-500/30 transition text-sm font-medium"
+              title="Remove time range"
+            >
+              ✕
+            </button>
           </div>
         ))}
 
