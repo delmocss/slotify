@@ -1,7 +1,23 @@
 import { pool } from "../../config/db"
+import { AppError } from "../../utils/appError"
 
 export class AnalyticsService {
-  async getDashboardMetrics(businessId: string) {
+  private async getBusinessBySlug(slug: string) {
+    const result = await pool.query(
+      "SELECT id FROM businesses WHERE slug = $1",
+      [slug]
+    )
+
+    if (!result.rows.length) {
+      throw new AppError("Business not found", 404)
+    }
+
+    return result.rows[0]
+  }
+
+  async getDashboardMetrics(slug: string) {
+    const business = await this.getBusinessBySlug(slug)
+    
     const result = await pool.query(
       `
       SELECT 
@@ -19,17 +35,19 @@ export class AnalyticsService {
       FROM bookings
       WHERE business_id = $1
       `,
-      [businessId]
+      [business.id]
     )
 
     return result.rows[0]
   }
 
   async exportBookings(
-  businessId: string,
+  slug: string,
   from: string,
   to: string
 ) {
+  const business = await this.getBusinessBySlug(slug)
+  
   const result = await pool.query(
     `
     SELECT 
@@ -46,7 +64,7 @@ export class AnalyticsService {
       AND b.date BETWEEN $2 AND $3
     ORDER BY b.date ASC
     `,
-    [businessId, from, to]
+    [business.id, from, to]
   )
 
   return result.rows

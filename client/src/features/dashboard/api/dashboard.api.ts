@@ -14,3 +14,13 @@ export async function getMetrics() {
   const res = await api.get("/analytics/metrics")
   return res.data
 }
+
+export async function exportBookings(from: string, to: string) {
+  const response = await api.get("/analytics/export", {
+    params: { from, to },
+    responseType: "blob",
+  })
+
+  return response.data
+}
+
