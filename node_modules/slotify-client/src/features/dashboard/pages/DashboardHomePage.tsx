@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { getBookings, getMetrics } from "../api/dashboard.api"
+import { getBookings, getMetrics, exportBookings } from "../api/dashboard.api"
 import StatsCards from "../components/StatsCards"
 import BookingsTable from "../components/BookingsTable"
 import { useState } from "react"
@@ -13,6 +13,15 @@ export default function DashboardHomePage() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [dateFilter, setDateFilter] = useState("")
   const [search, setSearch] = useState("")
+  
+  const today = new Date().toISOString().split("T")[0]
+  const [fromDate, setFromDate] = useState(
+    new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0]
+  )
+  const [toDate, setToDate] = useState(today)
+  
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["bookings"],
     queryFn: getBookings,
@@ -49,7 +58,17 @@ export default function DashboardHomePage() {
     return true
   })
 
+  const handleExport = async () => {
+    const blob = await exportBookings(fromDate, toDate)
 
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.setAttribute("download", "bookings.csv")
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+  }
 
   if (isLoading) return <div>Loading...</div>
   console.log("USER FROM DASHBOARD:", user)
@@ -114,9 +133,37 @@ export default function DashboardHomePage() {
 
 
       <div>
-        <h2 className="text-xl font-semibold mb-3 text-white">
-          Recent Bookings
-        </h2>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-3">
+          <h2 className="text-xl font-semibold text-white">
+            Recent Bookings
+          </h2>
+          <div className="flex flex-wrap gap-3 items-end">
+            <div>
+              <label className="text-sm text-gray-400 block mb-1">Export From</label>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="bg-ashSoft border border-white/10 text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-sm text-gray-400 block mb-1">Export To</label>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="bg-ashSoft border border-white/10 text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper text-sm"
+              />
+            </div>
+            <button
+              onClick={handleExport}
+              className="bg-copper text-white px-4 py-2 rounded-lg font-medium hover:brightness-95 transition"
+            >
+              Export CSV
+            </button>
+          </div>
+        </div>
         <BookingsTable bookings={filteredBookings} />
       </div>
     </div>
