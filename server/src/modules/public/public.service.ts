@@ -11,9 +11,10 @@ export class PublicService {
         const business = await this.getBusinessBySlug(slug)
 
         const result = await pool.query(
-            `SELECT id, name, duration_minutes, price
+            `SELECT *
      FROM services
-     WHERE business_id = $1`,
+     WHERE business_id = $1
+       AND is_active = TRUE`,
             [business.id]
         )
 
