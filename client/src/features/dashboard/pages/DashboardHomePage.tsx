@@ -5,6 +5,7 @@ import BookingsTable from "../components/BookingsTable"
 import { useState } from "react"
 import BookingsChart from "../components/BookingsChart"
 import { useAuth } from "../../auth/hooks/useAuth"
+import Skeleton from "@/components/ui/Skeleton"
 
 
 export default function DashboardHomePage() {
@@ -70,7 +71,16 @@ export default function DashboardHomePage() {
     link.remove()
   }
 
-  if (isLoading) return <div>Loading...</div>
+  if (isLoading) {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      {[...Array(4)].map((_, i) => (
+        <Skeleton key={i} className="h-28 w-full" />
+      ))}
+    </div>
+  )
+}
+
   console.log("USER FROM DASHBOARD:", user)
 
   return (
