@@ -7,6 +7,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts"
+import Skeleton from "@/components/ui/Skeleton"
 
 type Props = {
   bookings: any[]
@@ -31,6 +32,12 @@ export default function BookingsChart({ bookings }: Props) {
       bookings: count,
     }
   })
+
+  if (!data || data.length === 0) {
+    return (
+      <Skeleton className="h-[350px] w-full rounded-3xl" />
+    )
+  }
 
   return (
     <div className="bg-surface border border-white/5 rounded-xl p-6">
