@@ -75,12 +75,14 @@ export class BookingsService {
         throw new AppError("Slot already booked", 409)
       }
 
+      const bookingCode = await this.generateBookingCode()
+
       // 4️⃣ Crear booking
-      const result = await client.query(
+      await client.query(
         `
         INSERT INTO bookings
-        (business_id, service_id, client_name, client_email, date, start_time, end_time)
-        VALUES ($1,$2,$3,$4,$5,$6,$7)
+        (business_id, service_id, client_name, client_email, date, start_time, end_time, booking_code)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
         RETURNING *
         `,
         [
@@ -91,12 +93,16 @@ export class BookingsService {
           data.date,
           data.start_time,
           endTime,
+          bookingCode,
         ]
       )
 
       await client.query("COMMIT")
 
-      return result.rows[0]
+      return {
+        message: "Booking created",
+        booking_code: bookingCode,
+      }
     } catch (error) {
       await client.query("ROLLBACK")
       throw error
@@ -126,6 +132,12 @@ export class BookingsService {
 async getAll(businessId: string) {
   return this.repo.findAll(businessId)
 }
+
+async generateBookingCode() {
+  const random = Math.random().toString(36).substring(2, 8).toUpperCase()
+  return `SLT-${random}`
+}
+
 
 
 }
