@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { getAvailability } from "../api/public.api"
 import { createBooking } from "../api/public.api"
 import { useToast } from "../../../components/ui/toast/useToast"
+import { api } from "../../../lib/axios"
 
 type Step = "service" | "date" | "time" | "client" | "success"
 
@@ -41,7 +42,8 @@ export default function PublicBookingPage() {
     })
 
     const [confirmation, setConfirmation] = useState<{
-  booking_code: string
+    booking_code: string
+    cancel_token: string
 } | null>(null)
 
     const onSubmit = async (data: any) => {
@@ -58,47 +60,60 @@ export default function PublicBookingPage() {
         }
     }
 
+    const handleCancel = async () => {
+        await api.post(`/public/cancel/${confirmation?.cancel_token}`)
+        setConfirmation(null)
+        alert("Booking cancelled")
+    }
+
     if (confirmation) {
         return (
-            <div className="min-h-screen w-full bg-gradient-to-br from-[#2f302c] via-[#3B3C36] to-black flex items-center justify-center px-6 py-16">
-                <div className="w-full max-w-2xl bg-[#2A2B27] p-14 rounded-3xl border border-white/5 shadow-2xl text-white text-center">
+            <div className="min-h-screen w-full bg-gradient-to-br from-[#2f302c] via-[#3B3C36] to-black px-4 py-8 sm:px-6 sm:py-12 lg:py-16">
+                <div className="mx-auto w-full max-w-xl rounded-3xl border border-white/10 bg-[#2A2B27]/95 p-6 text-center text-white shadow-2xl backdrop-blur-sm sm:p-10 lg:p-12">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-copper/20 text-4xl sm:mb-5">
+                        🎉
+                    </div>
 
-                    <div className="text-5xl mb-6">🎉</div>
-
-                    <h1 className="text-3xl font-bold mb-4">
+                    <h1 className="mb-3 text-2xl font-bold sm:text-3xl">
                         Booking Confirmed
                     </h1>
 
-                    <p className="text-gray-400 mb-8">
+                    <p className="mx-auto mb-6 max-w-sm text-sm text-gray-300 sm:mb-8 sm:text-base">
                         Your reservation has been successfully scheduled.
                     </p>
 
-                    <div className="bg-ashSoft border border-white/10 rounded-xl p-6 mb-8">
-                        <p className="text-sm text-gray-400 mb-2">
+                    <div className="mb-6 rounded-2xl border border-white/10 bg-ashSoft/90 px-4 py-5 sm:mb-8 sm:px-6 sm:py-6">
+                        <p className="mb-2 text-xs uppercase tracking-[0.18em] text-gray-400 sm:text-sm">
                             Booking Code
                         </p>
 
-                        <p className="text-2xl font-mono font-bold tracking-wider text-copper">
+                        <p className="break-all text-xl font-mono font-bold tracking-[0.14em] text-copper sm:text-2xl">
                             {confirmation.booking_code}
                         </p>
                     </div>
 
-                    <button
-                        onClick={() => navigator.clipboard.writeText(confirmation.booking_code)}
-                        className="bg-copper text-white px-6 py-3 rounded-xl font-semibold hover:brightness-95 transition mb-4"
-                    >
-                        Copy Code
-                    </button>
+                    <div className="flex flex-col items-center gap-3">
+                        <button
+                            onClick={() => navigator.clipboard.writeText(confirmation.booking_code)}
+                            className="w-full rounded-xl bg-copper px-6 py-3 font-semibold text-white transition hover:brightness-95 sm:w-auto"
+                        >
+                            Copy Code
+                        </button>
 
-                    <div>
+                        <button
+                            onClick={handleCancel}
+                            className="text-sm text-red-400 transition hover:text-red-300 sm:text-base"
+                        >
+                            Cancel this booking
+                        </button>
+
                         <button
                             onClick={() => window.location.reload()}
-                            className="text-gray-400 hover:text-white transition"
+                            className="text-sm text-gray-400 transition hover:text-white sm:text-base"
                         >
                             Book another appointment
                         </button>
                     </div>
-
                 </div>
             </div>
         )
