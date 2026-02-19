@@ -83,14 +83,27 @@ export default function PublicBookingPage() {
         alert("Booking cancelled")
     }
 
+    const steps = [
+        { key: "service", label: "Service" },
+        { key: "date", label: "Date" },
+        { key: "time", label: "Time" },
+        { key: "client", label: "Details" },
+    ] as const
+
+    const summaryService = selectedService?.name ?? "Select a service"
+    const summaryDuration = selectedService ? `${selectedService.duration_minutes} min` : "—"
+    const summaryPrice = selectedService ? `EUR ${selectedService.price}` : "—"
+    const summaryDate = selectedDate || "Pick a date"
+    const summaryTime = selectedTime || "Pick a time"
+
     const renderSlot = (slot: string) => (
         <button
             key={slot}
             onClick={() => setSelectedTime(slot)}
-            className={`p-3 rounded-xl border transition ${
+            className={`px-4 py-2.5 rounded-full border text-sm font-semibold tracking-wide transition ${
                 selectedTime === slot
-                    ? "bg-copper text-white border-copper"
-                    : "bg-ashSoft border-white/10 hover:border-copper"
+                    ? "bg-copper text-white border-copper shadow-lg shadow-copper/20"
+                    : "bg-ashSoft/80 text-white/80 border-white/10 hover:border-copper/60"
             }`}
         >
             {slot}
@@ -153,83 +166,121 @@ export default function PublicBookingPage() {
 
 
     return (
-        <div className="min-h-screen w-full bg-gradient-to-br from-[#2f302c] via-[#3B3C36] to-black px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
+        <div className="relative min-h-screen w-full bg-gradient-to-br from-[#2f302c] via-[#3B3C36] to-black px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
+            <div className="pointer-events-none absolute inset-0">
+                <div className="absolute -top-24 right-0 h-80 w-80 rounded-full bg-copper/10 blur-3xl" />
+                <div className="absolute bottom-0 left-0 h-72 w-72 rounded-full bg-white/5 blur-3xl" />
+                <div className="absolute inset-0 opacity-[0.03]" style={{
+                    backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+                    backgroundSize: "48px 48px",
+                }} />
+            </div>
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                className="mx-auto w-full max-w-4xl rounded-2xl border border-white/5 bg-[#2A2B27] p-5 text-white shadow-2xl sm:rounded-3xl sm:p-8 lg:p-10"
+                className="relative mx-auto w-full max-w-4xl rounded-2xl border border-white/5 bg-[#262722]/90 p-5 text-white shadow-2xl backdrop-blur-sm sm:rounded-3xl sm:p-8 lg:p-10"
             >
-                <h1 className="mb-6 text-center text-2xl font-bold leading-tight sm:mb-8 sm:text-3xl lg:text-4xl">
-                    {businessQuery.data?.name}
-                </h1>
-
-                <div className="mb-6 flex flex-wrap justify-center gap-2 text-xs sm:mb-8 sm:gap-3 sm:text-sm">
-                    <span
-                        className={`rounded-full px-3 py-1 ${step === "service" ? "bg-copper font-bold text-white" : "bg-white/5 text-white/70"}`}
-                    >
-                        Service
-                    </span>
-                    <span
-                        className={`rounded-full px-3 py-1 ${step === "date" ? "bg-copper font-bold text-white" : "bg-white/5 text-white/70"}`}
-                    >
-                        Date
-                    </span>
-                    <span
-                        className={`rounded-full px-3 py-1 ${step === "time" ? "bg-copper font-bold text-white" : "bg-white/5 text-white/70"}`}
-                    >
-                        Time
-                    </span>
-                    <span
-                        className={`rounded-full px-3 py-1 ${step === "client" ? "bg-copper font-bold text-white" : "bg-white/5 text-white/70"}`}
-                    >
-                        Details
-                    </span>
+                <div className="mb-8 text-center">
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-500">
+                        Book an appointment
+                    </p>
+                    <h1 className="text-2xl font-bold leading-tight sm:text-3xl lg:text-4xl">
+                        {businessQuery.data?.name}
+                    </h1>
+                    <p className="mt-2 text-sm text-gray-400">
+                        Choose a service, pick a date, and confirm.
+                    </p>
                 </div>
 
-                <AnimatePresence mode="wait">
-                {step === "service" && (
-                    <motion.div
-                        key="service"
-                        initial={{ opacity: 0, x: 40 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -40 }}
-                        transition={{ duration: 0.25 }}
-                        className="space-y-4 sm:space-y-5"
-                    >
-                        {servicesQuery.isLoading ? (
-                            <div className="max-w-3xl w-full">
-                                <Skeleton className="h-10 w-1/2 mx-auto mb-8" />
-                                <Skeleton className="h-40 w-full" />
+                <div className="mb-8">
+                    <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.25em] text-gray-600">
+                        {steps.map((item) => (
+                            <span key={item.key} className={step === item.key ? "text-gray-300" : ""}>
+                                {item.label}
+                            </span>
+                        ))}
+                    </div>
+                    <div className="mt-3 grid grid-cols-4 gap-2">
+                        {steps.map((item) => (
+                            <div
+                                key={item.key}
+                                className={`h-1 rounded-full transition ${
+                                    step === item.key ? "bg-copper" : "bg-white/10"
+                                }`}
+                            />
+                        ))}
+                    </div>
+                </div>
+
+                <div className="grid gap-8 lg:grid-cols-[1.2fr,0.8fr]">
+                    <div>
+                        <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5 lg:hidden">
+                            <div className="flex items-center justify-between gap-3">
+                                <div>
+                                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-500">
+                                        Summary
+                                    </p>
+                                    <p className="text-sm font-semibold text-white/90">
+                                        {summaryService}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                        {summaryDate} • {summaryTime}
+                                    </p>
+                                </div>
+                                <p className="text-sm font-semibold text-white/80">{summaryPrice}</p>
                             </div>
-                        ) : (
-                        <div className="grid gap-3 sm:gap-4">
-                            {servicesQuery.data?.map((service: Service) => (
-                                <button
-                                    key={service.id}
-                                    onClick={() => {
-                                        setSelectedService(service)
-                                        next("date")
-                                    }}
-                                    className={`rounded-2xl border p-4 text-left transition-all duration-200 hover:scale-[1.01] sm:p-5 md:p-6 ${
-                                        selectedService?.id === service.id
-                                            ? "border-white/30 bg-ashSoft/80 text-white"
-                                            : "border-white/10 bg-ashSoft/80 text-white hover:bg-ashSoft"
-                                    }`}
-                                >
-                                    <p className="text-sm font-semibold sm:text-base">{service.name}</p>
-                                    <p className="text-xs text-white/70 sm:text-sm">
-                                        {service.duration_minutes} min
-                                    </p>
-                                    <p className="mt-2 text-sm font-medium">
-                                        €{service.price}
-                                    </p>
-                                </button>
-                            ))}
                         </div>
+
+                        <AnimatePresence mode="wait">
+                        {step === "service" && (
+                            <motion.div
+                                key="service"
+                                initial={{ opacity: 0, x: 40 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -40 }}
+                                transition={{ duration: 0.25 }}
+                                className="space-y-4 sm:space-y-5"
+                            >
+                                {servicesQuery.isLoading ? (
+                                    <div className="max-w-3xl w-full">
+                                        <Skeleton className="h-10 w-1/2 mx-auto mb-8" />
+                                        <Skeleton className="h-40 w-full" />
+                                    </div>
+                                ) : (
+                                <div className="grid gap-3 sm:gap-4">
+                                    {servicesQuery.data?.map((service: Service) => (
+                                        <button
+                                            key={service.id}
+                                            onClick={() => {
+                                                setSelectedService(service)
+                                                next("date")
+                                            }}
+                                            className={`group rounded-2xl border p-4 text-left transition-all duration-200 sm:p-5 md:p-6 ${
+                                                selectedService?.id === service.id
+                                                    ? "border-copper/60 bg-ashSoft text-white shadow-lg shadow-copper/10"
+                                                    : "border-white/10 bg-ashSoft/80 text-white/90 hover:border-white/20"
+                                            }`}
+                                        >
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div>
+                                                    <p className="text-sm font-semibold sm:text-base">
+                                                        {service.name}
+                                                    </p>
+                                                    <p className="text-xs text-white/70 sm:text-sm">
+                                                        Duration {service.duration_minutes} min
+                                                    </p>
+                                                </div>
+                                                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80">
+                                                    EUR {service.price}
+                                                </span>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                                )}
+                            </motion.div>
                         )}
-                    </motion.div>
-                )}
 
                 {step === "date" && (
                     <motion.div
@@ -249,7 +300,7 @@ export default function PublicBookingPage() {
                             value={selectedDate}
                             min={new Date().toISOString().split("T")[0]}
                             onChange={(e) => setSelectedDate(e.target.value)}
-                            className="w-full rounded-md border border-white/10 bg-ashSoft p-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-copper sm:text-base"
+                            className="w-full rounded-xl border border-white/10 bg-ashSoft/90 p-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-copper sm:text-base"
                         />
 
                         {availabilityQuery.isLoading && (
@@ -277,7 +328,7 @@ export default function PublicBookingPage() {
                                         setAvailableSlots(availabilityData ?? [])
                                         next("time")
                                     }}
-                                    className="w-full rounded-lg bg-copper px-4 py-2.5 text-sm text-white transition hover:brightness-95 sm:w-auto sm:text-base"
+                                    className="w-full rounded-full bg-copper px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-95 sm:w-auto sm:text-base"
                                 >
                                     Continue
                                 </button>
@@ -296,13 +347,13 @@ export default function PublicBookingPage() {
                         className="space-y-5 sm:space-y-6"
                     >
                         <p className="text-sm font-semibold sm:text-base">
-                            {selectedService?.name} — {selectedDate}
+                            {selectedService?.name} - {selectedDate}
                         </p>
 
                         {availabilityQuery.isLoading ? (
                             <div className="grid grid-cols-3 gap-3">
                                 {[...Array(6)].map((_, i) => (
-                                    <Skeleton key={i} className="h-12 w-full" />
+                                    <Skeleton key={i} className="h-11 w-full rounded-full" />
                                 ))}
                             </div>
                         ) : (
@@ -322,8 +373,8 @@ export default function PublicBookingPage() {
                             <>
                                 {groupedSlots.morning.length > 0 && (
                                     <div className="mb-8">
-                                        <h3 className="text-sm text-gray-400 mb-3">Morning</h3>
-                                        <div className="grid grid-cols-3 gap-3">
+                                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500 mb-3">Morning</h3>
+                                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                                             {groupedSlots.morning.map(renderSlot)}
                                         </div>
                                     </div>
@@ -331,8 +382,8 @@ export default function PublicBookingPage() {
 
                                 {groupedSlots.afternoon.length > 0 && (
                                     <div className="mb-8">
-                                        <h3 className="text-sm text-gray-400 mb-3">Afternoon</h3>
-                                        <div className="grid grid-cols-3 gap-3">
+                                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500 mb-3">Afternoon</h3>
+                                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                                             {groupedSlots.afternoon.map(renderSlot)}
                                         </div>
                                     </div>
@@ -340,8 +391,8 @@ export default function PublicBookingPage() {
 
                                 {groupedSlots.evening.length > 0 && (
                                     <div>
-                                        <h3 className="text-sm text-gray-400 mb-3">Evening</h3>
-                                        <div className="grid grid-cols-3 gap-3">
+                                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500 mb-3">Evening</h3>
+                                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                                             {groupedSlots.evening.map(renderSlot)}
                                         </div>
                                     </div>
@@ -354,7 +405,7 @@ export default function PublicBookingPage() {
                         {selectedTime && (
                             <button
                                 onClick={() => next("client")}
-                                className="w-full rounded-lg bg-copper py-2.5 text-sm text-white transition hover:brightness-95 sm:text-base"
+                                className="w-full rounded-full bg-copper py-2.5 text-sm font-semibold text-white transition hover:brightness-95 sm:text-base"
                             >
                                 Continue
                             </button>
@@ -379,7 +430,7 @@ export default function PublicBookingPage() {
                         className="space-y-5 sm:space-y-6"
                     >
                         <p className="text-sm font-semibold sm:text-base">
-                            {selectedService?.name} — {selectedDate} at {selectedTime}
+                            {selectedService?.name} - {selectedDate} at {selectedTime}
                         </p>
 
                         <p className="text-xs text-gray-400 sm:text-sm">
@@ -409,7 +460,7 @@ export default function PublicBookingPage() {
                                 name="name"
                                 placeholder="Your name"
                                 required
-                                className="w-full rounded-md border border-white/10 bg-ashSoft p-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-copper sm:text-base"
+                                className="w-full rounded-xl border border-white/10 bg-ashSoft/90 p-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-copper sm:text-base"
                             />
 
                             <input
@@ -417,13 +468,13 @@ export default function PublicBookingPage() {
                                 type="email"
                                 placeholder="Your email"
                                 required
-                                className="w-full rounded-md border border-white/10 bg-ashSoft p-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-copper sm:text-base"
+                                className="w-full rounded-xl border border-white/10 bg-ashSoft/90 p-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-copper sm:text-base"
                             />
 
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full rounded-lg bg-copper py-2.5 text-sm text-white transition hover:brightness-95 sm:text-base"
+                                className="w-full rounded-full bg-copper py-2.5 text-sm font-semibold text-white transition hover:brightness-95 sm:text-base"
                             >
                                 {isSubmitting
                                     ? "Booking..."
@@ -475,7 +526,38 @@ export default function PublicBookingPage() {
                     </motion.div>
                 )}
 
-                </AnimatePresence>
+                        </AnimatePresence>
+                    </div>
+
+                    <aside className="hidden lg:block">
+                        <div className="sticky top-24 rounded-2xl border border-white/10 bg-[#1f201b]/80 p-5 shadow-xl shadow-black/20">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-gray-500">
+                                Booking summary
+                            </p>
+                            <div className="mt-4 space-y-4">
+                                <div>
+                                    <p className="text-[11px] text-gray-600 uppercase tracking-[0.2em]">Service</p>
+                                    <p className="text-sm font-semibold text-white/90">{summaryService}</p>
+                                    <p className="text-xs text-gray-500">{summaryDuration}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[11px] text-gray-600 uppercase tracking-[0.2em]">Date</p>
+                                    <p className="text-sm font-semibold text-white/90">{summaryDate}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[11px] text-gray-600 uppercase tracking-[0.2em]">Time</p>
+                                    <p className="text-sm font-semibold text-white/90">{summaryTime}</p>
+                                </div>
+                            </div>
+                            <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-600">
+                                    Total
+                                </span>
+                                <span className="text-sm font-semibold text-white/90">{summaryPrice}</span>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
             </motion.div>
         </div>
     )
