@@ -82,8 +82,6 @@ export default function DashboardHomePage() {
   )
 }
 
-  console.log("USER FROM DASHBOARD:", user)
-
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-white">Dashboard</h1>
