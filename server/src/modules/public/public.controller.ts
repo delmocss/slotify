@@ -1,7 +1,9 @@
 import { Request, Response } from "express"
 import { PublicService } from "./public.service"
+import { BookingsService } from "../bookings/bookings.service"
 
 const service = new PublicService()
+const bookingService = new BookingsService()
 
 export async function getPublicServices(
   req: Request,
@@ -66,4 +68,15 @@ export async function createPublicBooking(
   )
 
   res.status(201).json(result)
+}
+
+export async function cancelPublicBooking(
+  req: Request,
+  res: Response
+) {
+  const token = Array.isArray(req.params.token)
+    ? req.params.token[0]
+    : req.params.token
+  const result = await bookingService.cancelBookingByToken(token)
+  res.json(result)
 }
