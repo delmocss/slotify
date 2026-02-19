@@ -1,5 +1,15 @@
 import { pool } from "../../config/db"
 
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+}
+
 export class ServicesRepository {
   async create(data: {
     businessId: string
@@ -7,11 +17,13 @@ export class ServicesRepository {
     duration_minutes: number
     price: number
   }) {
+    const slug = generateSlug(data.name)
+    
     const result = await pool.query(
-      `INSERT INTO services (business_id, name, duration_minutes, price)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO services (business_id, name, slug, duration_minutes, price)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [data.businessId, data.name, data.duration_minutes, data.price]
+      [data.businessId, data.name, slug, data.duration_minutes, data.price]
     )
 
     return result.rows[0]

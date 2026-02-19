@@ -18,9 +18,12 @@ CREATE TABLE services (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
+    slug TEXT NOT NULL,
     duration_minutes INTEGER NOT NULL CHECK (duration_minutes > 0),
     price NUMERIC(10,2) NOT NULL CHECK (price >= 0),
-    created_at TIMESTAMP DEFAULT NOW()
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(business_id, slug)
 );
 
 CREATE INDEX idx_services_business_id ON services(business_id);

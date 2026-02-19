@@ -1,11 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { deleteService } from "../api/services.api"
+import { deleteService, toggleService } from "../api/services.api"
 
 export default function ServiceCard({ service }: any) {
   const queryClient = useQueryClient()
 
-  const mutation = useMutation({
+  const deleteMutation = useMutation({
     mutationFn: deleteService,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["services"] })
+    },
+  })
+
+  const toggleMutation = useMutation({
+    mutationFn: toggleService,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] })
     },
@@ -20,12 +27,25 @@ export default function ServiceCard({ service }: any) {
         </p>
       </div>
 
-      <button
-        onClick={() => mutation.mutate(service.id)}
-        className="text-red-500"
-      >
-        Delete
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => toggleMutation.mutate(service.slug)}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            service.is_active
+              ? "bg-green-600 text-white hover:bg-green-700"
+              : "bg-gray-600 text-white hover:bg-gray-700"
+          }`}
+        >
+          {service.is_active ? "Active" : "Inactive"}
+        </button>
+
+        <button
+          onClick={() => deleteMutation.mutate(service.id)}
+          className="text-red-500 hover:text-red-400"
+        >
+          Delete
+        </button>
+      </div>
     </div>
   )
 }
