@@ -4,6 +4,7 @@ import {
   getPublicAvailability,
   createPublicBooking,
   getPublicBusiness,
+  cancelPublicBooking,
 } from "./public.controller"
 import { validate } from "../../middlewares/validate.middleware"
 import { createBookingSchema } from "../bookings/bookings.schema"
@@ -21,5 +22,7 @@ router.post(
 )
 
 router.get("/:slug", getPublicBusiness)
+
+router.post("/cancel/:token", cancelPublicBooking)
 
 export default router

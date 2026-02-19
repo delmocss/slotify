@@ -146,4 +146,24 @@ async generateCancelToken() {
   return crypto.randomBytes(24).toString("hex")
 }
 
+async cancelBookingByToken(token: string) {
+  const result = await pool.query(
+    `
+    UPDATE bookings
+    SET status = 'cancelled'
+    WHERE cancel_token = $1
+      AND status = 'confirmed'
+    RETURNING booking_code
+    `,
+    [token]
+  )
+
+  if (!result.rows.length) {
+    throw new Error("Invalid or already cancelled booking")
+  }
+
+  return result.rows[0]
+}
+
+
 }
