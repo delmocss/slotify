@@ -49,6 +49,7 @@ CREATE TABLE bookings (
     business_id UUID NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
     service_id UUID NOT NULL REFERENCES services(id) ON DELETE CASCADE,
     booking_code TEXT UNIQUE NOT NULL,
+    cancel_token TEXT UNIQUE NOT NULL,
     client_name TEXT NOT NULL,
     client_email TEXT NOT NULL,
     date DATE NOT NULL,

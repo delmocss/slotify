@@ -2,6 +2,7 @@ import { pool } from "../../config/db"
 import { BookingsRepository } from "./bookings.repository"
 import { timeToMinutes } from "../availability/availability.utils"
 import { AppError } from "../../utils/appError"
+import crypto from "crypto"
 
 export class BookingsService {
   private repo = new BookingsRepository()
@@ -76,13 +77,14 @@ export class BookingsService {
       }
 
       const bookingCode = await this.generateBookingCode()
+      const cancelToken = await this.generateCancelToken()
 
       // 4️⃣ Crear booking
       await client.query(
         `
         INSERT INTO bookings
-        (business_id, service_id, client_name, client_email, date, start_time, end_time, booking_code)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+        (business_id, service_id, client_name, client_email, date, start_time, end_time, booking_code, cancel_token)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
         RETURNING *
         `,
         [
@@ -94,6 +96,7 @@ export class BookingsService {
           data.start_time,
           endTime,
           bookingCode,
+          cancelToken,
         ]
       )
 
@@ -102,6 +105,7 @@ export class BookingsService {
       return {
         message: "Booking created",
         booking_code: bookingCode,
+        cancel_token: cancelToken,
       }
     } catch (error) {
       await client.query("ROLLBACK")
@@ -138,6 +142,8 @@ async generateBookingCode() {
   return `SLT-${random}`
 }
 
-
+async generateCancelToken() {
+  return crypto.randomBytes(24).toString("hex")
+}
 
 }
