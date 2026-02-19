@@ -8,6 +8,7 @@ import { createBooking } from "../api/public.api"
 import { useToast } from "../../../components/ui/toast/useToast"
 import { api } from "../../../lib/axios"
 import Skeleton from "@/components/ui/Skeleton"
+import { Service, CreateBookingRequest, CreateBookingResponse } from "@/types"
 
 type Step = "service" | "date" | "time" | "client" | "success"
 
@@ -32,12 +33,12 @@ export default function PublicBookingPage() {
     const { addToast } = useToast()
 
     const [step, setStep] = useState<Step>("service")
-    const [selectedService, setSelectedService] = useState<any>(null)
+    const [selectedService, setSelectedService] = useState<Service | null>(null)
 
     const [selectedDate, setSelectedDate] = useState<string>("")
     const [availableSlots, setAvailableSlots] = useState<string[]>([])
 
-    const servicesQuery = useQuery({
+    const servicesQuery = useQuery<Service[]>({
         queryKey: ["public-services", slug],
         queryFn: () => getPublicServices(slug!),
     })
@@ -45,7 +46,7 @@ export default function PublicBookingPage() {
     const availabilityQuery = useQuery({
         queryKey: ["availability", slug, selectedService?.id, selectedDate],
         queryFn: () =>
-            getAvailability(slug!, selectedService.id, selectedDate),
+            getAvailability(slug!, selectedService!.id, selectedDate),
         enabled: !!selectedService && !!selectedDate,
     })
     const availabilityData = availabilityQuery.data?.slots ?? availableSlots
@@ -55,17 +56,14 @@ export default function PublicBookingPage() {
     const [selectedTime, setSelectedTime] = useState<string>("")
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const businessQuery = useQuery({
+    const businessQuery = useQuery<{ name: string; slug: string }>({
         queryKey: ["public-business", slug],
         queryFn: () => getPublicBusiness(slug!),
     })
 
-    const [confirmation, setConfirmation] = useState<{
-    booking_code: string
-    cancel_token: string
-} | null>(null)
+    const [confirmation, setConfirmation] = useState<CreateBookingResponse | null>(null)
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: CreateBookingRequest) => {
         try {
             setIsSubmitting(true)
             const result = await createBooking(slug!, data)
@@ -206,7 +204,7 @@ export default function PublicBookingPage() {
                             </div>
                         ) : (
                         <div className="grid gap-3 sm:gap-4">
-                            {servicesQuery.data?.map((service: any) => (
+                            {servicesQuery.data?.map((service: Service) => (
                                 <button
                                     key={service.id}
                                     onClick={() => {
@@ -395,14 +393,14 @@ export default function PublicBookingPage() {
                             onSubmit={async (e) => {
                                 e.preventDefault()
 
-                                const form = e.target as any
+                                const form = e.target as HTMLFormElement
 
                                 await onSubmit({
-                                    serviceId: selectedService.id,
+                                    serviceId: selectedService!.id,
                                     date: selectedDate,
                                     start_time: selectedTime,
-                                    client_name: form.name.value,
-                                    client_email: form.email.value,
+                                    client_name: (form.elements.namedItem('name') as HTMLInputElement).value,
+                                    client_email: (form.elements.namedItem('email') as HTMLInputElement).value,
                                 })
                             }}
                             className="space-y-3 sm:space-y-4"

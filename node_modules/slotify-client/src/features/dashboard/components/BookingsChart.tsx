@@ -8,9 +8,10 @@ import {
   ResponsiveContainer,
 } from "recharts"
 import Skeleton from "@/components/ui/Skeleton"
+import { Booking } from "@/types"
 
 type Props = {
-  bookings: any[]
+  bookings: Booking[]
 }
 
 export default function BookingsChart({ bookings }: Props) {

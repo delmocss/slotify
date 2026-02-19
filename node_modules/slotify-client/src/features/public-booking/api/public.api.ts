@@ -1,4 +1,5 @@
 import { api } from "../../../lib/axios"
+import { CreateBookingRequest } from "@/types"
 
 export async function getPublicServices(slug: string) {
     const response = await api.get(`/public/${slug}/services`)
@@ -19,7 +20,7 @@ export async function getAvailability(
     return response.data
 }
 
-export async function createBooking(slug: string, data: any) {
+export async function createBooking(slug: string, data: CreateBookingRequest) {
     const response = await api.post(`/public/${slug}/bookings`, data)
     return response.data
 }

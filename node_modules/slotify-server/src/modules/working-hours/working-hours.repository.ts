@@ -1,7 +1,13 @@
 import { pool } from "../../config/db"
 
+interface WorkingHoursInput {
+  day_of_week: number
+  start_time: string
+  end_time: string
+}
+
 export class WorkingHoursRepository {
-  async replaceAll(businessId: string, hours: any[]) {
+  async replaceAll(businessId: string, hours: WorkingHoursInput[]) {
     await pool.query(
       "DELETE FROM working_hours WHERE business_id = $1",
       [businessId]

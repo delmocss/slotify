@@ -4,10 +4,18 @@ import { timeToMinutes } from "../availability/availability.utils"
 import { AppError } from "../../utils/appError"
 import crypto from "crypto"
 
+interface CreateBookingData {
+  serviceId: string
+  date: string
+  start_time: string
+  client_name: string
+  client_email: string
+}
+
 export class BookingsService {
   private repo = new BookingsRepository()
 
-  async create(businessId: string, data: any) {
+  async create(businessId: string, data: CreateBookingData) {
     const client = await pool.connect()
 
     try {

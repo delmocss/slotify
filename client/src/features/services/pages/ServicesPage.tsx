@@ -3,9 +3,10 @@ import { getServices } from "../api/services.api"
 import ServiceForm from "../components/ServiceForm"
 import ServiceCard from "../components/ServiceCard"
 import Skeleton from "@/components/ui/Skeleton"
+import { Service } from "@/types"
 
 export default function ServicesPage() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<Service[]>({
     queryKey: ["services"],
     queryFn: getServices,
   })
@@ -35,7 +36,7 @@ export default function ServicesPage() {
             </p>
           </div>
         ) : (
-          data?.map((service: any) => (
+          data?.map((service: Service) => (
             <ServiceCard key={service.id} service={service} />
           ))
         )}

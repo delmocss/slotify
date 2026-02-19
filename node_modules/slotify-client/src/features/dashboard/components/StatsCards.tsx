@@ -1,7 +1,8 @@
 import Card from "@/components/ui/Card"
+import { Booking } from "@/types"
 
 type Props = {
-  bookings: any[]
+  bookings: Booking[]
   metrics?: {
     total_revenue: number
     revenue_this_month: number

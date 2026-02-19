@@ -1,5 +1,17 @@
 import { pool } from "../../config/db"
 
+interface BookingCreateData {
+  businessId: string
+  serviceId: string
+  client_name: string
+  client_email: string
+  date: string
+  start_time: string
+  end_time: string
+  booking_code: string
+  cancel_token: string
+}
+
 export class BookingsRepository {
     async findConflicts(
         businessId: string,
@@ -24,7 +36,7 @@ export class BookingsRepository {
         return result.rows
     }
 
-    async create(data: any) {
+    async create(data: BookingCreateData) {
         const result = await pool.query(
             `
       INSERT INTO bookings
