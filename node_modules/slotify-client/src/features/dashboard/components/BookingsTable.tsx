@@ -20,6 +20,14 @@ export default function BookingsTable({ bookings }: any) {
 
   return (
     <div className="bg-surface border border-white/5 rounded-xl overflow-hidden">
+      {bookings.length === 0 ? (
+        <div className="text-center text-gray-400 py-12">
+          <p className="text-lg mb-2">No bookings found</p>
+          <p className="text-sm">
+            Try adjusting your filters.
+          </p>
+        </div>
+      ) : (
       <table className="w-full text-left text-white">
         <thead className="bg-ashSoft text-gray-300">
           <tr className="border-b border-white/5">
@@ -63,6 +71,7 @@ export default function BookingsTable({ bookings }: any) {
           ))}
         </tbody>
       </table>
+      )}
     </div>
   )
 }

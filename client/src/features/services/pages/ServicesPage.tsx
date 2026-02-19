@@ -27,9 +27,18 @@ export default function ServicesPage() {
       <ServiceForm />
 
       <div className="space-y-3">
-        {data?.map((service: any) => (
-          <ServiceCard key={service.id} service={service} />
-        ))}
+        {data?.length === 0 ? (
+          <div className="text-center text-gray-400 py-12">
+            <p className="text-lg mb-2">No services yet</p>
+            <p className="text-sm">
+              Create your first service using the form above.
+            </p>
+          </div>
+        ) : (
+          data?.map((service: any) => (
+            <ServiceCard key={service.id} service={service} />
+          ))
+        )}
       </div>
     </div>
   )
