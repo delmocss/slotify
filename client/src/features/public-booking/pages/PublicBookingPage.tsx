@@ -7,6 +7,7 @@ import { getAvailability } from "../api/public.api"
 import { createBooking } from "../api/public.api"
 import { useToast } from "../../../components/ui/toast/useToast"
 import { api } from "../../../lib/axios"
+import Skeleton from "@/components/ui/Skeleton"
 
 type Step = "service" | "date" | "time" | "client" | "success"
 
@@ -36,7 +37,7 @@ export default function PublicBookingPage() {
     const [selectedDate, setSelectedDate] = useState<string>("")
     const [availableSlots, setAvailableSlots] = useState<string[]>([])
 
-    const { data: services } = useQuery({
+    const servicesQuery = useQuery({
         queryKey: ["public-services", slug],
         queryFn: () => getPublicServices(slug!),
     })
@@ -198,8 +199,14 @@ export default function PublicBookingPage() {
                         transition={{ duration: 0.25 }}
                         className="space-y-4 sm:space-y-5"
                     >
+                        {servicesQuery.isLoading ? (
+                            <div className="max-w-3xl w-full">
+                                <Skeleton className="h-10 w-1/2 mx-auto mb-8" />
+                                <Skeleton className="h-40 w-full" />
+                            </div>
+                        ) : (
                         <div className="grid gap-3 sm:gap-4">
-                            {services?.map((service: any) => (
+                            {servicesQuery.data?.map((service: any) => (
                                 <button
                                     key={service.id}
                                     onClick={() => {
@@ -222,6 +229,7 @@ export default function PublicBookingPage() {
                                 </button>
                             ))}
                         </div>
+                        )}
                     </motion.div>
                 )}
 
@@ -293,6 +301,14 @@ export default function PublicBookingPage() {
                             {selectedService?.name} — {selectedDate}
                         </p>
 
+                        {availabilityQuery.isLoading ? (
+                            <div className="grid grid-cols-3 gap-3">
+                                {[...Array(6)].map((_, i) => (
+                                    <Skeleton key={i} className="h-12 w-full" />
+                                ))}
+                            </div>
+                        ) : (
+                            <>
                         {availabilityData.length === 0 && (
                             <div className="text-center text-gray-400 py-10">
                                 <p className="text-lg font-medium mb-2">
@@ -333,6 +349,8 @@ export default function PublicBookingPage() {
                                     </div>
                                 )}
                             </>
+                        )}
+                        </>
                         )}
 
                         {selectedTime && (

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { getServices } from "../api/services.api"
 import ServiceForm from "../components/ServiceForm"
 import ServiceCard from "../components/ServiceCard"
+import Skeleton from "@/components/ui/Skeleton"
 
 export default function ServicesPage() {
   const { data, isLoading } = useQuery({
@@ -9,7 +10,15 @@ export default function ServicesPage() {
     queryFn: getServices,
   })
 
-  if (isLoading) return <div>Loading...</div>
+  if (isLoading) {
+    return (
+      <div className="grid gap-6">
+        {[...Array(3)].map((_, i) => (
+          <Skeleton key={i} className="h-24 w-full" />
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6 text-white">
