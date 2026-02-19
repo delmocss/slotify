@@ -10,6 +10,22 @@ import { api } from "../../../lib/axios"
 
 type Step = "service" | "date" | "time" | "client" | "success"
 
+function groupSlots(slots: string[]) {
+    const morning: string[] = []
+    const afternoon: string[] = []
+    const evening: string[] = []
+
+    slots.forEach((slot) => {
+        const hour = parseInt(slot.split(":")[0])
+
+        if (hour < 12) morning.push(slot)
+        else if (hour < 18) afternoon.push(slot)
+        else evening.push(slot)
+    })
+
+    return { morning, afternoon, evening }
+}
+
 export default function PublicBookingPage() {
     const { slug } = useParams()
     const { addToast } = useToast()
@@ -31,6 +47,8 @@ export default function PublicBookingPage() {
             getAvailability(slug!, selectedService.id, selectedDate),
         enabled: !!selectedService && !!selectedDate,
     })
+    const availabilityData = availabilityQuery.data?.slots ?? availableSlots
+    const groupedSlots = groupSlots(availabilityData ?? [])
     const next = (nextStep: Step) => setStep(nextStep)
 
     const [selectedTime, setSelectedTime] = useState<string>("")
@@ -65,6 +83,20 @@ export default function PublicBookingPage() {
         setConfirmation(null)
         alert("Booking cancelled")
     }
+
+    const renderSlot = (slot: string) => (
+        <button
+            key={slot}
+            onClick={() => setSelectedTime(slot)}
+            className={`p-3 rounded-xl border transition ${
+                selectedTime === slot
+                    ? "bg-copper text-white border-copper"
+                    : "bg-ashSoft border-white/10 hover:border-copper"
+            }`}
+        >
+            {slot}
+        </button>
+    )
 
     if (confirmation) {
         return (
@@ -236,7 +268,7 @@ export default function PublicBookingPage() {
                             {availabilityQuery.data?.slots?.length > 0 && (
                                 <button
                                     onClick={() => {
-                                        setAvailableSlots(availabilityQuery.data.slots)
+                                        setAvailableSlots(availabilityData ?? [])
                                         next("time")
                                     }}
                                     className="w-full rounded-lg bg-copper px-4 py-2.5 text-sm text-white transition hover:brightness-95 sm:w-auto sm:text-base"
@@ -261,21 +293,47 @@ export default function PublicBookingPage() {
                             {selectedService?.name} — {selectedDate}
                         </p>
 
-                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 md:grid-cols-4">
-                            {availableSlots.map((slot) => (
-                                <button
-                                    key={slot}
-                                    onClick={() => setSelectedTime(slot)}
-                                    className={`rounded border px-3 py-2.5 text-sm transition sm:p-3 sm:text-base 
-            ${selectedTime === slot
-                                            ? "bg-copper text-white"
-                                            : "bg-ashSoft hover:bg-ash border border-white/5 text-white"
-                                        }`}
-                                >
-                                    {slot}
-                                </button>
-                            ))}
-                        </div>
+                        {availabilityData.length === 0 && (
+                            <div className="text-center text-gray-400 py-10">
+                                <p className="text-lg font-medium mb-2">
+                                    No availability for this date
+                                </p>
+                                <p className="text-sm">
+                                    Please select another day.
+                                </p>
+                            </div>
+                        )}
+
+                        {availabilityData.length > 0 && (
+                            <>
+                                {groupedSlots.morning.length > 0 && (
+                                    <div className="mb-8">
+                                        <h3 className="text-sm text-gray-400 mb-3">Morning</h3>
+                                        <div className="grid grid-cols-3 gap-3">
+                                            {groupedSlots.morning.map(renderSlot)}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {groupedSlots.afternoon.length > 0 && (
+                                    <div className="mb-8">
+                                        <h3 className="text-sm text-gray-400 mb-3">Afternoon</h3>
+                                        <div className="grid grid-cols-3 gap-3">
+                                            {groupedSlots.afternoon.map(renderSlot)}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {groupedSlots.evening.length > 0 && (
+                                    <div>
+                                        <h3 className="text-sm text-gray-400 mb-3">Evening</h3>
+                                        <div className="grid grid-cols-3 gap-3">
+                                            {groupedSlots.evening.map(renderSlot)}
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        )}
 
                         {selectedTime && (
                             <button
