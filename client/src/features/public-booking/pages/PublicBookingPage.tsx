@@ -4,7 +4,6 @@ import { getPublicServices, getPublicBusiness } from "../api/public.api"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { getAvailability } from "../api/public.api"
-import { useMutation } from "@tanstack/react-query"
 import { createBooking } from "../api/public.api"
 import { useToast } from "../../../components/ui/toast/useToast"
 
@@ -34,25 +33,77 @@ export default function PublicBookingPage() {
     const next = (nextStep: Step) => setStep(nextStep)
 
     const [selectedTime, setSelectedTime] = useState<string>("")
-
-    const [bookingSuccess, setBookingSuccess] = useState<any>(null)
-
-    const bookingMutation = useMutation({
-        mutationFn: (data: any) => createBooking(slug!, data),
-        onSuccess: (data) => {
-            addToast("Booking confirmed successfully")
-            setStep("success")
-            setBookingSuccess(data)
-        },
-        onError: () => {
-            addToast("Failed to create booking", "error")
-        }
-    })
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const businessQuery = useQuery({
         queryKey: ["public-business", slug],
         queryFn: () => getPublicBusiness(slug!),
     })
+
+    const [confirmation, setConfirmation] = useState<{
+  booking_code: string
+} | null>(null)
+
+    const onSubmit = async (data: any) => {
+        try {
+            setIsSubmitting(true)
+            const result = await createBooking(slug!, data)
+            setConfirmation(result)
+            addToast("Booking confirmed successfully")
+            setStep("success")
+        } catch {
+            addToast("Failed to create booking", "error")
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    if (confirmation) {
+        return (
+            <div className="min-h-screen w-full bg-gradient-to-br from-[#2f302c] via-[#3B3C36] to-black flex items-center justify-center px-6 py-16">
+                <div className="w-full max-w-2xl bg-[#2A2B27] p-14 rounded-3xl border border-white/5 shadow-2xl text-white text-center">
+
+                    <div className="text-5xl mb-6">🎉</div>
+
+                    <h1 className="text-3xl font-bold mb-4">
+                        Booking Confirmed
+                    </h1>
+
+                    <p className="text-gray-400 mb-8">
+                        Your reservation has been successfully scheduled.
+                    </p>
+
+                    <div className="bg-ashSoft border border-white/10 rounded-xl p-6 mb-8">
+                        <p className="text-sm text-gray-400 mb-2">
+                            Booking Code
+                        </p>
+
+                        <p className="text-2xl font-mono font-bold tracking-wider text-copper">
+                            {confirmation.booking_code}
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={() => navigator.clipboard.writeText(confirmation.booking_code)}
+                        className="bg-copper text-white px-6 py-3 rounded-xl font-semibold hover:brightness-95 transition mb-4"
+                    >
+                        Copy Code
+                    </button>
+
+                    <div>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="text-gray-400 hover:text-white transition"
+                        >
+                            Book another appointment
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        )
+    }
+
 
 
     return (
@@ -250,12 +301,12 @@ export default function PublicBookingPage() {
                         </p>
 
                         <form
-                            onSubmit={(e) => {
+                            onSubmit={async (e) => {
                                 e.preventDefault()
 
                                 const form = e.target as any
 
-                                bookingMutation.mutate({
+                                await onSubmit({
                                     serviceId: selectedService.id,
                                     date: selectedDate,
                                     start_time: selectedTime,
@@ -280,18 +331,12 @@ export default function PublicBookingPage() {
                                 className="w-full rounded-md border border-white/10 bg-ashSoft p-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-copper sm:text-base"
                             />
 
-                            {bookingMutation.isError && (
-                                <p className="text-red-500">
-                                    Something went wrong. Try again.
-                                </p>
-                            )}
-
                             <button
                                 type="submit"
-                                disabled={bookingMutation.isPending}
+                                disabled={isSubmitting}
                                 className="w-full rounded-lg bg-copper py-2.5 text-sm text-white transition hover:brightness-95 sm:text-base"
                             >
-                                {bookingMutation.isPending
+                                {isSubmitting
                                     ? "Booking..."
                                     : "Confirm Booking"}
                             </button>
@@ -332,7 +377,7 @@ export default function PublicBookingPage() {
                                 setSelectedService(null)
                                 setSelectedDate("")
                                 setSelectedTime("")
-                                setBookingSuccess(null)
+                                setConfirmation(null)
                             }}
                             className="mt-4 rounded-lg border border-white/20 px-4 py-2 text-sm transition hover:bg-white/5 sm:text-base"
                         >
