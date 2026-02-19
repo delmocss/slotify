@@ -1,7 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { deleteService, toggleService } from "../api/services.api"
+import { Service } from "@/types"
 
-export default function ServiceCard({ service }: any) {
+interface ServiceCardProps {
+  service: Service
+}
+
+export default function ServiceCard({ service }: ServiceCardProps) {
   const queryClient = useQueryClient()
 
   const deleteMutation = useMutation({

@@ -1,11 +1,10 @@
+import { WorkingHoursDay } from "@/types"
+
 type Props = {
   day: number
   label: string
-  value: {
-    enabled: boolean
-    slots: { start_time: string; end_time: string }[]
-  }
-  onChange: (value: any) => void
+  value: WorkingHoursDay
+  onChange: (value: WorkingHoursDay) => void
 }
 
 export default function DaySchedule({
@@ -56,7 +55,7 @@ export default function DaySchedule({
             <button
               type="button"
               onClick={() => {
-                const newSlots = value.slots.filter((_: any, i: number) => i !== index)
+                const newSlots = value.slots.filter((_, i) => i !== index)
                 onChange({ ...value, slots: newSlots })
               }}
               className="px-3 py-2 rounded-md bg-red-500/20 text-red-400 hover:bg-red-500/30 transition text-sm font-medium"

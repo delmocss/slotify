@@ -1,11 +1,22 @@
 import { api } from "../../../lib/axios"
 
-export async function login(data: any) {
+interface LoginRequest {
+  email: string
+  password: string
+}
+
+interface RegisterRequest {
+  name: string
+  email: string
+  password: string
+}
+
+export async function login(data: LoginRequest) {
   const res = await api.post("/auth/login", data)
   return res.data
 }
 
-export async function register(data: any) {
+export async function register(data: RegisterRequest) {
   const res = await api.post("/auth/register", data)
   return res.data
 }

@@ -1,11 +1,12 @@
 import { api } from "../../../lib/axios"
+import { CreateServiceRequest } from "@/types"
 
 export async function getServices() {
   const res = await api.get("/services")
   return res.data
 }
 
-export async function createService(data: any) {
+export async function createService(data: CreateServiceRequest) {
   const res = await api.post("/services", data)
   return res.data
 }

@@ -1,8 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { cancelBooking } from "../api/dashboard.api"
 import { useToast } from "../../../components/ui/toast/useToast"
+import { Booking } from "@/types"
 
-export default function BookingsTable({ bookings }: any) {
+interface BookingsTableProps {
+  bookings: Booking[]
+}
+
+export default function BookingsTable({ bookings }: BookingsTableProps) {
   const queryClient = useQueryClient()
   const { addToast } = useToast()
 
@@ -40,7 +45,7 @@ export default function BookingsTable({ bookings }: any) {
           </tr>
         </thead>
         <tbody>
-          {bookings.map((booking: any) => (
+          {bookings.map((booking) => (
             <tr key={booking.id} className="border-b border-white/5 hover:bg-white/5 transition">
               <td className="p-3">{booking.date}</td>
               <td className="p-3">{booking.start_time}</td>

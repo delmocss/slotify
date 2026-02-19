@@ -3,6 +3,14 @@ import { AppError } from "../../utils/appError"
 import { AvailabilityService } from "../availability/availability.service"
 import { BookingsService } from "../bookings/bookings.service"
 
+interface PublicBookingData {
+  serviceId: string
+  date: string
+  start_time: string
+  client_name: string
+  client_email: string
+}
+
 export class PublicService {
     private availabilityService = new AvailabilityService()
     private bookingsService = new BookingsService()
@@ -37,7 +45,7 @@ export class PublicService {
     }
 
 
-    async createBooking(slug: string, data: any) {
+    async createBooking(slug: string, data: PublicBookingData) {
         const business = await this.getBusinessBySlug(slug)
 
         return this.bookingsService.create(

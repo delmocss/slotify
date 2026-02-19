@@ -2,10 +2,16 @@ import { ServicesRepository } from "./services.repository"
 import { AppError } from "../../utils/appError"
 import { pool } from "../../config/db"
 
+interface CreateServiceData {
+  name: string
+  duration_minutes: number
+  price: number
+}
+
 export class ServicesService {
   private repo = new ServicesRepository()
 
-  async create(businessId: string, data: any) {
+  async create(businessId: string, data: CreateServiceData) {
     return this.repo.create({ businessId, ...data })
   }
 
@@ -13,7 +19,7 @@ export class ServicesService {
     return this.repo.findAll(businessId)
   }
 
-  async update(id: string, businessId: string, data: any) {
+  async update(id: string, businessId: string, data: Partial<CreateServiceData>) {
     const service = await this.repo.update(id, businessId, data)
 
     if (!service) {

@@ -3,6 +3,7 @@ import { getWorkingHours, updateWorkingHours } from "../api/workingHours.api"
 import DaySchedule from "../components/DaySchedule"
 import { useState, useEffect } from "react"
 import { useToast } from "../../../components/ui/toast/useToast"
+import { WorkingHours, WorkingHoursDay } from "@/types"
 
 const days = [
   "Sunday",
@@ -18,7 +19,7 @@ export default function WorkingHoursPage() {
   const queryClient = useQueryClient()
   const { addToast } = useToast()
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<WorkingHours[]>({
     queryKey: ["working-hours"],
     queryFn: getWorkingHours,
   })
@@ -34,18 +35,18 @@ export default function WorkingHoursPage() {
     },
   })
 
-  const [schedule, setSchedule] = useState<any>({})
+  const [schedule, setSchedule] = useState<Record<number, WorkingHoursDay>>({})
 
   useEffect(() => {
     if (!data) return
 
-    const grouped: any = {}
+    const grouped: Record<number, WorkingHoursDay> = {}
 
     for (let i = 0; i < 7; i++) {
       grouped[i] = { enabled: false, slots: [] }
     }
 
-    data.forEach((item: any) => {
+    data.forEach((item) => {
       grouped[item.day_of_week].enabled = true
       grouped[item.day_of_week].slots.push({
         start_time: item.start_time,
@@ -59,12 +60,12 @@ export default function WorkingHoursPage() {
   if (isLoading) return <div>Loading...</div>
 
   const handleSave = () => {
-    const formatted: any[] = []
+    const formatted: { day_of_week: number; start_time: string; end_time: string }[] = []
 
     Object.keys(schedule).forEach((day) => {
-      if (!schedule[day].enabled) return
+      if (!schedule[Number(day)].enabled) return
 
-      schedule[day].slots.forEach((slot: any) => {
+      schedule[Number(day)].slots.forEach((slot) => {
         formatted.push({
           day_of_week: Number(day),
           start_time: slot.start_time,

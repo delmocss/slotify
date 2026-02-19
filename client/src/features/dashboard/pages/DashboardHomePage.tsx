@@ -6,6 +6,7 @@ import { useState } from "react"
 import BookingsChart from "../components/BookingsChart"
 import { useAuth } from "../../auth/hooks/useAuth"
 import Skeleton from "@/components/ui/Skeleton"
+import { Booking } from "@/types"
 
 
 export default function DashboardHomePage() {
@@ -23,7 +24,7 @@ export default function DashboardHomePage() {
   )
   const [toDate, setToDate] = useState(today)
   
-  const { data: bookings = [], isLoading } = useQuery({
+  const { data: bookings = [], isLoading } = useQuery<Booking[]>({
     queryKey: ["bookings"],
     queryFn: getBookings,
   })
@@ -34,7 +35,7 @@ export default function DashboardHomePage() {
 })
 
 
-  const filteredBookings = bookings.filter((b: any) => {
+  const filteredBookings = bookings.filter((b: Booking) => {
     if (statusFilter !== "all" && b.status !== statusFilter) {
       return false
     }

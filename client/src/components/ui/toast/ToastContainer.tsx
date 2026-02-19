@@ -1,10 +1,16 @@
 import { motion, AnimatePresence } from "framer-motion"
 
-export default function ToastContainer({ toasts }: any) {
+interface ToastItem {
+  id: number
+  message: string
+  type: "success" | "error"
+}
+
+export default function ToastContainer({ toasts }: { toasts: ToastItem[] }) {
   return (
     <div className="fixed top-4 right-4 space-y-2 z-50">
       <AnimatePresence>
-        {toasts.map((toast: any) => (
+        {toasts.map((toast) => (
           <motion.div
             key={toast.id}
             initial={{ opacity: 0, y: -20 }}

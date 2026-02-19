@@ -38,7 +38,7 @@ export class ServicesRepository {
     return result.rows
   }
 
-  async update(id: string, businessId: string, data: any) {
+  async update(id: string, businessId: string, data: Record<string, any>) {
     const fields = Object.keys(data)
     const values = Object.values(data)
 
