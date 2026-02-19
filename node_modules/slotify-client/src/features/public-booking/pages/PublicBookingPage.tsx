@@ -31,11 +31,7 @@ export default function PublicBookingPage() {
             getAvailability(slug!, selectedService.id, selectedDate),
         enabled: !!selectedService && !!selectedDate,
     })
-    console.log("Availability data:", availabilityQuery.data)
-
-
     const next = (nextStep: Step) => setStep(nextStep)
-    const back = () => setStep("service")
 
     const [selectedTime, setSelectedTime] = useState<string>("")
 
@@ -60,28 +56,36 @@ export default function PublicBookingPage() {
 
 
     return (
-        <div className="min-h-screen w-full bg-gradient-to-br from-[#2f302c] via-[#3B3C36] to-black flex items-center justify-center px-8 py-16">
+        <div className="min-h-screen w-full bg-gradient-to-br from-[#2f302c] via-[#3B3C36] to-black px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                className="max-w-4xl w-full bg-[#2A2B27] p-16 rounded-3xl border border-white/5 shadow-2xl text-white"
+                className="mx-auto w-full max-w-4xl rounded-2xl border border-white/5 bg-[#2A2B27] p-5 text-white shadow-2xl sm:rounded-3xl sm:p-8 lg:p-10"
             >
-                <h1 className="text-4xl font-bold text-center mb-8">
+                <h1 className="mb-6 text-center text-2xl font-bold leading-tight sm:mb-8 sm:text-3xl lg:text-4xl">
                     {businessQuery.data?.name}
                 </h1>
 
-                <div className="flex justify-center gap-4 text-sm">
-                    <span className={step === "service" ? "font-bold" : ""}>
+                <div className="mb-6 flex flex-wrap justify-center gap-2 text-xs sm:mb-8 sm:gap-3 sm:text-sm">
+                    <span
+                        className={`rounded-full px-3 py-1 ${step === "service" ? "bg-copper font-bold text-white" : "bg-white/5 text-white/70"}`}
+                    >
                         Service
                     </span>
-                    <span className={step === "date" ? "font-bold" : ""}>
+                    <span
+                        className={`rounded-full px-3 py-1 ${step === "date" ? "bg-copper font-bold text-white" : "bg-white/5 text-white/70"}`}
+                    >
                         Date
                     </span>
-                    <span className={step === "time" ? "font-bold" : ""}>
+                    <span
+                        className={`rounded-full px-3 py-1 ${step === "time" ? "bg-copper font-bold text-white" : "bg-white/5 text-white/70"}`}
+                    >
                         Time
                     </span>
-                    <span className={step === "client" ? "font-bold" : ""}>
+                    <span
+                        className={`rounded-full px-3 py-1 ${step === "client" ? "bg-copper font-bold text-white" : "bg-white/5 text-white/70"}`}
+                    >
                         Details
                     </span>
                 </div>
@@ -94,9 +98,9 @@ export default function PublicBookingPage() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -40 }}
                         transition={{ duration: 0.25 }}
-                        className="space-y-3"
+                        className="space-y-4 sm:space-y-5"
                     >
-                        <div className="grid gap-4">
+                        <div className="grid gap-3 sm:gap-4">
                             {services?.map((service: any) => (
                                 <button
                                     key={service.id}
@@ -104,17 +108,17 @@ export default function PublicBookingPage() {
                                         setSelectedService(service)
                                         next("date")
                                     }}
-                                    className={`border border-white/10 rounded-2xl p-6 transition-all duration-200 hover:scale-[1.02] ${
+                                    className={`rounded-2xl border p-4 text-left transition-all duration-200 hover:scale-[1.01] sm:p-5 md:p-6 ${
                                         selectedService?.id === service.id
-                                            ? "bg-copper text-white"
-                                            : "bg-ashSoft/80 hover:bg-ashSoft text-white"
+                                            ? "border-white/30 bg-ashSoft/80 text-white"
+                                            : "border-white/10 bg-ashSoft/80 text-white hover:bg-ashSoft"
                                     }`}
                                 >
-                                    <p className="font-semibold">{service.name}</p>
-                                    <p className="text-sm text-white/70">
+                                    <p className="text-sm font-semibold sm:text-base">{service.name}</p>
+                                    <p className="text-xs text-white/70 sm:text-sm">
                                         {service.duration_minutes} min
                                     </p>
-                                    <p className="text-sm font-medium mt-2">
+                                    <p className="mt-2 text-sm font-medium">
                                         €{service.price}
                                     </p>
                                 </button>
@@ -130,9 +134,9 @@ export default function PublicBookingPage() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -40 }}
                         transition={{ duration: 0.25 }}
-                        className="space-y-4"
+                        className="space-y-4 sm:space-y-5"
                     >
-                        <p className="font-semibold">
+                        <p className="text-sm font-semibold sm:text-base">
                             Selected: {selectedService?.name}
                         </p>
 
@@ -141,7 +145,7 @@ export default function PublicBookingPage() {
                             value={selectedDate}
                             min={new Date().toISOString().split("T")[0]}
                             onChange={(e) => setSelectedDate(e.target.value)}
-                            className="w-full bg-ashSoft border border-white/10 text-white placeholder-gray-400 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper"
+                            className="w-full rounded-md border border-white/10 bg-ashSoft p-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-copper sm:text-base"
                         />
 
                         {availabilityQuery.isLoading && (
@@ -155,24 +159,26 @@ export default function PublicBookingPage() {
                                 </p>
                             )}
 
-                        {availabilityQuery.data?.slots?.length > 0 && (
+                        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <button
-                                onClick={() => {
-                                    setAvailableSlots(availabilityQuery.data.slots)
-                                    next("time")
-                                }}
-                                className="bg-copper text-white hover:brightness-95 transition px-4 py-2 rounded"
+                                onClick={() => setStep("service")}
+                                className="self-start text-sm text-gray-400 transition hover:text-white"
                             >
-                                Continue
+                                Back
                             </button>
-                        )}
 
-                        <button
-                            onClick={() => setStep("service")}
-                            className="text-gray-500"
-                        >
-                            Back
-                        </button>
+                            {availabilityQuery.data?.slots?.length > 0 && (
+                                <button
+                                    onClick={() => {
+                                        setAvailableSlots(availabilityQuery.data.slots)
+                                        next("time")
+                                    }}
+                                    className="w-full rounded-lg bg-copper px-4 py-2.5 text-sm text-white transition hover:brightness-95 sm:w-auto sm:text-base"
+                                >
+                                    Continue
+                                </button>
+                            )}
+                        </div>
                     </motion.div>
                 )}
 
@@ -183,18 +189,18 @@ export default function PublicBookingPage() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -40 }}
                         transition={{ duration: 0.25 }}
-                        className="space-y-6"
+                        className="space-y-5 sm:space-y-6"
                     >
-                        <p className="font-semibold">
+                        <p className="text-sm font-semibold sm:text-base">
                             {selectedService?.name} — {selectedDate}
                         </p>
 
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 md:grid-cols-4">
                             {availableSlots.map((slot) => (
                                 <button
                                     key={slot}
                                     onClick={() => setSelectedTime(slot)}
-                                    className={`p-3 rounded border transition 
+                                    className={`rounded border px-3 py-2.5 text-sm transition sm:p-3 sm:text-base 
             ${selectedTime === slot
                                             ? "bg-copper text-white"
                                             : "bg-ashSoft hover:bg-ash border border-white/5 text-white"
@@ -208,7 +214,7 @@ export default function PublicBookingPage() {
                         {selectedTime && (
                             <button
                                 onClick={() => next("client")}
-                                className="w-full bg-copper text-white hover:brightness-95 transition py-2 rounded"
+                                className="w-full rounded-lg bg-copper py-2.5 text-sm text-white transition hover:brightness-95 sm:text-base"
                             >
                                 Continue
                             </button>
@@ -216,7 +222,7 @@ export default function PublicBookingPage() {
 
                         <button
                             onClick={() => setStep("date")}
-                            className="text-gray-500"
+                            className="text-sm text-gray-400 transition hover:text-white"
                         >
                             Back
                         </button>
@@ -230,13 +236,13 @@ export default function PublicBookingPage() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -40 }}
                         transition={{ duration: 0.25 }}
-                        className="space-y-6"
+                        className="space-y-5 sm:space-y-6"
                     >
-                        <p className="font-semibold">
+                        <p className="text-sm font-semibold sm:text-base">
                             {selectedService?.name} — {selectedDate} at {selectedTime}
                         </p>
 
-                        <p className="text-gray-400 text-sm">
+                        <p className="text-xs text-gray-400 sm:text-sm">
                             You are booking:{" "}
                             <span className="text-white font-medium">
                                 {selectedService?.name}
@@ -257,13 +263,13 @@ export default function PublicBookingPage() {
                                     client_email: form.email.value,
                                 })
                             }}
-                            className="space-y-4"
+                            className="space-y-3 sm:space-y-4"
                         >
                             <input
                                 name="name"
                                 placeholder="Your name"
                                 required
-                                className="w-full bg-ashSoft border border-white/10 text-white placeholder-gray-400 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper"
+                                className="w-full rounded-md border border-white/10 bg-ashSoft p-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-copper sm:text-base"
                             />
 
                             <input
@@ -271,7 +277,7 @@ export default function PublicBookingPage() {
                                 type="email"
                                 placeholder="Your email"
                                 required
-                                className="w-full bg-ashSoft border border-white/10 text-white placeholder-gray-400 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper"
+                                className="w-full rounded-md border border-white/10 bg-ashSoft p-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-copper sm:text-base"
                             />
 
                             {bookingMutation.isError && (
@@ -283,7 +289,7 @@ export default function PublicBookingPage() {
                             <button
                                 type="submit"
                                 disabled={bookingMutation.isPending}
-                                className="w-full bg-copper text-white hover:brightness-95 transition py-2 rounded"
+                                className="w-full rounded-lg bg-copper py-2.5 text-sm text-white transition hover:brightness-95 sm:text-base"
                             >
                                 {bookingMutation.isPending
                                     ? "Booking..."
@@ -293,7 +299,7 @@ export default function PublicBookingPage() {
 
                         <button
                             onClick={() => setStep("time")}
-                            className="text-gray-500"
+                            className="text-sm text-gray-400 transition hover:text-white"
                         >
                             Back
                         </button>
@@ -306,9 +312,9 @@ export default function PublicBookingPage() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.3 }}
-                        className="text-center space-y-4"
+                        className="space-y-4 text-center sm:space-y-5"
                     >
-                        <h2 className="text-2xl font-bold">
+                        <h2 className="text-xl font-bold sm:text-2xl">
                             🎉 Booking Confirmed
                         </h2>
 
@@ -328,7 +334,7 @@ export default function PublicBookingPage() {
                                 setSelectedTime("")
                                 setBookingSuccess(null)
                             }}
-                            className="mt-4 border px-4 py-2 rounded"
+                            className="mt-4 rounded-lg border border-white/20 px-4 py-2 text-sm transition hover:bg-white/5 sm:text-base"
                         >
                             Book Another
                         </button>
