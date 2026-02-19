@@ -6,6 +6,7 @@ import {
   getServices,
   updateService,
   deleteService,
+  toggleService,
 } from "./services.controller"
 import {
   createServiceSchema,
@@ -20,5 +21,6 @@ router.get("/", getServices)
 router.post("/", validate(createServiceSchema), createService)
 router.put("/:id", validate(updateServiceSchema), updateService)
 router.delete("/:id", deleteService)
+router.patch("/:slug/toggle", toggleService)
 
 export default router

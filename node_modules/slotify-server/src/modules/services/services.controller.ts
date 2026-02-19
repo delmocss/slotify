@@ -28,3 +28,15 @@ export async function deleteService(req: Request, res: Response) {
   await service.delete(id, req.businessId!)
   res.status(204).send()
 }
+
+export async function toggleService(
+  req: Request,
+  res: Response
+) {
+  const slug = Array.isArray(req.params.slug) ? req.params.slug[0] : req.params.slug
+  const businessId = req.businessId!
+
+  const result = await service.toggleService(slug, businessId)
+  res.json(result)
+}
+

@@ -1,5 +1,6 @@
 import { ServicesRepository } from "./services.repository"
 import { AppError } from "../../utils/appError"
+import { pool } from "../../config/db"
 
 export class ServicesService {
   private repo = new ServicesRepository()
@@ -25,4 +26,22 @@ export class ServicesService {
   async delete(id: string, businessId: string) {
     await this.repo.delete(id, businessId)
   }
+
+  async toggleService(
+  slug: string,
+  businessId: string
+) {
+  const result = await pool.query(
+    `
+    UPDATE services
+    SET is_active = NOT is_active
+    WHERE slug = $1 AND business_id = $2
+    RETURNING id, slug, is_active
+    `,
+    [slug, businessId]
+  )
+
+  return result.rows[0]
+}
+
 }
