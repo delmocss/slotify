@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { getBookings, getMetrics, exportBookings } from "../api/dashboard.api"
+import { getBookings, exportBookings } from "../api/dashboard.api"
 import StatsCards from "../components/StatsCards"
 import BookingsTable from "../components/BookingsTable"
 import { useState } from "react"
@@ -11,7 +11,6 @@ import { Booking } from "@/types"
 
 export default function DashboardHomePage() {
   const { user } = useAuth()
-  const publicUrl = `${window.location.origin}/b/${user?.slug}`
   const [statusFilter, setStatusFilter] = useState("all")
   const [dateFilter, setDateFilter] = useState("")
   const [search, setSearch] = useState("")
@@ -28,12 +27,6 @@ export default function DashboardHomePage() {
     queryKey: ["bookings"],
     queryFn: getBookings,
   })
-
-  const { data: metrics } = useQuery({
-  queryKey: ["metrics"],
-  queryFn: getMetrics,
-})
-
 
   const filteredBookings = bookings.filter((b: Booking) => {
     if (statusFilter !== "all" && b.status !== statusFilter) {

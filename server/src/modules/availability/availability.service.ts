@@ -12,7 +12,6 @@ export class AvailabilityService {
     serviceId: string,
     date: string
   ) {
-    // 1️⃣ Obtener servicio
     const serviceResult = await pool.query(
       "SELECT duration_minutes FROM services WHERE id = $1 AND business_id = $2",
       [serviceId, businessId]
@@ -23,10 +22,8 @@ export class AvailabilityService {
 
     const duration = service.duration_minutes
 
-    // 2️⃣ Obtener día de la semana
     const dayOfWeek = new Date(date).getDay()
 
-    // 3️⃣ Obtener working hours
     const workingResult = await pool.query(
       `SELECT start_time, end_time
        FROM working_hours
@@ -40,7 +37,6 @@ export class AvailabilityService {
       return []
     }
 
-    // 4️⃣ Generar slots candidatos
     let candidateSlots: { start: string; end: string }[] = []
 
     for (const wh of workingHours) {
@@ -52,7 +48,6 @@ export class AvailabilityService {
       candidateSlots.push(...slots)
     }
 
-    // 5️⃣ Obtener bookings existentes
     const bookingsResult = await pool.query(
       `SELECT start_time, end_time
        FROM bookings
@@ -65,7 +60,6 @@ export class AvailabilityService {
 
     const bookings = bookingsResult.rows
 
-    // 6️⃣ Filtrar conflictos
     const availableSlots = candidateSlots.filter(slot => {
       const slotStart = timeToMinutes(slot.start)
       const slotEnd = timeToMinutes(slot.end)
@@ -82,7 +76,6 @@ export class AvailabilityService {
       return true
     })
 
-    // 7️⃣ Filtrar slots pasados si es hoy
     const today = new Date().toISOString().split("T")[0]
     let finalSlots = availableSlots
 

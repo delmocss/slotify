@@ -42,7 +42,6 @@ export async function exportBookings(
       to as string
     )
 
-    // Convert to CSV
     const headers = [
       "Date",
       "Start Time",

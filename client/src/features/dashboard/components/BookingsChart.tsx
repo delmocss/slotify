@@ -15,7 +15,6 @@ type Props = {
 }
 
 export default function BookingsChart({ bookings }: Props) {
-  // Agrupar últimos 7 días
   const today = new Date()
 
   const data = Array.from({ length: 7 }).map((_, index) => {
@@ -40,7 +39,6 @@ export default function BookingsChart({ bookings }: Props) {
   const maxBookings = Math.max(...data.map(d => d.bookings))
   const minBookings = Math.min(...data.map(d => d.bookings))
   
-  // Calcular tendencia (últimos 3 días vs primeros 3 días)
   const recentAvg = data.slice(-3).reduce((sum, day) => sum + day.bookings, 0) / 3
   const earlierAvg = data.slice(0, 3).reduce((sum, day) => sum + day.bookings, 0) / 3
   const trendPercentage = earlierAvg > 0 ? ((recentAvg - earlierAvg) / earlierAvg * 100).toFixed(1) : 0
