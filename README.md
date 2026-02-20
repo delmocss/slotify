@@ -179,21 +179,22 @@ The project follows a feature-based modular architecture both in frontend and ba
 
 ## 📁 Project Structure
 
+```text
 slotify/
 │
 ├── client/
-│ ├── modules/
-│ ├── components/
-│ ├── hooks/
-│ ├── types/
-│ └── pages/
+│   ├── modules/
+│   ├── components/
+│   ├── hooks/
+│   ├── types/
+│   └── pages/
 │
 ├── server/
-│ ├── modules/
-│ ├── middleware/
-│ ├── config/
-│ └── routes/
-
+│   ├── modules/
+│   ├── middleware/
+│   ├── config/
+│   └── routes/
+```
 
 ### Design Principles
 
