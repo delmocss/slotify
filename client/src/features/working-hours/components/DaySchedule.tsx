@@ -8,7 +8,7 @@ type Props = {
 }
 
 export default function DaySchedule({
-  day,
+  day: _day,
   label,
   value,
   onChange,

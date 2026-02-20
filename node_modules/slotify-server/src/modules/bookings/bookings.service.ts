@@ -27,7 +27,6 @@ export class BookingsService {
         throw new AppError("Cannot book past dates", 400)
       }
 
-      // Validar que no se reserve un slot que ya pasó (mismo día)
       if (data.date === today) {
         const now = new Date()
         const currentMinutes = now.getHours() * 60 + now.getMinutes()
@@ -38,7 +37,6 @@ export class BookingsService {
         }
       }
 
-      // 1️⃣ Obtener servicio
       const serviceResult = await client.query(
         `SELECT duration_minutes 
          FROM services 
@@ -51,7 +49,6 @@ export class BookingsService {
 
       const duration = service.duration_minutes
 
-      // 2️⃣ Calcular end_time
       const startMinutes = timeToMinutes(data.start_time)
       const endMinutes = startMinutes + duration
 
@@ -60,7 +57,6 @@ export class BookingsService {
         "0"
       )}:${String(endMinutes % 60).padStart(2, "0")}`
 
-      // 3️⃣ Validar conflictos
       const conflicts = await client.query(
         `
         SELECT * FROM bookings
@@ -87,7 +83,6 @@ export class BookingsService {
       const bookingCode = await this.generateBookingCode()
       const cancelToken = await this.generateCancelToken()
 
-      // 4️⃣ Crear booking
       await client.query(
         `
         INSERT INTO bookings
