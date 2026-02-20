@@ -32,16 +32,42 @@ export default function ServiceForm() {
       />
 
       <input
-        {...register("duration_minutes", { valueAsNumber: true })}
+        {...register("duration_minutes", { 
+          valueAsNumber: true,
+          onChange: (e) => {
+            const value = parseInt(e.target.value)
+            if (value < 1) e.target.value = "1"
+          }
+        })}
         type="number"
+        min="1"
+        step="1"
         placeholder="Duration (minutes)"
+        onKeyDown={(e) => {
+          if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+            e.preventDefault()
+          }
+        }}
         className="w-full bg-ashSoft border border-white/10 text-white p-2 rounded-md focus:ring-2 focus:ring-copper"
       />
 
       <input
-        {...register("price", { valueAsNumber: true })}
+        {...register("price", { 
+          valueAsNumber: true,
+          onChange: (e) => {
+            const value = parseFloat(e.target.value)
+            if (value < 0) e.target.value = "0"
+          }
+        })}
         type="number"
+        min="0"
+        step="0.01"
         placeholder="Price"
+        onKeyDown={(e) => {
+          if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+            e.preventDefault()
+          }
+        }}
         className="w-full bg-ashSoft border border-white/10 text-white p-2 rounded-md focus:ring-2 focus:ring-copper"
       />
 

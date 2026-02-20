@@ -1,30 +1,51 @@
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { loginSchema, LoginFormData } from "../schemas"
+import { LoginFormData } from "../schemas"
 import { login } from "../api/auth.api"
 import { Link, useNavigate } from "react-router-dom"
 import { useMutation } from "@tanstack/react-query"
+import { useState } from "react"
+import { useToast } from "../../../components/ui/toast/useToast"
+import axios from "axios"
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const [loginError, setLoginError] = useState<string | null>(null)
+  const { addToast } = useToast()
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-  })
+  } = useForm<LoginFormData>()
 
   const mutation = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
       localStorage.setItem("token", data.token)
+      setLoginError(null)
       navigate("/dashboard")
     },
+    onError: (error: unknown) => {
+      let message = "Login failed. Please check your credentials."
+      
+      if (axios.isAxiosError(error)) {
+        if (error.response?.data?.message) {
+          message = error.response.data.message
+        } else if (error.response?.status === 401) {
+          message = "Invalid email or password."
+        } else if (error.response?.status === 400) {
+          message = "Please check your email and password."
+        }
+      }
+      
+      setLoginError(message)
+      addToast(message, "error")
+    },
+    retry: false,
   })
 
   const onSubmit = (data: LoginFormData) => {
+    setLoginError(null)
     mutation.mutate(data)
   }
 
@@ -46,17 +67,29 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {loginError && (
+              <p className="text-red-400 text-sm rounded-lg bg-red-400/10 border border-red-400/20 p-3">
+                {loginError}
+              </p>
+            )}
+
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
                 Email
               </label>
               <input
-                {...register("email")}
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: "Invalid email address",
+                  },
+                })}
                 type="email"
                 placeholder="you@company.com"
                 className="w-full rounded-xl border border-white/10 bg-ashSoft/90 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-copper"
               />
-              {errors.email && <p className="text-xs text-red-400">Invalid email</p>}
+              {errors.email && <p className="text-xs text-red-400">{errors.email.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -64,21 +97,28 @@ export default function LoginPage() {
                 Password
               </label>
               <input
-                {...register("password")}
+                {...register("password", {
+                  required: "Password is required",
+                  minLength: {
+                    value: 6,
+                    message: "Password must be at least 6 characters",
+                  },
+                })}
                 type="password"
                 placeholder="Your password"
                 className="w-full rounded-xl border border-white/10 bg-ashSoft/90 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-copper"
               />
               {errors.password && (
-                <p className="text-xs text-red-400">Invalid password</p>
+                <p className="text-xs text-red-400">{errors.password.message}</p>
               )}
             </div>
 
             <button
               type="submit"
-              className="w-full rounded-full bg-copper py-3 text-sm font-semibold text-white transition hover:brightness-95"
+              disabled={mutation.isPending}
+              className="w-full rounded-full bg-copper py-3 text-sm font-semibold text-white transition hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Login
+              {mutation.isPending ? "Logging in..." : "Login"}
             </button>
 
             <div className="pt-2 text-center lg:text-left">
