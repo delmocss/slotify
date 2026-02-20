@@ -9,10 +9,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "workspaces": [
-    "server",
-    "client"
-  ],
   "dependencies": {
     "recharts": "^3.7.0"
   }
