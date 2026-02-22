@@ -14,7 +14,7 @@ export default function DashboardHomePage() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [dateFilter, setDateFilter] = useState("")
   const [search, setSearch] = useState("")
-  
+  const publicUrl = `${window.location.origin}/b/${user?.slug}`
   const today = new Date().toISOString().split("T")[0]
   const [fromDate, setFromDate] = useState(
     new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
@@ -83,12 +83,12 @@ export default function DashboardHomePage() {
         <div className="bg-surface border border-white/5 rounded-xl p-6">
           <p className="text-sm text-gray-400 mb-1">Your public booking page:</p>
           <a
-            href={`http://localhost:3000/b/${user.slug}`}
+            href={publicUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 hover:underline font-medium"
           >
-            http://localhost:3000/b/{user.slug}
+            {publicUrl}
           </a>
         </div>
       )}
