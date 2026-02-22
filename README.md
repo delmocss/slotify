@@ -17,7 +17,7 @@
 
 ---
 
-## � Screenshots
+## 📸 Screenshots
 
 ### Landing 
 
@@ -41,84 +41,9 @@
 
 ---
 
-## �📌 Project Overview
-
-Slotify is a full-stack appointment booking platform built as a portfolio project with a strong focus on:
-
-- Real business constraints
-- Clean architecture
-- Scalable design
-- Type-safe frontend
-- Modular backend structure
-- SaaS-oriented thinking (not just CRUD)
-
-The goal of this project was not to build a simple reservation app, but to simulate how a real booking SaaS product would be architected, structured and extended in production.
-
----
-
-## 🎯 Problem Statement
-
-Many small businesses still rely on:
-
-- Manual scheduling
-- Phone calls
-- WhatsApp messages
-- Spreadsheets
-
-This creates inefficiencies, double bookings and lack of reporting.
-
-Slotify provides:
-
-- Smart availability generation
-- Booking flow with business rules
-- Secure public cancellation
-- Analytics dashboard
-- Revenue tracking
-- CSV export for reporting
-- Branding customization
-
----
-
-## 🏗 Architecture
-
-The project follows a feature-based modular architecture both in frontend and backend.
-
-### Frontend
-
-- React
-- TypeScript (strict mode enabled)
-- Vite
-- Tailwind CSS
-- TanStack React Query
-- React Hook Form + Zod
-- Framer Motion
-- Recharts
-- Testing Library
-
-### Backend
-
-- Node.js
-- Express
-- PostgreSQL
-- Modular feature-based architecture
-- JWT authentication
-- Rate limiting
-- Secure cancellation tokens
-- Centralized error handling
-
----
-
-## 📁 Project Structure
-
-# 🚀 Slotify — Smart Booking SaaS Platform
-
-> A production-oriented full-stack booking system designed to simulate a real-world SaaS product with business-driven logic, scalable architecture and professional UX patterns.
-
----
-
 ## 📌 Project Overview
 
-Slotify is a full-stack appointment booking platform built as a portfolio project with a strong focus on:
+Slotify is a full-stack booking platform designed with a SaaS-oriented architecture to simulate a production-ready product for small businesses with a strong focus on:
 
 - Real business constraints
 - Clean architecture
@@ -180,6 +105,16 @@ The project follows a feature-based modular architecture both in frontend and ba
 - Rate limiting
 - Secure cancellation tokens
 - Centralized error handling
+
+---
+
+## ⚙️ Deployment Architecture
+
+Frontend: Vercel  
+Backend: Render  
+Database: Supabase PostgreSQL  
+
+The application is deployed in a production-like environment with separated frontend and backend services.
 
 ---
 
@@ -212,7 +147,7 @@ slotify/
 
 ---
 
-## � Architectural Considerations
+## 🧠 Architectural Considerations
 
 - Business-scoped queries prevent data leakage.
 - Non-destructive operations (soft toggles).
@@ -221,7 +156,7 @@ slotify/
 
 ---
 
-## �🧩 Core Functional Features
+## 🧩 Core Functional Features
 
 ### 🔹 Public Booking Flow
 
@@ -395,7 +330,7 @@ Steps:
 ### Frontend Deployment (Vercel)
 
 1. Import repository
-2. Add environment variable: VITE_API_URL=https://your-backend-url
+2. VITE_API_URL=https://your-render-backend-url
 3. Deploy
 
 ---
