@@ -6,9 +6,14 @@
 
 ## 🌐 Live Demo
 
-**Frontend:** https://slotify-demo.vercel.app  
-**Backend API:** https://slotify-api.onrender.com
+**Frontend:** https://slotify-client-theta.vercel.app  
+**Backend API:** https://slotify-50re.onrender.com
 
+**Demo Credentials:**  
+- Email: demo@demo.com  
+- Password: demo1234
+
+**Public Booking** https://slotify-demo.vercel.app/b/demo-business
 ---
 
 ## � Screenshots
