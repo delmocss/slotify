@@ -8,21 +8,13 @@
 
 **Frontend:** https://slotify-client-theta.vercel.app  
 **Backend API:** https://slotify-50re.onrender.com
-<<<<<<< HEAD
 
 **Demo Credentials:**  
 - Email: demo@demo.com  
 - Password: demo1234
 
 **Public Booking:** https://slotify-client-theta.vercel.app/b/demo-negocio
-=======
->>>>>>> b1cdd4e2fe24e2095cf67e09c6f97168ffaa696d
 
-**Demo Credentials:**  
-- Email: demo@demo.com  
-- Password: demo1234
-
-**Public Booking** https://slotify-demo.vercel.app/b/demo-business
 ---
 
 ## � Screenshots
