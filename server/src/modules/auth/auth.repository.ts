@@ -1,40 +1,93 @@
 import { pool } from "../../config/db"
 
 export class AuthRepository {
-    async findByEmail(email: string) {
-        const result = await pool.query(
-            "SELECT * FROM businesses WHERE email = $1",
-            [email]
-        )
-        return result.rows[0]
-    }
+  // Users table operations
+  async findUserByEmail(email: string) {
+    const result = await pool.query(
+      "SELECT id, email, password_hash, created_at FROM users WHERE email = $1",
+      [email]
+    )
+    return result.rows[0]
+  }
 
-    async create(data: {
-        name: string
-        email: string
-        password_hash: string
-    }) {
-        const slug = data.name
-            .toLowerCase()
-            .replace(/\s+/g, "-")
+  async createUser(data: { email: string; password_hash: string }) {
+    const result = await pool.query(
+      "INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, created_at",
+      [data.email, data.password_hash]
+    )
+    return result.rows[0]
+  }
 
-        const result = await pool.query(
-            `INSERT INTO businesses (name, email, password_hash, slug)
-     VALUES ($1, $2, $3, $4)
-     RETURNING id, name, email, slug`,
-            [data.name, data.email, data.password_hash, slug]
-        )
+  async findUserById(userId: string) {
+    const result = await pool.query(
+      "SELECT id, email, created_at FROM users WHERE id = $1",
+      [userId]
+    )
+    return result.rows[0]
+  }
 
-        return result.rows[0]
-    }
+  // Organizations table operations
+  async createOrganization(name: string) {
+    const result = await pool.query(
+      "INSERT INTO organizations (name) VALUES ($1) RETURNING id, name, created_at",
+      [name]
+    )
+    return result.rows[0]
+  }
 
+  // Organization members operations
+  async createOrganizationMember(data: {
+    organizationId: string
+    userId: string
+    role: "owner" | "admin" | "member"
+  }) {
+    const result = await pool.query(
+      "INSERT INTO organization_members (organization_id, user_id, role) VALUES ($1, $2, $3) RETURNING id, organization_id, user_id, role, created_at",
+      [data.organizationId, data.userId, data.role]
+    )
+    return result.rows[0]
+  }
 
-    async findById(id: string) {
-        const result = await pool.query(
-            "SELECT id, name, email, slug FROM businesses WHERE id = $1",
-            [id]
-        )
-        return result.rows[0]
-    }
+  async getUserOrganizations(userId: string) {
+    const result = await pool.query(
+      `SELECT om.id, om.organization_id, om.role, o.name, o.created_at
+       FROM organization_members om
+       JOIN organizations o ON om.organization_id = o.id
+       WHERE om.user_id = $1
+       ORDER BY om.created_at ASC`,
+      [userId]
+    )
+    return result.rows
+  }
 
+  // Businesses table operations (operational entity, no auth)
+  async createBusiness(data: {
+    name: string
+    email: string
+    organizationId: string
+  }) {
+    const slug = data.name
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-")
+
+    const result = await pool.query(
+      `INSERT INTO businesses (name, email, slug, organization_id)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, name, email, slug, organization_id, created_at`,
+      [data.name, data.email, slug, data.organizationId]
+    )
+    return result.rows[0]
+  }
+
+  async findUserBusiness(organizationId: string) {
+    const result = await pool.query(
+      "SELECT id, name, email, slug, organization_id FROM businesses WHERE organization_id = $1",
+      [organizationId]
+    )
+    return result.rows[0]
+  }
 }

@@ -14,9 +14,9 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function getMe(req: Request, res: Response) {
-  const organizationId = req.context!.organizationId
+  const userId = req.context!.userId
 
-  const result = await service.getMe(organizationId)
+  const result = await service.getMe(userId)
 
   res.json(result)
 }
