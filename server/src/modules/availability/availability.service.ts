@@ -8,13 +8,13 @@ import { AppError } from "../../utils/appError"
 
 export class AvailabilityService {
   async getAvailability(
-    businessId: string,
+    organizationId: string,
     serviceId: string,
     date: string
   ) {
     const serviceResult = await pool.query(
       "SELECT duration_minutes FROM services WHERE id = $1 AND business_id = $2",
-      [serviceId, businessId]
+      [serviceId, organizationId]
     )
 
     const service = serviceResult.rows[0]
@@ -28,7 +28,7 @@ export class AvailabilityService {
       `SELECT start_time, end_time
        FROM working_hours
        WHERE business_id = $1 AND day_of_week = $2`,
-      [businessId, dayOfWeek]
+      [organizationId, dayOfWeek]
     )
 
     const workingHours = workingResult.rows
@@ -55,7 +55,7 @@ export class AvailabilityService {
        AND service_id = $2
        AND date = $3
        AND status = 'confirmed'`,
-      [businessId, serviceId, date]
+      [organizationId, serviceId, date]
     )
 
     const bookings = bookingsResult.rows

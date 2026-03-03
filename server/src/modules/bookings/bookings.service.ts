@@ -15,7 +15,7 @@ interface CreateBookingData {
 export class BookingsService {
   private repo = new BookingsRepository()
 
-  async create(businessId: string, data: CreateBookingData) {
+  async create(organizationId: string, data: CreateBookingData) {
     const client = await pool.connect()
 
     try {
@@ -49,7 +49,7 @@ export class BookingsService {
         `SELECT duration_minutes 
          FROM services 
          WHERE id = $1 AND business_id = $2`,
-        [data.serviceId, businessId]
+        [data.serviceId, organizationId]
       )
 
       const service = serviceResult.rows[0]
@@ -76,7 +76,7 @@ export class BookingsService {
         AND end_time > $4
         `,
         [
-          businessId,
+          organizationId,
           data.serviceId,
           data.date,
           data.start_time,
@@ -99,7 +99,7 @@ export class BookingsService {
         RETURNING *
         `,
         [
-          businessId,
+          organizationId,
           data.serviceId,
           data.client_name,
           data.client_email,
@@ -126,27 +126,27 @@ export class BookingsService {
     }
   }
 
-  async cancel(businessId: string, bookingId: string) {
-  const result = await pool.query(
-    `
-    UPDATE bookings
-    SET status = 'cancelled'
-    WHERE id = $1 AND business_id = $2
-    RETURNING *
-    `,
-    [bookingId, businessId]
-  )
+  async cancel(organizationId: string, bookingId: string) {
+    const result = await pool.query(
+      `
+      UPDATE bookings
+      SET status = 'cancelled'
+      WHERE id = $1 AND business_id = $2
+      RETURNING *
+      `,
+      [bookingId, organizationId]
+    )
 
-  if (!result.rows.length) {
-    throw new AppError("Booking not found", 404)
+    if (!result.rows.length) {
+      throw new AppError("Booking not found", 404)
+    }
+
+    return result.rows[0]
   }
 
-  return result.rows[0]
-}
-
-async getAll(businessId: string) {
-  return this.repo.findAll(businessId)
-}
+  async getAll(organizationId: string) {
+    return this.repo.findAll(organizationId)
+  }
 
 async generateBookingCode() {
   const random = Math.random().toString(36).substring(2, 8).toUpperCase()

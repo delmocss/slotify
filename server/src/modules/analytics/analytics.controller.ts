@@ -4,10 +4,10 @@ import { pool } from "../../config/db"
 
 const service = new AnalyticsService()
 
-async function getSlugFromBusinessId(businessId: string): Promise<string> {
+async function getSlugFromOrganizationId(organizationId: string): Promise<string> {
   const result = await pool.query(
     "SELECT slug FROM businesses WHERE id = $1",
-    [businessId]
+    [organizationId]
   )
   if (!result.rows.length) {
     throw new Error("Business not found")
@@ -20,7 +20,7 @@ export async function getDashboardMetrics(
   res: Response
 ) {
   try {
-    const slug = await getSlugFromBusinessId(req.businessId!)
+    const slug = await getSlugFromOrganizationId(req.context!.organizationId)
     const data = await service.getDashboardMetrics(slug)
     res.json(data)
   } catch (error) {
@@ -33,7 +33,7 @@ export async function exportBookings(
   res: Response
 ) {
   try {
-    const slug = await getSlugFromBusinessId(req.businessId!)
+    const slug = await getSlugFromOrganizationId(req.context!.organizationId)
     const { from, to } = req.query
 
     const data = await service.exportBookings(

@@ -4,12 +4,12 @@ import { ServicesService } from "./services.service"
 const service = new ServicesService()
 
 export async function createService(req: Request, res: Response) {
-  const result = await service.create(req.businessId!, req.body)
+  const result = await service.create(req.context!.organizationId, req.body)
   res.status(201).json(result)
 }
 
 export async function getServices(req: Request, res: Response) {
-  const result = await service.getAll(req.businessId!)
+  const result = await service.getAll(req.context!.organizationId)
   res.json(result)
 }
 
@@ -17,7 +17,7 @@ export async function updateService(req: Request, res: Response) {
   const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id
   const result = await service.update(
     id,
-    req.businessId!,
+    req.context!.organizationId,
     req.body
   )
   res.json(result)
@@ -25,7 +25,7 @@ export async function updateService(req: Request, res: Response) {
 
 export async function deleteService(req: Request, res: Response) {
   const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id
-  await service.delete(id, req.businessId!)
+  await service.delete(id, req.context!.organizationId)
   res.status(204).send()
 }
 
@@ -34,9 +34,9 @@ export async function toggleService(
   res: Response
 ) {
   const slug = Array.isArray(req.params.slug) ? req.params.slug[0] : req.params.slug
-  const businessId = req.businessId!
+  const organizationId = req.context!.organizationId
 
-  const result = await service.toggleService(slug, businessId)
+  const result = await service.toggleService(slug, organizationId)
   res.json(result)
 }
 

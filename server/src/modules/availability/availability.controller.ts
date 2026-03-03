@@ -10,7 +10,7 @@ export async function getAvailability(
   const { serviceId, date } = req.query
 
   const result = await service.getAvailability(
-    req.businessId!,
+    req.context!.organizationId,
     serviceId as string,
     date as string
   )

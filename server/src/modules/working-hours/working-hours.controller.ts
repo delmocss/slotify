@@ -7,7 +7,7 @@ export async function updateWorkingHours(
   req: Request,
   res: Response
 ) {
-  await service.update(req.businessId!, req.body)
+  await service.update(req.context!.organizationId, req.body)
   res.status(204).send()
 }
 
@@ -15,6 +15,6 @@ export async function getWorkingHours(
   req: Request,
   res: Response
 ) {
-  const result = await service.get(req.businessId!)
+  const result = await service.get(req.context!.organizationId)
   res.json(result)
 }

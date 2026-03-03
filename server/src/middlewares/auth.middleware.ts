@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express"
-import jwt from "jsonwebtoken"
-import { env } from "../config/env"
+import { verifyAccessToken } from "../utils/jwt.utils"
 
 export function protect(
   req: Request,
@@ -16,11 +15,13 @@ export function protect(
   const token = authHeader.split(" ")[1]
 
   try {
-    const decoded = jwt.verify(token, env.jwtSecret, { algorithms: ["HS256"] }) as {
-      businessId: string
-    }
+    const payload = verifyAccessToken(token)
 
-    req.businessId = decoded.businessId
+    req.context = {
+      userId: payload.sub,
+      organizationId: payload.org,
+      role: payload.role,
+    }
 
     next()
   } catch (error) {

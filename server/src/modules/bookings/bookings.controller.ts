@@ -7,7 +7,7 @@ export async function createBooking(
   req: Request,
   res: Response
 ) {
-  const result = await service.create(req.businessId!, req.body)
+  const result = await service.create(req.context!.organizationId, req.body)
   res.status(201).json(result)
 }
 
@@ -19,7 +19,7 @@ export async function cancelBooking(
     ? req.params.id[0]
     : req.params.id
   const result = await service.cancel(
-    req.businessId!,
+    req.context!.organizationId,
     id
   )
 
@@ -30,7 +30,7 @@ export async function getBookings(
   req: Request,
   res: Response
 ) {
-  const result = await service.getAll(req.businessId!)
+  const result = await service.getAll(req.context!.organizationId)
   res.json(result)
 }
 

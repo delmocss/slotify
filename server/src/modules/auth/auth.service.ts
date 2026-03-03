@@ -1,6 +1,6 @@
 import { AuthRepository } from "./auth.repository"
 import { hashPassword, comparePassword } from "../../utils/hash.utils"
-import { generateToken } from "../../utils/jwt.utils"
+import { generateAccessToken } from "../../utils/jwt.utils"
 import { AppError } from "../../utils/appError"
 
 export class AuthService {
@@ -25,7 +25,11 @@ export class AuthService {
             password_hash,
         })
 
-        const token = generateToken({ businessId: business.id })
+        const token = generateAccessToken({
+            sub: business.id,
+            org: business.id,
+            role: "owner",
+        })
 
         return { business, token }
     }
@@ -49,7 +53,11 @@ export class AuthService {
             throw new AppError("Invalid credentials", 401)
         }
 
-        const token = generateToken({ businessId: business.id })
+        const token = generateAccessToken({
+            sub: business.id,
+            org: business.id,
+            role: "owner",
+        })
 
         // Nunca devolver el hash de la contraseña al cliente.
         const { password_hash: _omit, ...safeBusiness } = business
@@ -57,8 +65,8 @@ export class AuthService {
         return { business: safeBusiness, token }
     }
 
-    async getMe(businessId: string) {
-        const business = await this.repo.findById(businessId)
+    async getMe(organizationId: string) {
+        const business = await this.repo.findById(organizationId)
 
         if (!business) {
             throw new AppError("Business not found", 404)
@@ -68,3 +76,4 @@ export class AuthService {
     }
 
 }
+
