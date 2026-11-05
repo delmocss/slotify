@@ -93,7 +93,6 @@ The project follows a feature-based modular architecture both in frontend and ba
 - React Hook Form + Zod
 - Framer Motion
 - Recharts
-- Testing Library
 
 ### Backend
 
@@ -102,7 +101,9 @@ The project follows a feature-based modular architecture both in frontend and ba
 - PostgreSQL
 - Modular feature-based architecture
 - JWT authentication
-- Rate limiting
+- Rate limiting (express-rate-limit) and security headers (helmet)
+- Environment validation at startup (zod)
+- Automated tests (Vitest + Supertest)
 - Secure cancellation tokens
 - Centralized error handling
 
@@ -122,19 +123,22 @@ The application is deployed in a production-like environment with separated fron
 
 ```text
 slotify/
+├── client/                  # React + Vite + TypeScript
+│   └── src/
+│       ├── app/             # router and providers
+│       ├── components/      # shared UI components
+│       ├── features/        # auth, dashboard, landing, public-booking, services, working-hours
+│       ├── lib/             # axios instance, helpers
+│       └── types/
 │
-├── client/
-│   ├── modules/
-│   ├── components/
-│   ├── hooks/
-│   ├── types/
-│   └── pages/
-│
-├── server/
-│   ├── modules/
-│   ├── middleware/
-│   ├── config/
-│   └── routes/
+└── server/                  # Express + PostgreSQL
+    ├── src/
+    │   ├── config/          # env validation, db pool
+    │   ├── middlewares/     # auth, validation, errors, rate limits
+    │   ├── modules/         # analytics, auth, availability, bookings, public, services, working-hours
+    │   ├── database/        # schema.sql
+    │   └── utils/
+    └── tests/               # Vitest + Supertest
 ```
 
 ### Design Principles
@@ -163,7 +167,6 @@ slotify/
 - Service selection
 - Smart slot generation
 - Time grouping (Morning / Afternoon / Evening)
-- Daily booking limit enforcement
 - Fully booked state handling
 - Unique booking code generation
 - Secure public cancellation via token
@@ -178,7 +181,6 @@ slotify/
 - Date range filtering
 - CSV export
 - Service activation / deactivation
-- Daily booking limit configuration
 - Business branding (logo + primary color)
 
 ---
@@ -187,7 +189,6 @@ slotify/
 
 - Dynamic slot generation
 - Conflict detection
-- Daily limit enforcement
 - Status-based filtering (confirmed vs cancelled)
 - Non-overlapping time slots
 
@@ -218,9 +219,12 @@ slotify/
 
 ## 🔐 Security & Robustness
 
-- JWT-based authentication
-- Public endpoint rate limiting
+- JWT-based authentication (HS256 pinned, secret validated at startup)
+- CORS restricted to the configured frontend origin (`CORS_ORIGIN`)
+- Security headers with `helmet`
+- Rate limiting: general API, login/register (brute force) and public bookings/cancellation (spam)
 - Secure cancellation tokens (crypto-based)
+- Race-safe booking creation (Postgres advisory lock per business/service/day)
 - Strict TypeScript (no `any`)
 - Centralized error middleware
 - Business-scoped queries
@@ -229,12 +233,14 @@ slotify/
 
 ## 🧪 Testing
 
-Basic unit tests implemented for:
+```bash
+cd server
+npm test
+```
 
-- Availability slot generation logic
-- Reusable UI components
+Vitest + Supertest, no database required. They cover the availability logic (slot generation, conflict detection) and the API surface: security headers, CORS allowlist, JWT rejection (missing token / wrong secret), request validation and the login rate limit.
 
-This ensures deterministic behavior in core booking logic.
+Not covered yet: integration tests against a real Postgres (e.g. the concurrent-booking lock) and frontend tests.
 
 ---
 
@@ -251,7 +257,7 @@ This project intentionally goes beyond CRUD.
 
 ### SaaS Application (Slotify Approach)
 
-- Business rules (daily booking limits)
+- Business rules (conflict detection, past-slot protection, race-safe bookings)
 - Smart availability engine
 - Public + private flows
 - Secure cancellation mechanism
@@ -275,27 +281,41 @@ Slotify was designed with SaaS thinking, not simple data manipulation.
 
 ### 2️⃣ Backend Setup
 
-- cd server
-- npm install
+```bash
+cd server
+npm install
+cp .env.example .env     # then fill in the values
+```
 
-Create `.env` file:
-- DATABASE_URL=postgresql://username:password@localhost:5432/slotify
-- JWT_SECRET=super_secret_key
-- PORT=4000
+Create the tables by running `server/src/database/schema.sql` against your Postgres database.
 
-Run backend: npm run dev
+Environment variables (`server/.env`):
 
-Backend runs on: http://localhost:4000
+| Variable | Required | Notes |
+|---|---|---|
+| `DATABASE_URL` | yes | PostgreSQL connection string |
+| `JWT_SECRET` | yes | at least 32 characters, e.g. `openssl rand -base64 48` |
+| `CORS_ORIGIN` | recommended | frontend origin(s), comma-separated. If unset, any origin is accepted (a warning is logged) |
+| `PORT` | no | defaults to 4000 |
+
+The server refuses to start if `DATABASE_URL` or `JWT_SECRET` are missing or invalid.
+
+```bash
+npm run dev     # http://localhost:4000
+npm test
+```
 
 ---
 
 ### 3️⃣ Frontend Setup
 
-- cd client
-- npm install
-- npm run dev
+```bash
+cd client
+npm install
+npm run dev     # http://localhost:3000
+```
 
-Frontend runs on: http://localhost:3000
+Optionally set `VITE_API_URL` (defaults to `http://localhost:4000`).
 
 ---
 
@@ -311,7 +331,7 @@ Recommended providers:
 
 Steps:
 1. Create PostgreSQL instance
-2. Run migrations
+2. Run `server/src/database/schema.sql`
 3. Add connection string to backend environment
 
 ---
@@ -321,17 +341,29 @@ Steps:
 1. Connect GitHub repository
 2. Configure environment variables:
    - DATABASE_URL
-   - JWT_SECRET
-3. Build command: npm install
-4. Start command: npm run start
+   - JWT_SECRET (32+ characters)
+   - CORS_ORIGIN (your Vercel URL, without trailing slash)
+3. Root directory: `server`
+4. Build command: `npm install && npm run build`
+5. Start command: `npm run start`
+6. Health check path: `/health`
 
 ---
 
 ### Frontend Deployment (Vercel)
 
-1. Import repository
+1. Import repository, root directory `client`
 2. VITE_API_URL=https://your-render-backend-url
 3. Deploy
+
+---
+
+## ⚠️ Known Limitations
+
+- **No timezone support:** "past slot" checks for today use the server clock (UTC on Render).
+- **Availability is per service:** two different services can be booked at the same time (there is no staff/resource model).
+- **No email notifications:** the booking code and cancellation link are only shown on the confirmation screen.
+- **No integration or frontend tests** yet.
 
 ---
 
@@ -347,7 +379,7 @@ If evolving this into a production SaaS:
 - File upload storage (S3 / Supabase Storage)
 - Dockerization
 - CI/CD pipeline
-- End-to-end tests
+- Integration and end-to-end tests
 
 ---
 
