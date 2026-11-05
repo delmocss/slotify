@@ -1,0 +1,23 @@
+# Dependencias
+node_modules/
+
+# Salida de compilacion
+dist/
+build/
+*.tsbuildinfo
+.vite/
+
+# Entorno / secretos (usa .env.example como plantilla)
+.env
+.env.*
+!.env.example
+
+# Logs y sistema
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
