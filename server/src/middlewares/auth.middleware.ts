@@ -16,7 +16,7 @@ export function protect(
   const token = authHeader.split(" ")[1]
 
   try {
-    const decoded = jwt.verify(token, env.jwtSecret) as {
+    const decoded = jwt.verify(token, env.jwtSecret, { algorithms: ["HS256"] }) as {
       businessId: string
     }
 
