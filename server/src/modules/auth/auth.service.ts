@@ -51,7 +51,10 @@ export class AuthService {
 
         const token = generateToken({ businessId: business.id })
 
-        return { business, token }
+        // Nunca devolver el hash de la contraseña al cliente.
+        const { password_hash: _omit, ...safeBusiness } = business
+
+        return { business: safeBusiness, token }
     }
 
     async getMe(businessId: string) {
