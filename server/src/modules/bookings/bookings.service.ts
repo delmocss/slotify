@@ -26,7 +26,7 @@ export class BookingsService {
       // abajo (ninguna ve aun la reserva de la otra) y reservan el mismo hueco.
       // El lock se libera solo al terminar la transaccion (COMMIT/ROLLBACK).
       await client.query("SELECT pg_advisory_xact_lock(hashtext($1))", [
-        `${businessId}:${data.serviceId}:${data.date}`,
+        `${organizationId}:${data.serviceId}:${data.date}`,
       ])
 
       const today = new Date().toISOString().split("T")[0]

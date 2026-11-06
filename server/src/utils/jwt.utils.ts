@@ -13,12 +13,16 @@ interface LegacyJwtPayload {
 
 export function generateAccessToken(payload: JwtPayload) {
   return jwt.sign(payload, env.jwtSecret, {
+    algorithm: "HS256",
     expiresIn: "15m",
   })
 }
 
 export function verifyAccessToken(token: string): JwtPayload {
-  const decoded = jwt.verify(token, env.jwtSecret) as JwtPayload | LegacyJwtPayload
+  // Fijar el algoritmo evita ataques de confusión de algoritmo (p. ej. "none").
+  const decoded = jwt.verify(token, env.jwtSecret, {
+    algorithms: ["HS256"],
+  }) as JwtPayload | LegacyJwtPayload
 
   if ("businessId" in decoded) {
     return {
