@@ -1,13 +1,46 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ==========================
--- BUSINESSES
+-- USERS
 -- ==========================
-CREATE TABLE businesses (
+CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- ==========================
+-- ORGANIZATIONS
+-- ==========================
+CREATE TABLE organizations (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- ==========================
+-- ORGANIZATION MEMBERS
+-- ==========================
+CREATE TABLE organization_members (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    role TEXT CHECK (role IN ('owner', 'admin', 'member')) NOT NULL DEFAULT 'member',
+    created_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(organization_id, user_id)
+);
+
+-- ==========================
+-- BUSINESSES
+-- Note: businesses.id = organizations.id by convention (same UUID)
+-- ==========================
+CREATE TABLE businesses (
+    id UUID PRIMARY KEY,
+    organization_id UUID UNIQUE NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );
 

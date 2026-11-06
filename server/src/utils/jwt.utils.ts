@@ -14,7 +14,7 @@ interface LegacyJwtPayload {
 export function generateAccessToken(payload: JwtPayload) {
   return jwt.sign(payload, env.jwtSecret, {
     algorithm: "HS256",
-    expiresIn: "15m",
+    expiresIn: "7d",
   })
 }
 

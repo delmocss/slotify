@@ -61,7 +61,10 @@ export class AuthRepository {
   }
 
   // Businesses table operations (operational entity, no auth)
+  // businesses.id is set to organizationId so all service/booking queries work
+  // using organizationId directly as businessId without extra lookups.
   async createBusiness(data: {
+    id: string
     name: string
     email: string
     organizationId: string
@@ -75,10 +78,10 @@ export class AuthRepository {
       .replace(/\s+/g, "-")
 
     const result = await pool.query(
-      `INSERT INTO businesses (name, email, slug, organization_id)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO businesses (id, name, email, slug, organization_id)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING id, name, email, slug, organization_id, created_at`,
-      [data.name, data.email, slug, data.organizationId]
+      [data.id, data.name, data.email, slug, data.organizationId]
     )
     return result.rows[0]
   }

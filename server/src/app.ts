@@ -40,4 +40,6 @@ app.use("/availability", availabilityRoutes)
 app.use("/bookings", bookingsRoutes)
 app.use("/public", publicRoutes)
 app.use("/analytics", analyticsRoutes)
+
+// Error handler must be last
 app.use(errorHandler)

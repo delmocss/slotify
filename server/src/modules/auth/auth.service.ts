@@ -34,8 +34,10 @@ export class AuthService {
       role: "owner",
     })
 
-    // 5. Create business entity
+    // 5. Create business entity — id equals organizationId so all modules
+    // can use organizationId directly as businessId without extra lookups.
     const business = await this.repo.createBusiness({
+      id: organization.id,
       name: data.name,
       email: data.email,
       organizationId: organization.id,
@@ -110,9 +112,16 @@ export class AuthService {
 
     const organizations = await this.repo.getUserOrganizations(userId)
 
+    let slug: string | null = null
+    if (organizations.length > 0) {
+      const business = await this.repo.findUserBusiness(organizations[0].organization_id)
+      slug = business?.slug ?? null
+    }
+
     return {
       user,
       organizations,
+      slug,
     }
   }
 }

@@ -4,11 +4,20 @@ import { registerSchema, RegisterFormData } from "../schemas"
 import { register as registerApi } from "../api/auth.api"
 import { Link, useNavigate } from "react-router-dom"
 import { useMutation } from "@tanstack/react-query"
+import { useState } from "react"
+import { useToast } from "../../../components/ui/toast/useToast"
+import axios from "axios"
 
 export default function RegisterPage() {
   const navigate = useNavigate()
+  const [registerError, setRegisterError] = useState<string | null>(null)
+  const { addToast } = useToast()
 
-  const { register, handleSubmit } = useForm<RegisterFormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   })
 
@@ -17,6 +26,24 @@ export default function RegisterPage() {
     onSuccess: (data) => {
       localStorage.setItem("token", data.token)
       navigate("/dashboard")
+    },
+    onError: (error: unknown) => {
+      let message = "Registration failed. Please try again."
+
+      if (axios.isAxiosError(error)) {
+        if (error.response?.data?.message) {
+          message = error.response.data.message
+        } else if (error.response?.status === 409) {
+          message = "This email is already registered."
+        } else if (error.response?.status === 400) {
+          message = "Please check your information and try again."
+        } else if (!error.response) {
+          message = "Cannot connect to the server. Please try again later."
+        }
+      }
+
+      setRegisterError(message)
+      addToast(message, "error")
     },
   })
 
@@ -38,9 +65,18 @@ export default function RegisterPage() {
           </div>
 
           <form
-            onSubmit={handleSubmit((data) => mutation.mutate(data))}
+            onSubmit={handleSubmit((data) => {
+              setRegisterError(null)
+              mutation.mutate(data)
+            })}
             className="space-y-5"
           >
+            {registerError && (
+              <p className="text-red-400 text-sm rounded-lg bg-red-400/10 border border-red-400/20 p-3">
+                {registerError}
+              </p>
+            )}
+
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
                 Business name
@@ -50,6 +86,9 @@ export default function RegisterPage() {
                 placeholder="Studio Aurora"
                 className="w-full rounded-xl border border-white/10 bg-ashSoft/90 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-copper"
               />
+              {errors.name && (
+                <p className="text-xs text-red-400">{errors.name.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -62,6 +101,9 @@ export default function RegisterPage() {
                 placeholder="you@company.com"
                 className="w-full rounded-xl border border-white/10 bg-ashSoft/90 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-copper"
               />
+              {errors.email && (
+                <p className="text-xs text-red-400">{errors.email.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -74,13 +116,17 @@ export default function RegisterPage() {
                 placeholder="Create a password"
                 className="w-full rounded-xl border border-white/10 bg-ashSoft/90 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-copper"
               />
+              {errors.password && (
+                <p className="text-xs text-red-400">{errors.password.message}</p>
+              )}
             </div>
 
             <button
               type="submit"
-              className="w-full rounded-full bg-copper py-3 text-sm font-semibold text-white transition hover:brightness-95"
+              disabled={mutation.isPending}
+              className="w-full rounded-full bg-copper py-3 text-sm font-semibold text-white transition hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Create Account
+              {mutation.isPending ? "Creating account..." : "Create Account"}
             </button>
 
             <div className="pt-2 text-center lg:text-left">
