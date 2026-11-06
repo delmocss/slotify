@@ -2,6 +2,7 @@ import { AuthRepository } from "./auth.repository"
 import { hashPassword, comparePassword } from "../../utils/hash.utils"
 import { generateAccessToken } from "../../utils/jwt.utils"
 import { AppError } from "../../utils/appError"
+import { pool } from "../../config/db"
 
 export class AuthService {
   private repo = new AuthRepository()
@@ -17,31 +18,41 @@ export class AuthService {
       throw new AppError("Email already in use", 409)
     }
 
-    // 2. Hash password and create user
+    // 2-5. Create user, organization, owner membership and business atomically:
+    // a failure part-way must not leave an orphan user that blocks re-registering.
     const password_hash = await hashPassword(data.password)
-    const user = await this.repo.createUser({
-      email: data.email,
-      password_hash,
-    })
-
-    // 3. Create organization
-    const organization = await this.repo.createOrganization(data.name)
-
-    // 4. Create organization_member (owner)
-    await this.repo.createOrganizationMember({
-      organizationId: organization.id,
-      userId: user.id,
-      role: "owner",
-    })
-
-    // 5. Create business entity — id equals organizationId so all modules
-    // can use organizationId directly as businessId without extra lookups.
-    const business = await this.repo.createBusiness({
-      id: organization.id,
-      name: data.name,
-      email: data.email,
-      organizationId: organization.id,
-    })
+    const client = await pool.connect()
+    let user, organization, business
+    try {
+      await client.query("BEGIN")
+      user = await this.repo.createUser({ email: data.email, password_hash }, client)
+      organization = await this.repo.createOrganization(data.name, client)
+      await this.repo.createOrganizationMember(
+        { organizationId: organization.id, userId: user.id, role: "owner" },
+        client
+      )
+      // businesses.id equals organizationId so all modules can use
+      // organizationId directly as businessId without extra lookups.
+      business = await this.repo.createBusiness(
+        {
+          id: organization.id,
+          name: data.name,
+          email: data.email,
+          organizationId: organization.id,
+        },
+        client
+      )
+      await client.query("COMMIT")
+    } catch (err) {
+      await client.query("ROLLBACK").catch(() => {})
+      // unique violation: concurrent registration with the same email/slug
+      if ((err as { code?: string }).code === "23505") {
+        throw new AppError("Email already in use", 409)
+      }
+      throw err
+    } finally {
+      client.release()
+    }
 
     // 6. Generate JWT
     const token = generateAccessToken({
