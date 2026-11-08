@@ -43,4 +43,21 @@ describe("API (sin base de datos)", () => {
     }
     expect(ultimo).toBe(429)
   })
+
+  it("responde 400 (no 500) cuando el cuerpo no es JSON valido", async () => {
+    const res = await request(app)
+      .post("/auth/login")
+      .set("Content-Type", "application/json")
+      .send('{"email": "a@b.c", ')
+    expect(res.status).toBe(400)
+    expect(res.body).toEqual({ message: "Invalid JSON body" })
+  })
+
+  it("responde 413 cuando el cuerpo supera el limite", async () => {
+    const res = await request(app)
+      .post("/auth/login")
+      .set("Content-Type", "application/json")
+      .send(JSON.stringify({ email: "a@b.c", password: "x".repeat(200_000) }))
+    expect(res.status).toBe(413)
+  })
 })
