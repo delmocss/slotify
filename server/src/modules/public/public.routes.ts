@@ -15,11 +15,7 @@ router.get("/:slug/services", getPublicServices)
 
 router.get("/:slug/availability", getPublicAvailability)
 
-router.post(
-  "/:slug/bookings",
-  validate(createBookingSchema),
-  createPublicBooking
-)
+router.post("/:slug/bookings", validate(createBookingSchema), createPublicBooking)
 
 router.get("/:slug", getPublicBusiness)
 

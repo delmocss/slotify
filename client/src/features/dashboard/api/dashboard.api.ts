@@ -23,4 +23,3 @@ export async function exportBookings(from: string, to: string) {
 
   return response.data
 }
-

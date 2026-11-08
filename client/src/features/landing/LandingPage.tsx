@@ -46,8 +46,8 @@ export default function LandingPage() {
           transition={{ delay: 0.2 }}
           className="mt-6 max-w-2xl text-base text-gray-300 sm:text-lg"
         >
-          A premium booking experience for professionals and small businesses.
-          Designed to reduce friction, delight clients, and keep schedules tidy.
+          A premium booking experience for professionals and small businesses. Designed to reduce
+          friction, delight clients, and keep schedules tidy.
         </motion.p>
 
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">

@@ -6,16 +6,10 @@ import { protect } from "../../middlewares/auth.middleware"
 
 const router = Router()
 
-router.post(
-  "/",
-  protect,
-  validate(createBookingSchema),
-  createBooking
-)
+router.post("/", protect, validate(createBookingSchema), createBooking)
 
 router.patch("/:id/cancel", protect, cancelBooking)
 
 router.get("/", protect, getBookings)
-
 
 export default router

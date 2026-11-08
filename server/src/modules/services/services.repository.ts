@@ -18,7 +18,7 @@ export class ServicesRepository {
     price: number
   }) {
     const slug = generateSlug(data.name)
-    
+
     const result = await pool.query(
       `INSERT INTO services (business_id, name, slug, duration_minutes, price)
        VALUES ($1, $2, $3, $4, $5)
@@ -42,9 +42,7 @@ export class ServicesRepository {
     const fields = Object.keys(data)
     const values = Object.values(data)
 
-    const setClause = fields
-      .map((field, index) => `${field} = $${index + 3}`)
-      .join(", ")
+    const setClause = fields.map((field, index) => `${field} = $${index + 3}`).join(", ")
 
     const result = await pool.query(
       `UPDATE services
@@ -58,9 +56,6 @@ export class ServicesRepository {
   }
 
   async delete(id: string, businessId: string) {
-    await pool.query(
-      "DELETE FROM services WHERE id = $1 AND business_id = $2",
-      [id, businessId]
-    )
+    await pool.query("DELETE FROM services WHERE id = $1 AND business_id = $2", [id, businessId])
   }
 }

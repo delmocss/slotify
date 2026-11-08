@@ -22,10 +22,9 @@ export class AuthRepository {
   }
 
   async findUserById(userId: string) {
-    const result = await pool.query(
-      "SELECT id, email, created_at FROM users WHERE id = $1",
-      [userId]
-    )
+    const result = await pool.query("SELECT id, email, created_at FROM users WHERE id = $1", [
+      userId,
+    ])
     return result.rows[0]
   }
 
@@ -39,11 +38,14 @@ export class AuthRepository {
   }
 
   // Organization members operations
-  async createOrganizationMember(data: {
-    organizationId: string
-    userId: string
-    role: "owner" | "admin" | "member"
-  }, db: Queryable = pool) {
+  async createOrganizationMember(
+    data: {
+      organizationId: string
+      userId: string
+      role: "owner" | "admin" | "member"
+    },
+    db: Queryable = pool
+  ) {
     const result = await db.query(
       "INSERT INTO organization_members (organization_id, user_id, role) VALUES ($1, $2, $3) RETURNING id, organization_id, user_id, role, created_at",
       [data.organizationId, data.userId, data.role]
@@ -66,12 +68,15 @@ export class AuthRepository {
   // Businesses table operations (operational entity, no auth)
   // businesses.id is set to organizationId so all service/booking queries work
   // using organizationId directly as businessId without extra lookups.
-  async createBusiness(data: {
-    id: string
-    name: string
-    email: string
-    organizationId: string
-  }, db: Queryable = pool) {
+  async createBusiness(
+    data: {
+      id: string
+      name: string
+      email: string
+      organizationId: string
+    },
+    db: Queryable = pool
+  ) {
     const slug = await this.uniqueSlug(data.name, db)
 
     const result = await db.query(

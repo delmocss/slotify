@@ -6,10 +6,7 @@ import ToastProvider from "../components/ui/toast/ToastProvider"
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        {children}
-      </ToastProvider>
+      <ToastProvider>{children}</ToastProvider>
     </QueryClientProvider>
   )
 }
-

@@ -8,10 +8,7 @@ import {
   deleteService,
   toggleService,
 } from "./services.controller"
-import {
-  createServiceSchema,
-  updateServiceSchema,
-} from "./services.schema"
+import { createServiceSchema, updateServiceSchema } from "./services.schema"
 
 const router = Router()
 

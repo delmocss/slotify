@@ -5,15 +5,7 @@ import { useState } from "react"
 import { useToast } from "../../../components/ui/toast/useToast"
 import { WorkingHours, WorkingHoursDay } from "@/types"
 
-const days = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-]
+const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
 function groupByDay(data: WorkingHours[]): Record<number, WorkingHoursDay> {
   const grouped: Record<number, WorkingHoursDay> = {}
@@ -95,9 +87,7 @@ export default function WorkingHoursPage() {
             day={index}
             label={label}
             value={schedule[index] || { enabled: false, slots: [] }}
-            onChange={(val) =>
-              setSchedule({ ...schedule, [index]: val })
-            }
+            onChange={(val) => setSchedule({ ...schedule, [index]: val })}
           />
         ))}
       </div>

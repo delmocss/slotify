@@ -59,9 +59,7 @@ export default function RegisterPage() {
               Get started
             </p>
             <h2 className="mt-2 text-2xl font-bold">Create your account</h2>
-            <p className="mt-2 text-sm text-gray-400">
-              Set up your business in minutes.
-            </p>
+            <p className="mt-2 text-sm text-gray-400">Set up your business in minutes.</p>
           </div>
 
           <form
@@ -86,9 +84,7 @@ export default function RegisterPage() {
                 placeholder="Studio Aurora"
                 className="w-full rounded-xl border border-white/10 bg-ashSoft/90 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-copper"
               />
-              {errors.name && (
-                <p className="text-xs text-red-400">{errors.name.message}</p>
-              )}
+              {errors.name && <p className="text-xs text-red-400">{errors.name.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -101,9 +97,7 @@ export default function RegisterPage() {
                 placeholder="you@company.com"
                 className="w-full rounded-xl border border-white/10 bg-ashSoft/90 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-copper"
               />
-              {errors.email && (
-                <p className="text-xs text-red-400">{errors.email.message}</p>
-              )}
+              {errors.email && <p className="text-xs text-red-400">{errors.email.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -116,9 +110,7 @@ export default function RegisterPage() {
                 placeholder="Create a password"
                 className="w-full rounded-xl border border-white/10 bg-ashSoft/90 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-copper"
               />
-              {errors.password && (
-                <p className="text-xs text-red-400">{errors.password.message}</p>
-              )}
+              {errors.password && <p className="text-xs text-red-400">{errors.password.message}</p>}
             </div>
 
             <button
@@ -145,9 +137,7 @@ export default function RegisterPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-600">
               What you get
             </p>
-            <p className="mt-3 text-sm font-semibold text-white/90">
-              A polished booking flow.
-            </p>
+            <p className="mt-3 text-sm font-semibold text-white/90">A polished booking flow.</p>
             <p className="mt-2 text-sm text-gray-400">
               Launch quickly with a clean UI that clients trust and love.
             </p>

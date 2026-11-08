@@ -15,11 +15,7 @@ export async function getServices(req: Request, res: Response) {
 
 export async function updateService(req: Request, res: Response) {
   const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id
-  const result = await service.update(
-    id,
-    req.context!.organizationId,
-    req.body
-  )
+  const result = await service.update(id, req.context!.organizationId, req.body)
   res.json(result)
 }
 
@@ -29,14 +25,10 @@ export async function deleteService(req: Request, res: Response) {
   res.status(204).send()
 }
 
-export async function toggleService(
-  req: Request,
-  res: Response
-) {
+export async function toggleService(req: Request, res: Response) {
   const slug = Array.isArray(req.params.slug) ? req.params.slug[0] : req.params.slug
   const organizationId = req.context!.organizationId
 
   const result = await service.toggleService(slug, organizationId)
   res.json(result)
 }
-

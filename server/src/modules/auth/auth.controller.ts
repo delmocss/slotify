@@ -20,4 +20,3 @@ export async function getMe(req: Request, res: Response) {
 
   res.json(result)
 }
-

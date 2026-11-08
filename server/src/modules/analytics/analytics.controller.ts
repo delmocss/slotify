@@ -5,20 +5,14 @@ import { pool } from "../../config/db"
 const service = new AnalyticsService()
 
 async function getSlugFromOrganizationId(organizationId: string): Promise<string> {
-  const result = await pool.query(
-    "SELECT slug FROM businesses WHERE id = $1",
-    [organizationId]
-  )
+  const result = await pool.query("SELECT slug FROM businesses WHERE id = $1", [organizationId])
   if (!result.rows.length) {
     throw new Error("Business not found")
   }
   return result.rows[0].slug
 }
 
-export async function getDashboardMetrics(
-  req: Request,
-  res: Response
-) {
+export async function getDashboardMetrics(req: Request, res: Response) {
   try {
     const slug = await getSlugFromOrganizationId(req.context!.organizationId)
     const data = await service.getDashboardMetrics(slug)
@@ -28,19 +22,12 @@ export async function getDashboardMetrics(
   }
 }
 
-export async function exportBookings(
-  req: Request,
-  res: Response
-) {
+export async function exportBookings(req: Request, res: Response) {
   try {
     const slug = await getSlugFromOrganizationId(req.context!.organizationId)
     const { from, to } = req.query
 
-    const data = await service.exportBookings(
-      slug,
-      from as string,
-      to as string
-    )
+    const data = await service.exportBookings(slug, from as string, to as string)
 
     const headers = [
       "Date",
@@ -62,16 +49,10 @@ export async function exportBookings(
       row.price,
     ])
 
-    const csvContent =
-      [headers, ...rows]
-        .map((e) => e.join(","))
-        .join("\n")
+    const csvContent = [headers, ...rows].map((e) => e.join(",")).join("\n")
 
     res.setHeader("Content-Type", "text/csv")
-    res.setHeader(
-      "Content-Disposition",
-      "attachment; filename=bookings.csv"
-    )
+    res.setHeader("Content-Disposition", "attachment; filename=bookings.csv")
 
     res.send(csvContent)
   } catch (error) {

@@ -26,14 +26,16 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
     <div className="relative bg-gradient-to-br from-[#1a1b17]/50 via-[#1a1b17]/30 to-[#1a1b17]/50 backdrop-blur-xl border border-white/[0.05] rounded-3xl overflow-hidden shadow-2xl shadow-black/20">
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-copper/[0.02] via-transparent to-transparent pointer-events-none" />
-      
+
       <div className="relative">
         {bookings.length === 0 ? (
           <div className="text-center py-32">
             <div className="inline-block mb-6">
               <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
             </div>
-            <p className="text-sm font-semibold text-gray-500 mb-2 tracking-tight">No bookings yet</p>
+            <p className="text-sm font-semibold text-gray-500 mb-2 tracking-tight">
+              No bookings yet
+            </p>
             <p className="text-xs text-gray-700 tracking-wide">
               Adjust your filters or create new bookings
             </p>
@@ -67,8 +69,8 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
                 {bookings.map((booking, index) => (
                   <tr
                     key={booking.id}
-                    style={{ 
-                      animation: `fadeIn 0.4s ease-out ${index * 0.05}s both`
+                    style={{
+                      animation: `fadeIn 0.4s ease-out ${index * 0.05}s both`,
                     }}
                     className="group border-b border-white/[0.02] hover:bg-gradient-to-r hover:from-white/[0.015] hover:via-white/[0.01] hover:to-transparent transition-all duration-300"
                   >
@@ -80,13 +82,15 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
                         </div>
                         <div className="flex flex-col gap-1">
                           <span className="text-sm font-bold text-white/90 tracking-tight leading-none">
-                            {new Date(booking.date).toLocaleDateString('en-US', { 
-                              month: 'short', 
-                              day: 'numeric'
+                            {new Date(booking.date).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
                             })}
                           </span>
                           <span className="text-[10px] text-gray-700 font-semibold uppercase tracking-[0.1em]">
-                            {new Date(booking.date).toLocaleDateString('en-US', { weekday: 'short' })}
+                            {new Date(booking.date).toLocaleDateString("en-US", {
+                              weekday: "short",
+                            })}
                           </span>
                         </div>
                       </div>
@@ -116,18 +120,22 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-2.5">
                         <div className="relative">
-                          <div className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                            booking.status === "confirmed" 
-                              ? "bg-green-400 shadow-lg shadow-green-400/50" 
-                              : "bg-gray-700"
-                          }`} />
+                          <div
+                            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                              booking.status === "confirmed"
+                                ? "bg-green-400 shadow-lg shadow-green-400/50"
+                                : "bg-gray-700"
+                            }`}
+                          />
                           {booking.status === "confirmed" && (
                             <div className="absolute inset-0 w-1.5 h-1.5 rounded-full bg-green-400 animate-ping opacity-40" />
                           )}
                         </div>
-                        <span className={`text-[11px] font-bold tracking-wide transition-colors duration-300 ${
-                          booking.status === "confirmed" ? "text-gray-400" : "text-gray-700"
-                        }`}>
+                        <span
+                          className={`text-[11px] font-bold tracking-wide transition-colors duration-300 ${
+                            booking.status === "confirmed" ? "text-gray-400" : "text-gray-700"
+                          }`}
+                        >
                           {booking.status === "confirmed" ? "Confirmed" : "Cancelled"}
                         </span>
                       </div>
@@ -153,7 +161,7 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
           </div>
         )}
       </div>
-      
+
       <style>{`
         @keyframes fadeIn {
           from {

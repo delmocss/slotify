@@ -2,11 +2,7 @@ import { Request, Response, NextFunction } from "express"
 import { verifyAccessToken } from "../utils/jwt.utils"
 import { pool } from "../config/db"
 
-export async function protect(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export async function protect(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {

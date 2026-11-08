@@ -22,7 +22,6 @@ export default function Navbar() {
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-copper/40 to-transparent" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          
           {/* Logo */}
           <button
             onClick={() => navigate("/dashboard")}
@@ -82,9 +81,15 @@ export default function Navbar() {
               aria-label="Toggle menu"
               aria-expanded={isOpen}
             >
-              <span className={`block w-5 h-0.5 bg-white/80 transition-transform duration-300 ${isOpen ? "rotate-45 translate-y-1.5" : ""}`}></span>
-              <span className={`block w-5 h-0.5 bg-white/80 transition-opacity duration-300 ${isOpen ? "opacity-0" : ""}`}></span>
-              <span className={`block w-5 h-0.5 bg-white/80 transition-transform duration-300 ${isOpen ? "-rotate-45 -translate-y-1.5" : ""}`}></span>
+              <span
+                className={`block w-5 h-0.5 bg-white/80 transition-transform duration-300 ${isOpen ? "rotate-45 translate-y-1.5" : ""}`}
+              ></span>
+              <span
+                className={`block w-5 h-0.5 bg-white/80 transition-opacity duration-300 ${isOpen ? "opacity-0" : ""}`}
+              ></span>
+              <span
+                className={`block w-5 h-0.5 bg-white/80 transition-transform duration-300 ${isOpen ? "-rotate-45 -translate-y-1.5" : ""}`}
+              ></span>
             </button>
           </div>
         </div>
@@ -109,14 +114,14 @@ export default function Navbar() {
                 {item.label}
               </NavLink>
             ))}
-            
+
             {user?.name && (
               <div className="px-3 py-2 text-xs font-semibold text-gray-400 flex items-center gap-2">
                 <div className="w-1.5 h-1.5 bg-green-400 rounded-full" />
                 {user.name}
               </div>
             )}
-            
+
             <button
               onClick={() => {
                 logout()

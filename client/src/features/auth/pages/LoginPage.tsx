@@ -27,7 +27,7 @@ export default function LoginPage() {
     },
     onError: (error: unknown) => {
       let message = "Login failed. Please check your credentials."
-      
+
       if (axios.isAxiosError(error)) {
         if (error.response?.data?.message) {
           message = error.response.data.message
@@ -37,7 +37,7 @@ export default function LoginPage() {
           message = "Please check your email and password."
         }
       }
-      
+
       setLoginError(message)
       addToast(message, "error")
     },
@@ -108,9 +108,7 @@ export default function LoginPage() {
                 placeholder="Your password"
                 className="w-full rounded-xl border border-white/10 bg-ashSoft/90 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-copper"
               />
-              {errors.password && (
-                <p className="text-xs text-red-400">{errors.password.message}</p>
-              )}
+              {errors.password && <p className="text-xs text-red-400">{errors.password.message}</p>}
             </div>
 
             <button
@@ -137,9 +135,7 @@ export default function LoginPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-600">
               Quick access
             </p>
-            <p className="mt-3 text-sm font-semibold text-white/90">
-              Your schedule, organized.
-            </p>
+            <p className="mt-3 text-sm font-semibold text-white/90">Your schedule, organized.</p>
             <p className="mt-2 text-sm text-gray-400">
               Review upcoming bookings, confirm availability, and keep clients informed.
             </p>

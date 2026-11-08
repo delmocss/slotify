@@ -7,12 +7,7 @@ type Props = {
   onChange: (value: WorkingHoursDay) => void
 }
 
-export default function DaySchedule({
-  day: _day,
-  label,
-  value,
-  onChange,
-}: Props) {
+export default function DaySchedule({ day: _day, label, value, onChange }: Props) {
   return (
     <div className="bg-surface border border-white/5 rounded-xl p-6 space-y-3">
       <div className="flex justify-between items-center">
@@ -21,9 +16,7 @@ export default function DaySchedule({
         <input
           type="checkbox"
           checked={value.enabled}
-          onChange={(e) =>
-            onChange({ ...value, enabled: e.target.checked })
-          }
+          onChange={(e) => onChange({ ...value, enabled: e.target.checked })}
         />
       </div>
 

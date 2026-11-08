@@ -1,17 +1,9 @@
 import { pool } from "../../config/db"
-import {
-  generateSlots,
-  timeToMinutes,
-  hasConflict,
-} from "./availability.utils"
+import { generateSlots, timeToMinutes, hasConflict } from "./availability.utils"
 import { AppError } from "../../utils/appError"
 
 export class AvailabilityService {
-  async getAvailability(
-    organizationId: string,
-    serviceId: string,
-    date: string
-  ) {
+  async getAvailability(organizationId: string, serviceId: string, date: string) {
     const serviceResult = await pool.query(
       "SELECT duration_minutes FROM services WHERE id = $1 AND business_id = $2",
       [serviceId, organizationId]
@@ -40,11 +32,7 @@ export class AvailabilityService {
     const candidateSlots: { start: string; end: string }[] = []
 
     for (const wh of workingHours) {
-      const slots = generateSlots(
-        wh.start_time,
-        wh.end_time,
-        duration
-      )
+      const slots = generateSlots(wh.start_time, wh.end_time, duration)
       candidateSlots.push(...slots)
     }
 
@@ -60,7 +48,7 @@ export class AvailabilityService {
 
     const bookings = bookingsResult.rows
 
-    const availableSlots = candidateSlots.filter(slot => {
+    const availableSlots = candidateSlots.filter((slot) => {
       const slotStart = timeToMinutes(slot.start)
       const slotEnd = timeToMinutes(slot.end)
 
@@ -83,12 +71,12 @@ export class AvailabilityService {
       const now = new Date()
       const currentMinutes = now.getHours() * 60 + now.getMinutes()
 
-      finalSlots = availableSlots.filter(slot => {
+      finalSlots = availableSlots.filter((slot) => {
         const slotMinutes = timeToMinutes(slot.start)
         return slotMinutes > currentMinutes
       })
     }
 
-    return finalSlots.map(slot => slot.start)
+    return finalSlots.map((slot) => slot.start)
   }
 }

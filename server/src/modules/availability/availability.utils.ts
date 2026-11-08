@@ -9,11 +9,7 @@ export function minutesToTime(minutes: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
 }
 
-export function generateSlots(
-  startTime: string,
-  endTime: string,
-  duration: number
-) {
+export function generateSlots(startTime: string, endTime: string, duration: number) {
   const slots: { start: string; end: string }[] = []
 
   let start = timeToMinutes(startTime)

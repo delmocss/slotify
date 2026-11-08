@@ -7,10 +7,9 @@ import { createService } from "../api/services.api"
 export default function ServiceForm() {
   const queryClient = useQueryClient()
 
-  const { register, handleSubmit, reset } =
-    useForm<ServiceFormData>({
-      resolver: zodResolver(serviceSchema),
-    })
+  const { register, handleSubmit, reset } = useForm<ServiceFormData>({
+    resolver: zodResolver(serviceSchema),
+  })
 
   const mutation = useMutation({
     mutationFn: createService,
@@ -32,19 +31,19 @@ export default function ServiceForm() {
       />
 
       <input
-        {...register("duration_minutes", { 
+        {...register("duration_minutes", {
           valueAsNumber: true,
           onChange: (e) => {
             const value = parseInt(e.target.value)
             if (value < 1) e.target.value = "1"
-          }
+          },
         })}
         type="number"
         min="1"
         step="1"
         placeholder="Duration (minutes)"
         onKeyDown={(e) => {
-          if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+          if (e.key === "-" || e.key === "e" || e.key === "E" || e.key === "+") {
             e.preventDefault()
           }
         }}
@@ -52,19 +51,19 @@ export default function ServiceForm() {
       />
 
       <input
-        {...register("price", { 
+        {...register("price", {
           valueAsNumber: true,
           onChange: (e) => {
             const value = parseFloat(e.target.value)
             if (value < 0) e.target.value = "0"
-          }
+          },
         })}
         type="number"
         min="0"
         step="0.01"
         placeholder="Price"
         onKeyDown={(e) => {
-          if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+          if (e.key === "-" || e.key === "e" || e.key === "E") {
             e.preventDefault()
           }
         }}

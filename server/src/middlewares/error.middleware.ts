@@ -1,12 +1,7 @@
 import { Request, Response, NextFunction } from "express"
 import { AppError } from "../utils/appError"
 
-export function errorHandler(
-  err: unknown,
-  _req: Request,
-  res: Response,
-  _next: NextFunction
-) {
+export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
       message: err.message,
@@ -31,8 +26,6 @@ function isBodyParserError(err: unknown): err is { status: 400 | 413; type: stri
   if (typeof err !== "object" || err === null) return false
   const { status, type } = err as { status?: unknown; type?: unknown }
   return (
-    (status === 400 || status === 413) &&
-    typeof type === "string" &&
-    type.startsWith("entity.")
+    (status === 400 || status === 413) && typeof type === "string" && type.startsWith("entity.")
   )
 }
