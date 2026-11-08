@@ -37,7 +37,7 @@ export class AvailabilityService {
       return []
     }
 
-    let candidateSlots: { start: string; end: string }[] = []
+    const candidateSlots: { start: string; end: string }[] = []
 
     for (const wh of workingHours) {
       const slots = generateSlots(

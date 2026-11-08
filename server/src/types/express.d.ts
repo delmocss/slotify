@@ -1,4 +1,3 @@
-import { Request } from "express"
 import type { JwtPayload } from "../utils/jwt.utils"
 
 type AuthRole = JwtPayload["role"]

@@ -19,9 +19,7 @@ export default function DashboardHomePage() {
   const publicUrl = `${window.location.origin}/b/${slug}`
   const today = new Date().toISOString().split("T")[0]
   const [fromDate, setFromDate] = useState(
-    new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .split("T")[0]
+    () => new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
   )
   const [toDate, setToDate] = useState(today)
   
