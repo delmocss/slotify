@@ -51,6 +51,7 @@ Slotify is a full-stack booking platform designed with a SaaS-oriented architect
 - Type-safe frontend
 - Modular backend structure
 - SaaS-oriented thinking (not just CRUD)
+- Multi-tenant data model (users, organizations and memberships with roles)
 
 The goal of this project was not to build a simple reservation app, but to simulate how a real booking SaaS product would be architected, structured and extended in production.
 
@@ -76,6 +77,24 @@ Slotify provides:
 - Revenue tracking
 - CSV export for reporting
 - Branding customization
+
+### Data model
+
+```mermaid
+erDiagram
+    users ||--o{ organization_members : "belongs to"
+    organizations ||--o{ organization_members : "has"
+    organizations ||--|| businesses : "public profile (same id)"
+    businesses ||--o{ services : offers
+    businesses ||--o{ working_hours : "opens"
+    businesses ||--o{ bookings : receives
+    services ||--o{ bookings : "booked for"
+```
+
+A user can belong to several organizations (`owner` / `admin` / `member`). Each organization has one
+business with a unique public slug (`/b/:slug`). Every authenticated query is scoped to the
+organization carried in the JWT, and the membership and role are re-checked against the database on
+each request, so a stale token cannot keep privileges that were revoked.
 
 ---
 
@@ -136,7 +155,7 @@ slotify/
     │   ├── config/          # env validation, db pool
     │   ├── middlewares/     # auth, validation, errors, rate limits
     │   ├── modules/         # analytics, auth, availability, bookings, public, services, working-hours
-    │   ├── database/        # schema.sql
+    │   ├── database/        # schema.sql (fresh install) + migrations/ (upgrade path)
     │   └── utils/
     └── tests/               # Vitest + Supertest
 ```
@@ -153,7 +172,10 @@ slotify/
 
 ## 🧠 Architectural Considerations
 
-- Business-scoped queries prevent data leakage.
+- Tenant-scoped queries prevent data leakage between organizations.
+- Registration is atomic: user, organization, membership and business are created in a single
+  transaction (rolled back on any failure) and public slugs are collision-safe.
+- Schema changes ship as numbered SQL migrations that preserve existing data.
 - Non-destructive operations (soft toggles).
 - Separation between public and authenticated routes.
 - Explicit typing to prevent runtime inconsistencies.
@@ -227,7 +249,8 @@ slotify/
 - Race-safe booking creation (Postgres advisory lock per business/service/day)
 - Strict TypeScript (no `any`)
 - Centralized error middleware
-- Business-scoped queries
+- Tenant-scoped queries with a live membership/role check on every request
+- Malformed or oversized JSON bodies are rejected with 400/413, not 500
 
 ---
 
@@ -238,7 +261,13 @@ cd server
 npm test
 ```
 
-Vitest + Supertest, no database required. They cover the availability logic (slot generation, conflict detection) and the API surface: security headers, CORS allowlist, JWT rejection (missing token / wrong secret), request validation and the login rate limit.
+Vitest + Supertest, no database required (18 tests). They cover the availability logic (slot generation, conflict detection), the API surface (security headers, CORS allowlist, JWT rejection, request validation, login rate limit, 400/413 on bad bodies) and the atomic registration flow (single transaction, collision-safe slugs, rollback on failure) against a mocked pool.
+
+Code quality is enforced in CI for both packages: ESLint (`no-explicit-any` as an error), Prettier, TypeScript and the production build.
+
+```bash
+npm run lint && npm run format:check   # in client/ or server/
+```
 
 Not covered yet: integration tests against a real Postgres (e.g. the concurrent-booking lock) and frontend tests.
 
@@ -287,7 +316,9 @@ npm install
 cp .env.example .env     # then fill in the values
 ```
 
-Create the tables by running `server/src/database/schema.sql` against your Postgres database.
+Create the tables by running `server/src/database/schema.sql` against an empty Postgres database.
+To upgrade a database created before the multi-tenant release, apply the files in
+`server/src/database/migrations/` in order instead (they keep existing data).
 
 Environment variables (`server/.env`):
 

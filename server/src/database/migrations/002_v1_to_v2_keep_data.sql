@@ -105,4 +105,4 @@ END $$;
 COMMIT;
 
 -- --- Despues de desplegar v2 y comprobar que todo funciona (migracion aparte):
---   ALTER TABLE businesses DROP COLUMN password_hash;
+--   003_drop_businesses_password_hash.sql (ALTER TABLE businesses DROP COLUMN password_hash)
