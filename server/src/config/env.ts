@@ -21,11 +21,15 @@ if (!parsed.success) {
 }
 
 const corsOrigins = parsed.data.CORS_ORIGIN
-  ? parsed.data.CORS_ORIGIN.split(",").map((o) => o.trim().replace(/\/$/, "")).filter(Boolean)
+  ? parsed.data.CORS_ORIGIN.split(",")
+      .map((o) => o.trim().replace(/\/$/, ""))
+      .filter(Boolean)
   : null
 
 if (!corsOrigins) {
-  console.warn("CORS_ORIGIN no esta definida: se aceptan peticiones de cualquier origen. Defínela en produccion.")
+  console.warn(
+    "CORS_ORIGIN no esta definida: se aceptan peticiones de cualquier origen. Defínela en produccion."
+  )
 }
 
 export const env = {

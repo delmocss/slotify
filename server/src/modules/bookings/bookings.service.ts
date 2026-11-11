@@ -75,13 +75,7 @@ export class BookingsService {
         AND start_time < $5
         AND end_time > $4
         `,
-        [
-          organizationId,
-          data.serviceId,
-          data.date,
-          data.start_time,
-          endTime,
-        ]
+        [organizationId, data.serviceId, data.date, data.start_time, endTime]
       )
 
       if (conflicts.rows.length > 0) {
@@ -148,33 +142,31 @@ export class BookingsService {
     return this.repo.findAll(organizationId)
   }
 
-async generateBookingCode() {
-  const random = Math.random().toString(36).substring(2, 8).toUpperCase()
-  return `SLT-${random}`
-}
+  async generateBookingCode() {
+    const random = Math.random().toString(36).substring(2, 8).toUpperCase()
+    return `SLT-${random}`
+  }
 
-async generateCancelToken() {
-  return crypto.randomBytes(24).toString("hex")
-}
+  async generateCancelToken() {
+    return crypto.randomBytes(24).toString("hex")
+  }
 
-async cancelBookingByToken(token: string) {
-  const result = await pool.query(
-    `
+  async cancelBookingByToken(token: string) {
+    const result = await pool.query(
+      `
     UPDATE bookings
     SET status = 'cancelled'
     WHERE cancel_token = $1
       AND status = 'confirmed'
     RETURNING booking_code
     `,
-    [token]
-  )
+      [token]
+    )
 
-  if (!result.rows.length) {
-    throw new Error("Invalid or already cancelled booking")
+    if (!result.rows.length) {
+      throw new Error("Invalid or already cancelled booking")
+    }
+
+    return result.rows[0]
   }
-
-  return result.rows[0]
-}
-
-
 }

@@ -18,9 +18,7 @@ export default function ToastContainer({ toasts }: { toasts: ToastItem[] }) {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
             className={`px-4 py-3 rounded shadow text-white ${
-              toast.type === "success"
-                ? "bg-green-600"
-                : "bg-red-500"
+              toast.type === "success" ? "bg-green-600" : "bg-red-500"
             }`}
           >
             {toast.message}

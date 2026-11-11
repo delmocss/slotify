@@ -45,7 +45,9 @@ describe("register (transaccional)", () => {
     const res = await new AuthService().register(input("Studio Aurora"))
     expect(res.business.slug).toBe("studio-aurora")
     expect(state.calls).toContain("BEGIN")
-    expect(state.calls.indexOf("BEGIN")).toBeLessThan(state.calls.findIndex((c) => c.startsWith("INSERT INTO users")))
+    expect(state.calls.indexOf("BEGIN")).toBeLessThan(
+      state.calls.findIndex((c) => c.startsWith("INSERT INTO users"))
+    )
     expect(state.calls.at(-1)).toBe("COMMIT")
   })
 

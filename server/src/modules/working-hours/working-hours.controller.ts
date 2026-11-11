@@ -3,18 +3,12 @@ import { WorkingHoursService } from "./working-hours.service"
 
 const service = new WorkingHoursService()
 
-export async function updateWorkingHours(
-  req: Request,
-  res: Response
-) {
+export async function updateWorkingHours(req: Request, res: Response) {
   await service.update(req.context!.organizationId, req.body)
   res.status(204).send()
 }
 
-export async function getWorkingHours(
-  req: Request,
-  res: Response
-) {
+export async function getWorkingHours(req: Request, res: Response) {
   const result = await service.get(req.context!.organizationId)
   res.json(result)
 }

@@ -3,10 +3,7 @@ import { AppError } from "../../utils/appError"
 
 export class AnalyticsService {
   private async getBusinessBySlug(slug: string) {
-    const result = await pool.query(
-      "SELECT id FROM businesses WHERE slug = $1",
-      [slug]
-    )
+    const result = await pool.query("SELECT id FROM businesses WHERE slug = $1", [slug])
 
     if (!result.rows.length) {
       throw new AppError("Business not found", 404)
@@ -17,7 +14,7 @@ export class AnalyticsService {
 
   async getDashboardMetrics(slug: string) {
     const business = await this.getBusinessBySlug(slug)
-    
+
     const result = await pool.query(
       `
       SELECT 
@@ -42,15 +39,11 @@ export class AnalyticsService {
     return result.rows[0]
   }
 
-  async exportBookings(
-  slug: string,
-  from: string,
-  to: string
-) {
-  const business = await this.getBusinessBySlug(slug)
-  
-  const result = await pool.query(
-    `
+  async exportBookings(slug: string, from: string, to: string) {
+    const business = await this.getBusinessBySlug(slug)
+
+    const result = await pool.query(
+      `
     SELECT 
       TO_CHAR(b.date, 'YYYY-MM-DD') as date,
       b.start_time,
@@ -65,11 +58,9 @@ export class AnalyticsService {
       AND b.date BETWEEN $2 AND $3
     ORDER BY b.date ASC
     `,
-    [business.id, from, to]
-  )
+      [business.id, from, to]
+    )
 
-  return result.rows
+    return result.rows
+  }
 }
-
-}
-

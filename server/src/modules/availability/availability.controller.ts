@@ -3,10 +3,7 @@ import { AvailabilityService } from "./availability.service"
 
 const service = new AvailabilityService()
 
-export async function getAvailability(
-  req: Request,
-  res: Response
-) {
+export async function getAvailability(req: Request, res: Response) {
   const { serviceId, date } = req.query
 
   const result = await service.getAvailability(

@@ -5,78 +5,42 @@ import { BookingsService } from "../bookings/bookings.service"
 const service = new PublicService()
 const bookingService = new BookingsService()
 
-export async function getPublicServices(
-  req: Request,
-  res: Response
-) {
-  const slug = Array.isArray(req.params.slug)
-    ? req.params.slug[0]
-    : req.params.slug
+export async function getPublicServices(req: Request, res: Response) {
+  const slug = Array.isArray(req.params.slug) ? req.params.slug[0] : req.params.slug
 
   const result = await service.getServices(slug as string)
 
   res.json(result)
 }
 
-
-export async function getPublicAvailability(
-  req: Request,
-  res: Response
-) {
-  const slug = Array.isArray(req.params.slug)
-    ? req.params.slug[0]
-    : req.params.slug
+export async function getPublicAvailability(req: Request, res: Response) {
+  const slug = Array.isArray(req.params.slug) ? req.params.slug[0] : req.params.slug
   const serviceId = Array.isArray(req.query.serviceId)
     ? req.query.serviceId[0]
     : req.query.serviceId
-  const date = Array.isArray(req.query.date)
-    ? req.query.date[0]
-    : req.query.date
+  const date = Array.isArray(req.query.date) ? req.query.date[0] : req.query.date
 
-  const slots = await service.getAvailability(
-    slug as string,
-    serviceId as string,
-    date as string
-  )
+  const slots = await service.getAvailability(slug as string, serviceId as string, date as string)
 
   res.json({ date, slots })
 }
 
-export async function getPublicBusiness(
-  req: Request,
-  res: Response
-) {
-  const slug = Array.isArray(req.params.slug)
-    ? req.params.slug[0]
-    : req.params.slug
+export async function getPublicBusiness(req: Request, res: Response) {
+  const slug = Array.isArray(req.params.slug) ? req.params.slug[0] : req.params.slug
   const result = await service.getBusinessInfo(slug as string)
   res.json(result)
 }
 
+export async function createPublicBooking(req: Request, res: Response) {
+  const slug = Array.isArray(req.params.slug) ? req.params.slug[0] : req.params.slug
 
-export async function createPublicBooking(
-  req: Request,
-  res: Response
-) {
-  const slug = Array.isArray(req.params.slug)
-    ? req.params.slug[0]
-    : req.params.slug
-
-  const result = await service.createBooking(
-    slug as string,
-    req.body
-  )
+  const result = await service.createBooking(slug as string, req.body)
 
   res.status(201).json(result)
 }
 
-export async function cancelPublicBooking(
-  req: Request,
-  res: Response
-) {
-  const token = Array.isArray(req.params.token)
-    ? req.params.token[0]
-    : req.params.token
+export async function cancelPublicBooking(req: Request, res: Response) {
+  const token = Array.isArray(req.params.token) ? req.params.token[0] : req.params.token
   const result = await bookingService.cancelBookingByToken(token)
   res.json(result)
 }

@@ -8,7 +8,6 @@ import { useAuth } from "../../auth/hooks/useAuth"
 import Skeleton from "@/components/ui/Skeleton"
 import { Booking } from "@/types"
 
-
 export default function DashboardHomePage() {
   const { user } = useAuth()
   const [statusFilter, setStatusFilter] = useState("all")
@@ -19,12 +18,10 @@ export default function DashboardHomePage() {
   const publicUrl = `${window.location.origin}/b/${slug}`
   const today = new Date().toISOString().split("T")[0]
   const [fromDate, setFromDate] = useState(
-    new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .split("T")[0]
+    () => new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
   )
   const [toDate, setToDate] = useState(today)
-  
+
   const { data: bookings = [], isLoading } = useQuery<Booking[]>({
     queryKey: ["bookings"],
     queryFn: getBookings,
@@ -36,19 +33,14 @@ export default function DashboardHomePage() {
     }
 
     if (dateFilter) {
-      const bookingDate = new Date(b.date)
-        .toISOString()
-        .split("T")[0]
+      const bookingDate = new Date(b.date).toISOString().split("T")[0]
 
       if (bookingDate !== dateFilter) {
         return false
       }
     }
 
-    if (
-      search &&
-      !b.client_name.toLowerCase().includes(search.toLowerCase())
-    ) {
+    if (search && !b.client_name.toLowerCase().includes(search.toLowerCase())) {
       return false
     }
 
@@ -68,14 +60,14 @@ export default function DashboardHomePage() {
   }
 
   if (isLoading) {
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-      {[...Array(4)].map((_, i) => (
-        <Skeleton key={i} className="h-28 w-full" />
-      ))}
-    </div>
-  )
-}
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {[...Array(4)].map((_, i) => (
+          <Skeleton key={i} className="h-28 w-full" />
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -94,7 +86,6 @@ export default function DashboardHomePage() {
           </a>
         </div>
       )}
-      
 
       <div className="bg-surface border border-white/5 rounded-xl p-6 flex gap-4 flex-wrap items-end">
         <div>
@@ -135,12 +126,9 @@ export default function DashboardHomePage() {
       <StatsCards bookings={filteredBookings} />
       <BookingsChart bookings={bookings} />
 
-
       <div>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-3">
-          <h2 className="text-xl font-semibold text-white">
-            Recent Bookings
-          </h2>
+          <h2 className="text-xl font-semibold text-white">Recent Bookings</h2>
           <div className="flex flex-wrap gap-3 items-end">
             <div>
               <label className="text-sm text-gray-400 block mb-1">Export From</label>

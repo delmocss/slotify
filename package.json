@@ -1,15 +1,11 @@
 {
   "name": "slotify",
-  "version": "1.0.0",
-  "description": "",
+  "version": "2.0.0",
+  "description": "Multi-tenant booking SaaS: public booking pages, availability engine and a business dashboard.",
   "private": true,
+  "license": "MIT",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "recharts": "^3.7.0"
+    "test": "npm --prefix server test",
+    "build": "npm --prefix server run build && npm --prefix client run build"
   }
 }

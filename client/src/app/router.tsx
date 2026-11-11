@@ -11,88 +11,87 @@ import LandingPage from "../features/landing/LandingPage"
 import DashboardHomePage from "../features/dashboard/pages/DashboardHomePage"
 import PublicRoute from "../components/PublicRoute"
 export const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <PublicLayout />,
-        children: [
-            {
-                index: true,
-                element: <LandingPage />,
-            },
-            {
-                path: "b/:slug",
-                element: <PublicBookingPage />,
-            },
-            {
-                path: "login",
-                element: (
-                    <PublicRoute>
-                        <LoginPage />
-                    </PublicRoute>
-                ),
-            },
-            {
-                path: "register",
-                element: (
-                    <PublicRoute>
-                        <RegisterPage />
-                    </PublicRoute>
-                ),
-            },
-        ],
-    },
-
-    {
-        path: "/dashboard",
+  {
+    path: "/",
+    element: <PublicLayout />,
+    children: [
+      {
+        index: true,
+        element: <LandingPage />,
+      },
+      {
+        path: "b/:slug",
+        element: <PublicBookingPage />,
+      },
+      {
+        path: "login",
         element: (
-            <ProtectedRoute>
-                <DashboardLayout />
-            </ProtectedRoute>
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
         ),
-        children: [{
-            index: true,
-            element: <DashboardHomePage />,
-        }
-        ],
-
-    },
-    {
-        path: "/dashboard/services",
+      },
+      {
+        path: "register",
         element: (
-            <ProtectedRoute>
-                <DashboardLayout />
-            </ProtectedRoute>
+          <PublicRoute>
+            <RegisterPage />
+          </PublicRoute>
         ),
-        children: [
-            {
-                index: true,
-                element: <ServicesPage />,
-            },
-        ],
-    },
-    {
-        path: "/dashboard/working-hours",
-        element: (
-            <ProtectedRoute>
-                <DashboardLayout />
-            </ProtectedRoute>
-        ),
-        children: [
-            {
-                index: true,
-                element: <WorkingHoursPage />,
-            },
-        ],
-    },
-    {
-        path: "/b/:slug",
-        element: <PublicLayout />,
-        children: [
-            {
-                index: true,
-                element: <PublicBookingPage />,
-            },
-        ],
-    }
+      },
+    ],
+  },
 
+  {
+    path: "/dashboard",
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <DashboardHomePage />,
+      },
+    ],
+  },
+  {
+    path: "/dashboard/services",
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <ServicesPage />,
+      },
+    ],
+  },
+  {
+    path: "/dashboard/working-hours",
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <WorkingHoursPage />,
+      },
+    ],
+  },
+  {
+    path: "/b/:slug",
+    element: <PublicLayout />,
+    children: [
+      {
+        index: true,
+        element: <PublicBookingPage />,
+      },
+    ],
+  },
 ])

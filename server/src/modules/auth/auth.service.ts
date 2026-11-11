@@ -7,11 +7,7 @@ import { pool } from "../../config/db"
 export class AuthService {
   private repo = new AuthRepository()
 
-  async register(data: {
-    name: string
-    email: string
-    password: string
-  }) {
+  async register(data: { name: string; email: string; password: string }) {
     // 1. Validate email not already used
     const existing = await this.repo.findUserByEmail(data.email)
     if (existing) {
@@ -92,9 +88,7 @@ export class AuthService {
     const defaultOrg = userOrganizations[0]
 
     // 5. Get business for this organization
-    const business = await this.repo.findUserBusiness(
-      defaultOrg.organization_id
-    )
+    const business = await this.repo.findUserBusiness(defaultOrg.organization_id)
 
     // 6. Generate JWT with selected organization
     const token = generateAccessToken({
@@ -136,4 +130,3 @@ export class AuthService {
     }
   }
 }
-

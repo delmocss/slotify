@@ -8,12 +8,7 @@ interface CardProps {
   icon?: ReactNode
 }
 
-export default function Card({
-  title,
-  value,
-  subtitle,
-  icon,
-}: CardProps) {
+export default function Card({ title, value, subtitle, icon }: CardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -25,22 +20,12 @@ export default function Card({
         <div>
           <p className="text-sm text-gray-400 mb-2">{title}</p>
 
-          <h3 className="text-2xl font-bold text-white">
-            {value}
-          </h3>
+          <h3 className="text-2xl font-bold text-white">{value}</h3>
 
-          {subtitle && (
-            <p className="text-xs text-gray-500 mt-2">
-              {subtitle}
-            </p>
-          )}
+          {subtitle && <p className="text-xs text-gray-500 mt-2">{subtitle}</p>}
         </div>
 
-        {icon && (
-          <div className="text-copper text-xl">
-            {icon}
-          </div>
-        )}
+        {icon && <div className="text-copper text-xl">{icon}</div>}
       </div>
     </motion.div>
   )

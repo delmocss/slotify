@@ -15,13 +15,9 @@ type Props = {
 export default function StatsCards({ bookings, metrics }: Props) {
   const today = new Date().toISOString().split("T")[0]
 
-  const todayCount = bookings.filter(
-    (b) => b.date === today
-  ).length
+  const todayCount = bookings.filter((b) => b.date === today).length
 
-  const confirmedCount = bookings.filter(
-    (b) => b.status === "confirmed"
-  ).length
+  const confirmedCount = bookings.filter((b) => b.status === "confirmed").length
 
   return (
     <div className="space-y-6">
@@ -33,9 +29,7 @@ export default function StatsCards({ bookings, metrics }: Props) {
           title="Cancel Rate"
           value={
             metrics?.total_bookings
-              ? `${Math.round(
-                  (metrics.cancelled_bookings / metrics.total_bookings) * 100
-                )}%`
+              ? `${Math.round((metrics.cancelled_bookings / metrics.total_bookings) * 100)}%`
               : "0%"
           }
         />

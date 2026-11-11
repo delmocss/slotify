@@ -6,6 +6,4 @@ export const workingHoursItemSchema = z.object({
   end_time: z.string(),
 })
 
-export const updateWorkingHoursSchema = z.array(
-  workingHoursItemSchema
-)
+export const updateWorkingHoursSchema = z.array(workingHoursItemSchema)

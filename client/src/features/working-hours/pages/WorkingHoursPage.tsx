@@ -1,19 +1,29 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { getWorkingHours, updateWorkingHours } from "../api/workingHours.api"
 import DaySchedule from "../components/DaySchedule"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useToast } from "../../../components/ui/toast/useToast"
 import { WorkingHours, WorkingHoursDay } from "@/types"
 
-const days = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-]
+const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+
+function groupByDay(data: WorkingHours[]): Record<number, WorkingHoursDay> {
+  const grouped: Record<number, WorkingHoursDay> = {}
+
+  for (let i = 0; i < 7; i++) {
+    grouped[i] = { enabled: false, slots: [] }
+  }
+
+  data.forEach((item) => {
+    grouped[item.day_of_week].enabled = true
+    grouped[item.day_of_week].slots.push({
+      start_time: item.start_time,
+      end_time: item.end_time,
+    })
+  })
+
+  return grouped
+}
 
 export default function WorkingHoursPage() {
   const queryClient = useQueryClient()
@@ -35,27 +45,16 @@ export default function WorkingHoursPage() {
     },
   })
 
-  const [schedule, setSchedule] = useState<Record<number, WorkingHoursDay>>({})
-
-  useEffect(() => {
-    if (!data) return
-
-    const grouped: Record<number, WorkingHoursDay> = {}
-
-    for (let i = 0; i < 7; i++) {
-      grouped[i] = { enabled: false, slots: [] }
-    }
-
-    data.forEach((item) => {
-      grouped[item.day_of_week].enabled = true
-      grouped[item.day_of_week].slots.push({
-        start_time: item.start_time,
-        end_time: item.end_time,
-      })
-    })
-
-    setSchedule(grouped)
-  }, [data])
+  // Editable copy of the server data. It is rebuilt whenever the server data changes
+  // (derived state adjusted during render instead of syncing it from an effect).
+  const [schedule, setSchedule] = useState<Record<number, WorkingHoursDay>>(() =>
+    data ? groupByDay(data) : {}
+  )
+  const [syncedData, setSyncedData] = useState(data)
+  if (data !== syncedData) {
+    setSyncedData(data)
+    if (data) setSchedule(groupByDay(data))
+  }
 
   if (isLoading) return <div>Loading...</div>
 
@@ -88,9 +87,7 @@ export default function WorkingHoursPage() {
             day={index}
             label={label}
             value={schedule[index] || { enabled: false, slots: [] }}
-            onChange={(val) =>
-              setSchedule({ ...schedule, [index]: val })
-            }
+            onChange={(val) => setSchedule({ ...schedule, [index]: val })}
           />
         ))}
       </div>

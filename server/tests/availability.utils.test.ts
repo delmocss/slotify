@@ -17,7 +17,10 @@ describe("timeToMinutes / minutesToTime", () => {
 describe("generateSlots", () => {
   it("genera huecos consecutivos de la duracion del servicio", () => {
     expect(generateSlots("09:00", "11:00", 30).map((s) => s.start)).toEqual([
-      "09:00", "09:30", "10:00", "10:30",
+      "09:00",
+      "09:30",
+      "10:00",
+      "10:30",
     ])
   })
 
