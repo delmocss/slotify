@@ -102,8 +102,14 @@ export class DemoSandboxService {
       // unique key. Keep the demo looking alive: if the template's latest booking is in the
       // past, slide every copied booking forward so that one lands on today (spacing is
       // kept); bookings already in the future are left alone (shift = 0).
-      await client.query(
-        `WITH shift AS (
+      // The copy of the bookings is a nicety: if the database refuses it (for instance a
+      // legacy CHECK (date >= CURRENT_DATE), see migration 004) the visitor must still get
+      // a working demo, just without bookings. A savepoint lets us skip it without aborting
+      // the whole transaction.
+      await client.query("SAVEPOINT copy_bookings")
+      try {
+        await client.query(
+          `WITH shift AS (
            SELECT GREATEST(0, CURRENT_DATE - MAX(date))::int AS days
            FROM bookings WHERE business_id = $2
          )
@@ -122,8 +128,16 @@ export class DemoSandboxService {
          WHERE k.business_id = $2
          ORDER BY k.date DESC
          LIMIT 500`,
-        [org.id, templateId]
-      )
+          [org.id, templateId]
+        )
+        await client.query("RELEASE SAVEPOINT copy_bookings")
+      } catch (err) {
+        await client.query("ROLLBACK TO SAVEPOINT copy_bookings")
+        console.error(
+          "Demo sandbox: could not copy the template bookings, continuing without them",
+          err
+        )
+      }
 
       await client.query("COMMIT")
 
