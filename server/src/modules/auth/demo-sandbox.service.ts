@@ -108,10 +108,22 @@ export class DemoSandboxService {
         [org.id, templateId]
       )
 
+      // Keep the demo looking alive: if the template's latest booking is in the past,
+      // slide every copied booking forward so that one lands on today (spacing is kept).
+      // Bookings already in the future are left untouched (shift = 0).
+      const shift = (
+        await client.query(
+          `SELECT GREATEST(0, CURRENT_DATE - MAX(date))::int AS days
+           FROM bookings WHERE business_id = $1`,
+          [templateId]
+        )
+      ).rows[0].days as number
+
       const bookings = await client.query(
-        `SELECT service_id, client_name, client_email, date, start_time, end_time, status
+        `SELECT service_id, client_name, client_email,
+                to_char(date + $2::int, 'YYYY-MM-DD') AS date, start_time, end_time, status
          FROM bookings WHERE business_id = $1 ORDER BY date DESC LIMIT 500`,
-        [templateId]
+        [templateId, shift]
       )
       for (const b of bookings.rows) {
         const serviceId = serviceIds.get(b.service_id)

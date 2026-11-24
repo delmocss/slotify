@@ -16,6 +16,7 @@ vi.mock("../src/config/db", () => {
     if (sql.includes("FROM businesses WHERE slug")) {
       return { rows: state.templateExists ? [{ id: "tpl", name: "Demo Negocio" }] : [] }
     }
+    if (sql.includes("GREATEST")) return { rows: [{ days: 3 }] }
     if (sql.includes("COUNT(*)")) return { rows: [{ n: 0 }] }
     if (sql.includes("INSERT INTO users")) return { rows: [{ id: "u-sb", email: params[0] }] }
     if (sql.includes("INSERT INTO organizations"))
@@ -81,6 +82,8 @@ describe("login de la cuenta demo (sandbox)", () => {
     expect(state.sqls.some((s) => s.startsWith("INSERT INTO services"))).toBe(true)
     expect(state.sqls.some((s) => s.startsWith("INSERT INTO working_hours"))).toBe(true)
     expect(state.sqls.some((s) => s.startsWith("INSERT INTO bookings"))).toBe(true)
+    // the date shift is computed in SQL, not by trusting JS dates
+    expect(state.sqls.some((s) => s.includes("GREATEST(0, CURRENT_DATE - MAX(date))"))).toBe(true)
   })
 
   it("distingue emails de sandbox", () => {
