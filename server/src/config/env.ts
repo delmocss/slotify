@@ -10,6 +10,10 @@ const schema = z.object({
   JWT_SECRET: z.string().min(32, "JWT_SECRET debe tener al menos 32 caracteres"),
   // Origenes permitidos por CORS, separados por comas (p. ej. el dominio de Vercel).
   CORS_ORIGIN: z.string().optional(),
+  // Public demo account: logging in with it hands out a private, throwaway copy of
+  // the DEMO_SLUG business instead of the shared data (see demo-sandbox.service.ts).
+  DEMO_EMAIL: z.string().default("demo@demo.com"),
+  DEMO_SLUG: z.string().default("demo-negocio"),
 })
 
 const parsed = schema.safeParse(process.env)
@@ -37,4 +41,6 @@ export const env = {
   databaseUrl: parsed.data.DATABASE_URL,
   jwtSecret: parsed.data.JWT_SECRET,
   corsOrigins,
+  demoEmail: parsed.data.DEMO_EMAIL.trim().toLowerCase(),
+  demoSlug: parsed.data.DEMO_SLUG,
 }

@@ -7,16 +7,28 @@ interface WorkingHoursInput {
 }
 
 export class WorkingHoursRepository {
+  // Atomic: if any row is rejected the previous schedule is kept intact.
   async replaceAll(businessId: string, hours: WorkingHoursInput[]) {
-    await pool.query("DELETE FROM working_hours WHERE business_id = $1", [businessId])
+    const client = await pool.connect()
+    try {
+      await client.query("BEGIN")
+      await client.query("DELETE FROM working_hours WHERE business_id = $1", [businessId])
 
-    for (const item of hours) {
-      await pool.query(
-        `INSERT INTO working_hours 
-         (business_id, day_of_week, start_time, end_time)
-         VALUES ($1, $2, $3, $4)`,
-        [businessId, item.day_of_week, item.start_time, item.end_time]
-      )
+      for (const item of hours) {
+        await client.query(
+          `INSERT INTO working_hours
+           (business_id, day_of_week, start_time, end_time)
+           VALUES ($1, $2, $3, $4)`,
+          [businessId, item.day_of_week, item.start_time, item.end_time]
+        )
+      }
+
+      await client.query("COMMIT")
+    } catch (err) {
+      await client.query("ROLLBACK").catch(() => {})
+      throw err
+    } finally {
+      client.release()
     }
   }
 

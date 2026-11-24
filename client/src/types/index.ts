@@ -2,3 +2,4 @@ export type { Booking, BookingStatus, CreateBookingRequest, CreateBookingRespons
 export type { Service, CreateServiceRequest } from "./service"
 export type { Business, BusinessPublic } from "./business"
 export type { WorkingHours, WorkingHoursDay, WorkingHoursSlot } from "./workingHours"
+export * from "./auth"

@@ -1,17 +1,22 @@
+import Logo from "../../../components/ui/Logo"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { registerSchema, RegisterFormData } from "../schemas"
+import { createRegisterSchema, RegisterFormData } from "../schemas"
 import { register as registerApi } from "../api/auth.api"
 import { Link, useNavigate } from "react-router-dom"
 import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
 import { useToast } from "../../../components/ui/toast/useToast"
-import axios from "axios"
+import { useMemo } from "react"
+import { getApiErrorMessage } from "@/lib/apiError"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 export default function RegisterPage() {
   const navigate = useNavigate()
   const [registerError, setRegisterError] = useState<string | null>(null)
   const { addToast } = useToast()
+  const { t } = useI18n()
+  const registerSchema = useMemo(() => createRegisterSchema(t), [t])
 
   const {
     register,
@@ -28,19 +33,7 @@ export default function RegisterPage() {
       navigate("/dashboard")
     },
     onError: (error: unknown) => {
-      let message = "Registration failed. Please try again."
-
-      if (axios.isAxiosError(error)) {
-        if (error.response?.data?.message) {
-          message = error.response.data.message
-        } else if (error.response?.status === 409) {
-          message = "This email is already registered."
-        } else if (error.response?.status === 400) {
-          message = "Please check your information and try again."
-        } else if (!error.response) {
-          message = "Cannot connect to the server. Please try again later."
-        }
-      }
+      const message = getApiErrorMessage(error, t, "auth.register.failed")
 
       setRegisterError(message)
       addToast(message, "error")
@@ -52,14 +45,14 @@ export default function RegisterPage() {
       <div className="grid gap-8 lg:grid-cols-[1.1fr,0.9fr]">
         <div>
           <div className="mb-8 text-center lg:text-left">
-            <div className="mx-auto mb-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-[11px] font-semibold text-white/70 lg:mx-0">
-              S
+            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-copper/30 bg-gradient-to-br from-copper/25 to-copper/5 text-copper lg:mx-0">
+              <Logo className="h-5 w-5" />
             </div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500">
-              Get started
+              {t("auth.register.eyebrow")}
             </p>
-            <h2 className="mt-2 text-2xl font-bold">Create your account</h2>
-            <p className="mt-2 text-sm text-gray-400">Set up your business in minutes.</p>
+            <h2 className="mt-2 text-2xl font-bold">{t("auth.register.title")}</h2>
+            <p className="mt-2 text-sm text-gray-400">{t("auth.register.subtitle")}</p>
           </div>
 
           <form
@@ -77,7 +70,7 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
-                Business name
+                {t("auth.register.businessName")}
               </label>
               <input
                 {...register("name")}
@@ -89,7 +82,7 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
-                Email
+                {t("common.email")}
               </label>
               <input
                 {...register("email")}
@@ -102,12 +95,12 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
-                Password
+                {t("common.password")}
               </label>
               <input
                 {...register("password")}
                 type="password"
-                placeholder="Create a password"
+                placeholder={t("auth.register.passwordPlaceholder")}
                 className="w-full rounded-xl border border-white/10 bg-ashSoft/90 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-copper"
               />
               {errors.password && <p className="text-xs text-red-400">{errors.password.message}</p>}
@@ -118,14 +111,14 @@ export default function RegisterPage() {
               disabled={mutation.isPending}
               className="w-full rounded-full bg-copper py-3 text-sm font-semibold text-white transition hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {mutation.isPending ? "Creating account..." : "Create Account"}
+              {mutation.isPending ? t("auth.register.submitting") : t("auth.register.submit")}
             </button>
 
             <div className="pt-2 text-center lg:text-left">
               <p className="text-xs text-gray-500">
-                Already have an account?{" "}
+                {t("auth.register.haveAccount")}{" "}
                 <Link to="/login" className="text-copper hover:underline">
-                  Login
+                  {t("auth.register.login")}
                 </Link>
               </p>
             </div>
@@ -135,25 +128,25 @@ export default function RegisterPage() {
         <aside className="hidden lg:flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.03] p-6">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-600">
-              What you get
+              {t("auth.register.aside.eyebrow")}
             </p>
-            <p className="mt-3 text-sm font-semibold text-white/90">A polished booking flow.</p>
-            <p className="mt-2 text-sm text-gray-400">
-              Launch quickly with a clean UI that clients trust and love.
+            <p className="mt-3 text-sm font-semibold text-white/90">
+              {t("auth.register.aside.title")}
             </p>
+            <p className="mt-2 text-sm text-gray-400">{t("auth.register.aside.text")}</p>
           </div>
           <div className="mt-6 space-y-3 text-xs text-gray-500">
             <div className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-copper/70" />
-              Custom services and availability
+              {t("auth.register.aside.b1")}
             </div>
             <div className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-copper/70" />
-              Public booking link
+              {t("auth.register.aside.b2")}
             </div>
             <div className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-copper/70" />
-              Clear client confirmations
+              {t("auth.register.aside.b3")}
             </div>
           </div>
         </aside>

@@ -1,3 +1,4 @@
+import Logo from "../../../components/ui/Logo"
 import { useForm } from "react-hook-form"
 import { LoginFormData } from "../schemas"
 import { login } from "../api/auth.api"
@@ -5,12 +6,20 @@ import { Link, useNavigate } from "react-router-dom"
 import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
 import { useToast } from "../../../components/ui/toast/useToast"
-import axios from "axios"
+import { getApiErrorMessage } from "@/lib/apiError"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const [loginError, setLoginError] = useState<string | null>(null)
+  // Set by the axios interceptor when a session was rejected (expired token / demo sandbox).
+  // A timestamp (not a one-shot flag): the redirect can mount this page twice in a row.
+  const [sessionEnded] = useState(() => {
+    const at = Number(sessionStorage.getItem("slotify-session-ended"))
+    return at > 0 && Date.now() - at < 30_000
+  })
   const { addToast } = useToast()
+  const { t } = useI18n()
 
   const {
     register,
@@ -22,21 +31,12 @@ export default function LoginPage() {
     mutationFn: login,
     onSuccess: (data) => {
       localStorage.setItem("token", data.token)
+      sessionStorage.removeItem("slotify-session-ended")
       setLoginError(null)
       navigate("/dashboard")
     },
     onError: (error: unknown) => {
-      let message = "Login failed. Please check your credentials."
-
-      if (axios.isAxiosError(error)) {
-        if (error.response?.data?.message) {
-          message = error.response.data.message
-        } else if (error.response?.status === 401) {
-          message = "Invalid email or password."
-        } else if (error.response?.status === 400) {
-          message = "Please check your email and password."
-        }
-      }
+      const message = getApiErrorMessage(error, t, "auth.login.failed")
 
       setLoginError(message)
       addToast(message, "error")
@@ -54,19 +54,26 @@ export default function LoginPage() {
       <div className="grid gap-8 lg:grid-cols-[1.1fr,0.9fr]">
         <div>
           <div className="mb-8 text-center lg:text-left">
-            <div className="mx-auto mb-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-[11px] font-semibold text-white/70 lg:mx-0">
-              S
+            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-copper/30 bg-gradient-to-br from-copper/25 to-copper/5 text-copper lg:mx-0">
+              <Logo className="h-5 w-5" />
             </div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500">
-              Welcome back
+              {t("auth.login.eyebrow")}
             </p>
-            <h2 className="mt-2 text-2xl font-bold">Login</h2>
-            <p className="mt-2 text-sm text-gray-400">
-              Access your dashboard and manage your bookings.
-            </p>
+            <h2 className="mt-2 text-2xl font-bold">{t("auth.login.title")}</h2>
+            <p className="mt-2 text-sm text-gray-400">{t("auth.login.subtitle")}</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {sessionEnded && !loginError && (
+              <p
+                role="status"
+                className="rounded-lg border border-copper/30 bg-copper/10 p-3 text-sm text-copper"
+              >
+                {t("auth.login.sessionEnded")}
+              </p>
+            )}
+
             {loginError && (
               <p className="text-red-400 text-sm rounded-lg bg-red-400/10 border border-red-400/20 p-3">
                 {loginError}
@@ -75,14 +82,14 @@ export default function LoginPage() {
 
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
-                Email
+                {t("common.email")}
               </label>
               <input
                 {...register("email", {
-                  required: "Email is required",
+                  required: t("validation.emailRequired"),
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Invalid email address",
+                    message: t("validation.emailInvalid"),
                   },
                 })}
                 type="email"
@@ -94,18 +101,18 @@ export default function LoginPage() {
 
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
-                Password
+                {t("common.password")}
               </label>
               <input
                 {...register("password", {
-                  required: "Password is required",
+                  required: t("validation.passwordRequired"),
                   minLength: {
                     value: 6,
-                    message: "Password must be at least 6 characters",
+                    message: t("validation.passwordMin"),
                   },
                 })}
                 type="password"
-                placeholder="Your password"
+                placeholder={t("auth.login.passwordPlaceholder")}
                 className="w-full rounded-xl border border-white/10 bg-ashSoft/90 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-copper"
               />
               {errors.password && <p className="text-xs text-red-400">{errors.password.message}</p>}
@@ -116,14 +123,14 @@ export default function LoginPage() {
               disabled={mutation.isPending}
               className="w-full rounded-full bg-copper py-3 text-sm font-semibold text-white transition hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {mutation.isPending ? "Logging in..." : "Login"}
+              {mutation.isPending ? t("auth.login.submitting") : t("auth.login.submit")}
             </button>
 
             <div className="pt-2 text-center lg:text-left">
               <p className="text-xs text-gray-500">
-                Don&#39;t have an account?{" "}
+                {t("auth.login.noAccount")}{" "}
                 <Link to="/register" className="text-copper hover:underline">
-                  Create one
+                  {t("auth.login.createOne")}
                 </Link>
               </p>
             </div>
@@ -133,25 +140,25 @@ export default function LoginPage() {
         <aside className="hidden lg:flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.03] p-6">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-600">
-              Quick access
+              {t("auth.login.aside.eyebrow")}
             </p>
-            <p className="mt-3 text-sm font-semibold text-white/90">Your schedule, organized.</p>
-            <p className="mt-2 text-sm text-gray-400">
-              Review upcoming bookings, confirm availability, and keep clients informed.
+            <p className="mt-3 text-sm font-semibold text-white/90">
+              {t("auth.login.aside.title")}
             </p>
+            <p className="mt-2 text-sm text-gray-400">{t("auth.login.aside.text")}</p>
           </div>
           <div className="mt-6 space-y-3 text-xs text-gray-500">
             <div className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-copper/70" />
-              Fast sign-in to the dashboard
+              {t("auth.login.aside.b1")}
             </div>
             <div className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-copper/70" />
-              Real-time availability tracking
+              {t("auth.login.aside.b2")}
             </div>
             <div className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-copper/70" />
-              Clean, client-ready scheduling
+              {t("auth.login.aside.b3")}
             </div>
           </div>
         </aside>
