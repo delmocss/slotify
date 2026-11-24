@@ -5,7 +5,7 @@ export interface Booking {
   business_id: string
   service_id: string
   booking_code: string
-  cancel_token: string
+  cancel_token?: string
   client_name: string
   client_email: string
   date: string

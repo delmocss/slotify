@@ -277,3 +277,70 @@ describe("services and working hours (real Postgres)", () => {
     expect((await request(app).get("/working-hours").set(auth(token))).body).toHaveLength(1)
   })
 })
+
+describe("dashboard data (real Postgres)", () => {
+  let token: string
+
+  beforeAll(async () => {
+    token = (await login()).body.token
+  })
+
+  it("GET /bookings returns what the dashboard shows: e-mail, end time, code, service", async () => {
+    const res = await request(app).get("/bookings").set(auth(token))
+    expect(res.status).toBe(200)
+    const [first] = res.body
+    expect(first).toMatchObject({
+      client_email: expect.stringContaining("@"),
+      end_time: expect.any(String),
+      booking_code: expect.stringMatching(/^SLT-/),
+      service_name: expect.any(String),
+    })
+    // the secret used to cancel from a public link is never listed
+    expect(first.cancel_token).toBeUndefined()
+  })
+
+  it("GET /analytics/metrics matches the data and counts the same 7 days as the chart", async () => {
+    const before = (await request(app).get("/analytics/metrics").set(auth(token))).body
+    expect(Number(before.total_bookings)).toBe(6)
+    expect(Number(before.cancelled_bookings)).toBe(0)
+    expect(Number(before.total_revenue)).toBe(90) // 6 x 15
+    expect(Number(before.bookings_last_7_days)).toBe(6) // newest booking was shifted to today
+
+    const [one] = (await request(app).get("/bookings").set(auth(token))).body
+    await request(app).patch(`/bookings/${one.id}/cancel`).set(auth(token)).expect(200)
+
+    const after = (await request(app).get("/analytics/metrics").set(auth(token))).body
+    expect(Number(after.total_bookings)).toBe(5)
+    expect(Number(after.cancelled_bookings)).toBe(1)
+    expect(Number(after.total_revenue)).toBe(75)
+  })
+
+  it("export: rejects bad ranges with 400 and escapes CSV (no formula injection)", async () => {
+    const export_ = (query: string) =>
+      request(app).get(`/analytics/export?${query}`).set(auth(token))
+    expect((await export_("from=nope&to=2026-01-01")).status).toBe(400)
+    expect((await export_("from=2026-02-01&to=2026-01-01")).status).toBe(400)
+    expect((await export_("from=2026-02-31&to=2026-03-01")).status).toBe(400)
+    expect((await export_("")).status).toBe(400)
+
+    // a booking made through the public page with a hostile name
+    const [svc] = (await request(app).get("/services").set(auth(token))).body
+    const me = (await request(app).get("/auth/me").set(auth(token))).body
+    const day = new Date(Date.now() + 3 * 86_400_000).toISOString().slice(0, 10)
+    await pool.query(
+      `INSERT INTO bookings (business_id, service_id, booking_code, cancel_token, client_name,
+                             client_email, date, start_time, end_time)
+       SELECT b.id, $2, 'SLT-EVIL1', 'evil-token', '=HYPERLINK("http://x","hi"), Bob', 'a@b.com',
+              $3, '10:00', '10:30'
+       FROM businesses b WHERE b.slug = $1`,
+      [me.slug, svc.id, day]
+    )
+    const from = new Date().toISOString().slice(0, 10)
+    const res = await export_(`from=${from}&to=${day}`)
+    expect(res.status).toBe(200)
+    expect(res.headers["content-type"]).toContain("text/csv")
+    const evil = res.text.split(String.fromCharCode(10)).find((l) => l.includes("Bob"))!
+    expect(evil.startsWith("2")).toBe(true) // date first, starts with a digit
+    expect(evil).toContain(`"'=HYPERLINK(""http://x"",""hi""), Bob"`)
+  })
+})

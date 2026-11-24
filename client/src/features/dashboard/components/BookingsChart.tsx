@@ -9,6 +9,7 @@ import {
 } from "recharts"
 import { Activity, ArrowDownRight, ArrowUpRight, TrendingDown, TrendingUp } from "lucide-react"
 import { useI18n } from "@/lib/i18n/useI18n"
+import { fromISODate, toLocalISODate } from "@/lib/dates"
 import Skeleton from "@/components/ui/Skeleton"
 import { Booking } from "@/types"
 
@@ -24,13 +25,13 @@ export default function BookingsChart({ bookings }: Props) {
     const date = new Date()
     date.setDate(today.getDate() - (6 - index))
 
-    const dateString = date.toISOString().split("T")[0]
+    const dateString = toLocalISODate(date)
 
     const count = bookings.filter((b) => b.date === dateString && b.status === "confirmed").length
 
     return {
-      date: new Date(dateString).toLocaleDateString(locale, { weekday: "short" }),
-      fullDate: new Date(dateString).toLocaleDateString(locale, {
+      date: fromISODate(dateString).toLocaleDateString(locale, { weekday: "short" }),
+      fullDate: fromISODate(dateString).toLocaleDateString(locale, {
         month: "short",
         day: "numeric",
       }),
@@ -134,7 +135,7 @@ export default function BookingsChart({ bookings }: Props) {
         {/* Chart Section */}
         <div className="relative">
           <ResponsiveContainer width="100%" height={260} minWidth={0}>
-            <AreaChart data={data} margin={{ top: 20, right: 10, left: -20, bottom: 10 }}>
+            <AreaChart data={data} margin={{ top: 20, right: 34, left: -20, bottom: 10 }}>
               <defs>
                 <linearGradient id="colorBookings" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#C87D4D" stopOpacity={0.5} />

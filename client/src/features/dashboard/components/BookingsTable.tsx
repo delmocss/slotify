@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { cancelBooking } from "../api/dashboard.api"
 import { useI18n } from "@/lib/i18n/useI18n"
+import { formatTime, fromISODate } from "@/lib/dates"
 import { useToast } from "../../../components/ui/toast/useToast"
 import { Booking } from "@/types"
 
@@ -17,6 +18,7 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
     mutationFn: cancelBooking,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bookings"] })
+      queryClient.invalidateQueries({ queryKey: ["metrics"] })
       addToast(t("table.cancelled"))
     },
     onError: () => {
@@ -70,14 +72,14 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
 
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400">
                       <span className="font-semibold text-gray-200">
-                        {new Date(booking.date).toLocaleDateString(locale, {
+                        {fromISODate(booking.date).toLocaleDateString(locale, {
                           weekday: "short",
                           day: "numeric",
                           month: "short",
                         })}
                       </span>
                       <span className="font-mono tracking-wider">
-                        {booking.start_time} · {booking.end_time}
+                        {formatTime(booking.start_time)} · {formatTime(booking.end_time)}
                       </span>
                       <span className="truncate">{booking.service_name}</span>
                     </div>
@@ -136,13 +138,13 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
                           </div>
                           <div className="flex flex-col gap-1">
                             <span className="text-sm font-bold text-white/90 tracking-tight leading-none">
-                              {new Date(booking.date).toLocaleDateString(locale, {
+                              {fromISODate(booking.date).toLocaleDateString(locale, {
                                 month: "short",
                                 day: "numeric",
                               })}
                             </span>
                             <span className="text-[10px] text-gray-700 font-semibold uppercase tracking-[0.1em]">
-                              {new Date(booking.date).toLocaleDateString(locale, {
+                              {fromISODate(booking.date).toLocaleDateString(locale, {
                                 weekday: "short",
                               })}
                             </span>
@@ -151,9 +153,9 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
                       </td>
                       <td className="px-5 py-6 xl:px-8">
                         <div className="font-mono text-[11px] text-gray-500 tracking-wider leading-relaxed">
-                          {booking.start_time}
+                          {formatTime(booking.start_time)}
                           <span className="mx-2 text-gray-700">·</span>
-                          {booking.end_time}
+                          {formatTime(booking.end_time)}
                         </div>
                       </td>
                       <td className="px-5 py-6 xl:px-8">

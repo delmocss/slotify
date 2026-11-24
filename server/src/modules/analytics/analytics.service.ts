@@ -23,7 +23,7 @@ export class AnalyticsService {
         COALESCE(SUM(s.price) FILTER (WHERE b.status = 'confirmed'), 0) as total_revenue,
         COUNT(*) FILTER (
           WHERE b.status = 'confirmed' 
-          AND b.date >= NOW() - INTERVAL '7 days'
+          AND b.date BETWEEN CURRENT_DATE - 6 AND CURRENT_DATE
         ) as bookings_last_7_days,
         COALESCE(SUM(s.price) FILTER (
           WHERE b.status = 'confirmed'

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { getBookings, exportBookings } from "../api/dashboard.api"
+import { getBookings, getMetrics, exportBookings } from "../api/dashboard.api"
 import StatsCards from "../components/StatsCards"
 import BookingsTable from "../components/BookingsTable"
 import { useState } from "react"
@@ -9,7 +9,7 @@ import { useI18n } from "@/lib/i18n/useI18n"
 import DatePicker from "@/components/ui/DatePicker"
 import { toLocalISODate, todayLocal } from "@/lib/dates"
 import Skeleton from "@/components/ui/Skeleton"
-import { Booking } from "@/types"
+import { Booking, DashboardMetrics } from "@/types"
 
 export default function DashboardHomePage() {
   const { user } = useAuth()
@@ -25,6 +25,11 @@ export default function DashboardHomePage() {
     toLocalISODate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
   )
   const [toDate, setToDate] = useState(today)
+
+  const { data: metrics } = useQuery<DashboardMetrics>({
+    queryKey: ["metrics"],
+    queryFn: getMetrics,
+  })
 
   const { data: bookings = [], isLoading } = useQuery<Booking[]>({
     queryKey: ["bookings"],
@@ -129,7 +134,7 @@ export default function DashboardHomePage() {
         </div>
       </div>
 
-      <StatsCards bookings={filteredBookings} />
+      <StatsCards bookings={filteredBookings} metrics={metrics} />
       <BookingsChart bookings={bookings} />
 
       <div>
