@@ -1,6 +1,5 @@
-import { ServicesRepository } from "./services.repository"
+import { ServicesRepository, generateSlug } from "./services.repository"
 import { AppError } from "../../utils/appError"
-import { pool } from "../../config/db"
 
 interface CreateServiceData {
   name: string
@@ -8,11 +7,29 @@ interface CreateServiceData {
   price: number
 }
 
+const DUPLICATE_MESSAGE = "You already have a service with this name"
+
+function isUniqueViolation(err: unknown) {
+  return (err as { code?: string })?.code === "23505"
+}
+
 export class ServicesService {
   private repo = new ServicesRepository()
 
   async create(organizationId: string, data: CreateServiceData) {
-    return this.repo.create({ businessId: organizationId, ...data })
+    const slug = this.slugFor(data.name)
+
+    if (await this.repo.slugExists(organizationId, slug)) {
+      throw new AppError(DUPLICATE_MESSAGE, 409)
+    }
+
+    try {
+      return await this.repo.create({ businessId: organizationId, slug, ...data })
+    } catch (err) {
+      // Lost a race with a concurrent request creating the same name.
+      if (isUniqueViolation(err)) throw new AppError(DUPLICATE_MESSAGE, 409)
+      throw err
+    }
   }
 
   async getAll(organizationId: string) {
@@ -20,7 +37,24 @@ export class ServicesService {
   }
 
   async update(id: string, organizationId: string, data: Partial<CreateServiceData>) {
-    const service = await this.repo.update(id, organizationId, data)
+    const changes: Partial<CreateServiceData> & { slug?: string } = { ...data }
+
+    // The slug is derived from the name, so renaming a service keeps them in sync.
+    if (data.name !== undefined) {
+      const slug = this.slugFor(data.name)
+      if (await this.repo.slugExists(organizationId, slug, id)) {
+        throw new AppError(DUPLICATE_MESSAGE, 409)
+      }
+      changes.slug = slug
+    }
+
+    let service
+    try {
+      service = await this.repo.update(id, organizationId, changes)
+    } catch (err) {
+      if (isUniqueViolation(err)) throw new AppError(DUPLICATE_MESSAGE, 409)
+      throw err
+    }
 
     if (!service) {
       throw new AppError("Service not found", 404)
@@ -30,20 +64,25 @@ export class ServicesService {
   }
 
   async delete(id: string, organizationId: string) {
-    await this.repo.delete(id, organizationId)
+    const deleted = await this.repo.delete(id, organizationId)
+    if (!deleted) {
+      throw new AppError("Service not found", 404)
+    }
   }
 
   async toggleService(slug: string, organizationId: string) {
-    const result = await pool.query(
-      `
-      UPDATE services
-      SET is_active = NOT is_active
-      WHERE slug = $1 AND business_id = $2
-      RETURNING id, slug, is_active
-      `,
-      [slug, organizationId]
-    )
+    const service = await this.repo.toggle(slug, organizationId)
+    if (!service) {
+      throw new AppError("Service not found", 404)
+    }
+    return service
+  }
 
-    return result.rows[0]
+  private slugFor(name: string) {
+    const slug = generateSlug(name)
+    if (!slug) {
+      throw new AppError("Service name must contain letters or numbers", 400)
+    }
+    return slug
   }
 }
