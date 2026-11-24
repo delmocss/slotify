@@ -3,6 +3,8 @@ import { defineConfig } from "vitest/config"
 export default defineConfig({
   test: {
     include: ["tests/**/*.test.ts"],
+    // Integration tests need a real Postgres: see vitest.integration.config.ts.
+    exclude: ["tests/integration/**", "node_modules/**"],
     env: {
       // La app valida el entorno al importarse; el pool de pg es perezoso, asi que
       // estos tests no necesitan una base de datos real.

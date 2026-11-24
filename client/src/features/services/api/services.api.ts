@@ -1,13 +1,18 @@
 import { api } from "../../../lib/axios"
-import { CreateServiceRequest } from "@/types"
+import { CreateServiceRequest, Service } from "@/types"
 
-export async function getServices() {
-  const res = await api.get("/services")
+export async function getServices(): Promise<Service[]> {
+  const res = await api.get<Service[]>("/services")
   return res.data
 }
 
-export async function createService(data: CreateServiceRequest) {
-  const res = await api.post("/services", data)
+export async function createService(data: CreateServiceRequest): Promise<Service> {
+  const res = await api.post<Service>("/services", data)
+  return res.data
+}
+
+export async function updateService(id: string, data: Partial<CreateServiceRequest>) {
+  const res = await api.put<Service>(`/services/${id}`, data)
   return res.data
 }
 
@@ -16,6 +21,6 @@ export async function deleteService(id: string) {
 }
 
 export async function toggleService(slug: string) {
-  const res = await api.patch(`/services/${slug}/toggle`)
+  const res = await api.patch<Service>(`/services/${slug}/toggle`)
   return res.data
 }

@@ -3,9 +3,9 @@ import { getWorkingHours, updateWorkingHours } from "../api/workingHours.api"
 import DaySchedule from "../components/DaySchedule"
 import { useState } from "react"
 import { useToast } from "../../../components/ui/toast/useToast"
+import { getApiErrorMessage } from "@/lib/apiError"
+import { useI18n } from "@/lib/i18n/useI18n"
 import { WorkingHours, WorkingHoursDay } from "@/types"
-
-const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
 function groupByDay(data: WorkingHours[]): Record<number, WorkingHoursDay> {
   const grouped: Record<number, WorkingHoursDay> = {}
@@ -28,6 +28,7 @@ function groupByDay(data: WorkingHours[]): Record<number, WorkingHoursDay> {
 export default function WorkingHoursPage() {
   const queryClient = useQueryClient()
   const { addToast } = useToast()
+  const { t } = useI18n()
 
   const { data, isLoading } = useQuery<WorkingHours[]>({
     queryKey: ["working-hours"],
@@ -38,10 +39,10 @@ export default function WorkingHoursPage() {
     mutationFn: updateWorkingHours,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["working-hours"] })
-      addToast("Working hours saved successfully")
+      addToast(t("hours.saved"))
     },
-    onError: () => {
-      addToast("Failed to save working hours", "error")
+    onError: (error) => {
+      addToast(getApiErrorMessage(error, t, "hours.saveFailed"), "error")
     },
   })
 
@@ -56,9 +57,25 @@ export default function WorkingHoursPage() {
     if (data) setSchedule(groupByDay(data))
   }
 
-  if (isLoading) return <div>Loading...</div>
+  if (isLoading) return <div>{t("common.loading")}</div>
 
   const handleSave = () => {
+    // Validate here so the user gets a clear message instead of a failed request.
+    for (const day of Object.keys(schedule)) {
+      const { enabled, slots } = schedule[Number(day)]
+      if (!enabled) continue
+      for (const slot of slots) {
+        if (!slot.start_time || !slot.end_time) {
+          addToast(t("hours.v.timeRequired"), "error")
+          return
+        }
+        if (slot.start_time.slice(0, 5) >= slot.end_time.slice(0, 5)) {
+          addToast(t("hours.v.endAfterStart"), "error")
+          return
+        }
+      }
+    }
+
     const formatted: { day_of_week: number; start_time: string; end_time: string }[] = []
 
     Object.keys(schedule).forEach((day) => {
@@ -77,15 +94,15 @@ export default function WorkingHoursPage() {
   }
 
   return (
-    <div className="bg-surface border border-white/5 rounded-xl p-6 text-white space-y-6">
-      <h2 className="text-2xl font-bold">Working Hours</h2>
+    <div className="space-y-6 rounded-xl border border-white/5 bg-surface p-4 text-white sm:p-6">
+      <h2 className="text-2xl font-bold">{t("hours.title")}</h2>
 
       <div className="grid gap-4">
-        {days.map((label, index) => (
+        {([0, 1, 2, 3, 4, 5, 6] as const).map((index) => (
           <DaySchedule
             key={index}
             day={index}
-            label={label}
+            label={t(`hours.day.${index}`)}
             value={schedule[index] || { enabled: false, slots: [] }}
             onChange={(val) => setSchedule({ ...schedule, [index]: val })}
           />
@@ -95,9 +112,9 @@ export default function WorkingHoursPage() {
       <button
         onClick={handleSave}
         disabled={mutation.isPending}
-        className="bg-copper text-white hover:brightness-95 transition px-6 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full rounded-lg bg-copper px-6 py-2.5 font-semibold text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
       >
-        {mutation.isPending ? "Saving..." : "Save"}
+        {mutation.isPending ? t("hours.saving") : t("hours.save")}
       </button>
     </div>
   )

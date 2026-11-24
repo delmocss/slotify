@@ -11,10 +11,13 @@ interface LegacyJwtPayload {
   businessId: string
 }
 
-export function generateAccessToken(payload: JwtPayload) {
+export function generateAccessToken(
+  payload: JwtPayload,
+  expiresIn: jwt.SignOptions["expiresIn"] = "7d"
+) {
   return jwt.sign(payload, env.jwtSecret, {
     algorithm: "HS256",
-    expiresIn: "7d",
+    expiresIn,
   })
 }
 

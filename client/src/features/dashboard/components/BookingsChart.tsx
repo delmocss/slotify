@@ -7,6 +7,8 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts"
+import { Activity, ArrowDownRight, ArrowUpRight, TrendingDown, TrendingUp } from "lucide-react"
+import { useI18n } from "@/lib/i18n/useI18n"
 import Skeleton from "@/components/ui/Skeleton"
 import { Booking } from "@/types"
 
@@ -15,6 +17,7 @@ type Props = {
 }
 
 export default function BookingsChart({ bookings }: Props) {
+  const { t, locale } = useI18n()
   const today = new Date()
 
   const data = Array.from({ length: 7 }).map((_, index) => {
@@ -26,8 +29,8 @@ export default function BookingsChart({ bookings }: Props) {
     const count = bookings.filter((b) => b.date === dateString && b.status === "confirmed").length
 
     return {
-      date: new Date(dateString).toLocaleDateString("en-US", { weekday: "short" }),
-      fullDate: new Date(dateString).toLocaleDateString("en-US", {
+      date: new Date(dateString).toLocaleDateString(locale, { weekday: "short" }),
+      fullDate: new Date(dateString).toLocaleDateString(locale, {
         month: "short",
         day: "numeric",
       }),
@@ -51,29 +54,29 @@ export default function BookingsChart({ bookings }: Props) {
   }
 
   return (
-    <div className="relative bg-gradient-to-br from-[#2A2B27] via-[#252621] to-[#1f201c] border border-white/10 rounded-3xl p-8 overflow-hidden shadow-2xl">
+    <div className="relative bg-gradient-to-br from-[#2A2B27] via-[#252621] to-[#1f201c] border border-white/10 rounded-3xl p-5 sm:p-8 overflow-hidden shadow-2xl">
       {/* Decorative elements */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-copper/10 via-transparent to-transparent" />
       <div className="absolute bottom-0 right-0 w-64 h-64 bg-copper/5 rounded-full blur-3xl" />
 
       <div className="relative">
         {/* Header Section */}
-        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-10">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-6 sm:mb-10">
           {/* Main Metric */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <div className="w-1 h-6 bg-gradient-to-b from-copper to-copper/50 rounded-full" />
               <p className="text-xs font-bold text-gray-400 uppercase tracking-[0.2em]">
-                Booking Activity
+                {t("chart.title")}
               </p>
             </div>
 
-            <div className="flex items-end gap-4">
+            <div className="flex flex-wrap items-end gap-x-4 gap-y-3">
               <div>
-                <h3 className="text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400 tracking-tight leading-none">
+                <h3 className="text-5xl sm:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400 tracking-tight leading-none">
                   {totalBookings}
                 </h3>
-                <p className="text-sm text-gray-500 mt-2 font-medium">Total bookings last 7 days</p>
+                <p className="text-sm text-gray-500 mt-2 font-medium">{t("chart.total7")}</p>
               </div>
 
               {/* Trend Badge */}
@@ -84,40 +87,44 @@ export default function BookingsChart({ bookings }: Props) {
                     : "bg-red-500/10 text-red-400 border border-red-500/20"
                 }`}
               >
-                <span className="text-base">{isPositiveTrend ? "↗" : "↘"}</span>
+                {isPositiveTrend ? (
+                  <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+                ) : (
+                  <ArrowDownRight className="h-4 w-4" aria-hidden="true" />
+                )}
                 <span>{Math.abs(Number(trendPercentage))}%</span>
               </div>
             </div>
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
             <div className="text-center lg:text-right">
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-copper/10 mb-2">
-                <span className="text-copper text-lg">📊</span>
+                <Activity className="h-5 w-5 text-copper" aria-hidden="true" />
               </div>
               <p className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wider">
-                Average
+                {t("chart.average")}
               </p>
               <p className="text-2xl font-bold text-white">{avgBookings.toFixed(1)}</p>
             </div>
 
             <div className="text-center lg:text-right">
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-green-500/10 mb-2">
-                <span className="text-green-400 text-lg">📈</span>
+                <TrendingUp className="h-5 w-5 text-green-400" aria-hidden="true" />
               </div>
               <p className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wider">
-                Peak
+                {t("chart.peak")}
               </p>
               <p className="text-2xl font-bold text-green-400">{maxBookings}</p>
             </div>
 
             <div className="text-center lg:text-right">
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-500/10 mb-2">
-                <span className="text-blue-400 text-lg">📉</span>
+                <TrendingDown className="h-5 w-5 text-blue-400" aria-hidden="true" />
               </div>
               <p className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wider">
-                Lowest
+                {t("chart.lowest")}
               </p>
               <p className="text-2xl font-bold text-blue-400">{minBookings}</p>
             </div>
@@ -126,7 +133,7 @@ export default function BookingsChart({ bookings }: Props) {
 
         {/* Chart Section */}
         <div className="relative">
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={260} minWidth={0}>
             <AreaChart data={data} margin={{ top: 20, right: 10, left: -20, bottom: 10 }}>
               <defs>
                 <linearGradient id="colorBookings" x1="0" y1="0" x2="0" y2="1">
@@ -172,7 +179,7 @@ export default function BookingsChart({ bookings }: Props) {
                 strokeDasharray="3 3"
                 strokeOpacity={0.3}
                 label={{
-                  value: "Avg",
+                  value: t("chart.avgLine"),
                   position: "right",
                   fill: "#6B7280",
                   fontSize: 11,
@@ -190,7 +197,9 @@ export default function BookingsChart({ bookings }: Props) {
                         </p>
                         <div className="flex items-baseline gap-2">
                           <p className="text-3xl font-black text-white">{payload[0].value}</p>
-                          <span className="text-sm font-medium text-gray-400">bookings</span>
+                          <span className="text-sm font-medium text-gray-400">
+                            {t("chart.bookings")}
+                          </span>
                         </div>
                       </div>
                     )

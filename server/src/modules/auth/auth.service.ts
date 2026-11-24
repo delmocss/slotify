@@ -3,9 +3,12 @@ import { hashPassword, comparePassword } from "../../utils/hash.utils"
 import { generateAccessToken } from "../../utils/jwt.utils"
 import { AppError } from "../../utils/appError"
 import { pool } from "../../config/db"
+import { env } from "../../config/env"
+import { DemoSandboxService, isDemoEmail, isSandboxEmail } from "./demo-sandbox.service"
 
 export class AuthService {
   private repo = new AuthRepository()
+  private sandbox = new DemoSandboxService()
 
   async register(data: { name: string; email: string; password: string }) {
     // 1. Validate email not already used
@@ -78,6 +81,13 @@ export class AuthService {
       throw new AppError("Invalid credentials", 401)
     }
 
+    // 2b. The public demo account never touches shared data: it gets a private,
+    // throwaway copy so visitors cannot see (or break) each other's changes.
+    if (isDemoEmail(user.email)) {
+      const sandbox = await this.sandbox.createFor(user)
+      if (sandbox) return sandbox
+    }
+
     // 3. Get user's organizations
     const userOrganizations = await this.repo.getUserOrganizations(user.id)
     if (!userOrganizations.length) {
@@ -127,6 +137,9 @@ export class AuthService {
       user,
       organizations,
       slug,
+      sandbox: isSandboxEmail(user.email),
+      // Public demo account shown in the UI for sandbox sessions (its real e-mail is internal).
+      demoEmail: isSandboxEmail(user.email) ? env.demoEmail : null,
     }
   }
 }
