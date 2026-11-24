@@ -261,7 +261,17 @@ cd server
 npm test
 ```
 
-Vitest + Supertest, no database required (18 tests). They cover the availability logic (slot generation, conflict detection), the API surface (security headers, CORS allowlist, JWT rejection, request validation, login rate limit, 400/413 on bad bodies) and the atomic registration flow (single transaction, collision-safe slugs, rollback on failure) against a mocked pool.
+Vitest + Supertest. **50 unit tests** need no database. They cover the availability logic (slot generation, conflict detection), the API surface (security headers, CORS allowlist, JWT rejection, request validation, login rate limit, 400/413 on bad bodies) and the atomic registration flow (single transaction, collision-safe slugs, rollback on failure) against a mocked pool, plus the demo sandbox, the auth middleware, `/health/db` and CSV escaping.
+
+**10 integration tests** run against a real PostgreSQL (the schema is recreated from `schema.sql`, so use a throwaway local database; the config refuses any non-local URL):
+
+```bash
+docker run -d --name slotify-pg-test -e POSTGRES_PASSWORD=test -e POSTGRES_DB=slotify_test -p 55432:5432 postgres:16-alpine
+cd server
+TEST_DATABASE_URL=postgresql://postgres:test@localhost:55432/slotify_test npm run test:integration
+```
+
+They verify visitor isolation in the demo, expiry and purge of demo copies, concurrent logins, service and working-hours hardening, dashboard data (bookings, metrics) and the CSV export. CI runs them with a Postgres service container.
 
 Code quality is enforced in CI for both packages: ESLint (`no-explicit-any` as an error), Prettier, TypeScript and the production build.
 
@@ -269,7 +279,7 @@ Code quality is enforced in CI for both packages: ESLint (`no-explicit-any` as a
 npm run lint && npm run format:check   # in client/ or server/
 ```
 
-Not covered yet: integration tests against a real Postgres (e.g. the concurrent-booking lock) and frontend tests.
+Not covered yet: the concurrent-booking lock and frontend tests.
 
 ---
 
@@ -381,6 +391,16 @@ Steps:
 
 ---
 
+### Demo mode (private sandboxes)
+
+Logging in with the public demo account (`DEMO_EMAIL`, default `demo@demo.com`) never shows shared data: each login creates a **private, throwaway copy** of the template business (`DEMO_SLUG`, default `demo-negocio`) with its own user, services, working hours and bookings. Visitors can add, edit and delete anything without affecting anyone else. Copies are deleted automatically 24 hours after creation (their token expires at the same time) and are capped at 300 active copies. Bookings of the template are slid forward so the newest one lands on today.
+
+To give the template realistic bookings (and remove the leftover test service), run `server/src/database/seeds/demo_sample_bookings.sql` in the database SQL editor. It is safe to re-run.
+
+### Keeping the free tier alive
+
+Supabase pauses free projects after 7 days without activity, and Render puts free services to sleep after 15 minutes. The scheduled workflow `.github/workflows/keep-alive.yml` calls `GET /health/db` (which runs `SELECT 1`) every day, so the database counts as active and the service is warm. If the check fails, the run turns red and GitHub e-mails you. GitHub disables scheduled workflows after 60 days without repository activity; any push re-enables it.
+
 ### Frontend Deployment (Vercel)
 
 1. Import repository, root directory `client`
@@ -394,7 +414,7 @@ Steps:
 - **No timezone support:** "past slot" checks for today use the server clock (UTC on Render).
 - **Availability is per service:** two different services can be booked at the same time (there is no staff/resource model).
 - **No email notifications:** the booking code and cancellation link are only shown on the confirmation screen.
-- **No integration or frontend tests** yet.
+- **No frontend tests** yet.
 
 ---
 
