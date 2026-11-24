@@ -336,7 +336,7 @@ cp .env.example .env     # then fill in the values
 
 Create the tables by running `server/src/database/schema.sql` against an empty Postgres database.
 To upgrade a database created before the multi-tenant release, apply the files in
-`server/src/database/migrations/` in order instead (they keep existing data).
+`server/src/database/migrations/` in order instead (they keep existing data). Migration `004` drops a legacy `no_past_booking` check (`date >= CURRENT_DATE`) that some older databases carry: it stops past bookings from being updated (e.g. cancelled) and rejects the demo's sample bookings. It is safe to run on any database.
 
 Environment variables (`server/.env`):
 
@@ -409,7 +409,7 @@ Steps:
 
 Logging in with the public demo account (`DEMO_EMAIL`, default `demo@demo.com`) never shows shared data: each login creates a **private, throwaway copy** of the template business (`DEMO_SLUG`, default `demo-negocio`) with its own user, services, working hours and bookings. Visitors can add, edit and delete anything without affecting anyone else. Copies are deleted automatically 24 hours after creation (their token expires at the same time) and are capped at 300 active copies. Bookings of the template are slid forward so the newest one lands on today.
 
-To give the template realistic bookings (and remove the leftover test service), run `server/src/database/seeds/demo_sample_bookings.sql` in the database SQL editor. It is safe to re-run.
+To give the template realistic bookings (and remove the leftover test service), run `server/src/database/seeds/demo_sample_bookings.sql` in the database SQL editor (on databases that still have the legacy `no_past_booking` check, run migration `004` first; the script stops with a clear message otherwise). It is safe to re-run. If copying the template's bookings is ever refused by the database, the demo login still works, just without bookings.
 
 ### Keeping the free tier alive
 

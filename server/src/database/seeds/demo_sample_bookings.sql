@@ -30,6 +30,18 @@ BEGIN
   END IF;
 END $$;
 
+-- 0b. Guard: sample bookings are dated in the past, which the legacy constraint
+--     "no_past_booking" (CHECK date >= CURRENT_DATE) rejects. Run migration 004 first.
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'no_past_booking' AND conrelid = 'public.bookings'::regclass
+  ) THEN
+    RAISE EXCEPTION 'Run migration 004_drop_no_past_booking.sql first: the legacy constraint "no_past_booking" rejects bookings dated in the past. Nothing was changed';
+  END IF;
+END $$;
+
 -- 1. Remove the leftover test service (its bookings, if any, go with it: ON DELETE CASCADE).
 DELETE FROM services
 WHERE business_id = (SELECT id FROM businesses WHERE slug = 'demo-negocio')

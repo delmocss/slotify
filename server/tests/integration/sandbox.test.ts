@@ -353,3 +353,50 @@ describe("dashboard data (real Postgres)", () => {
     expect(evil).toContain(`"'=HYPERLINK(""http://x"",""hi""), Bob"`)
   })
 })
+
+describe("legacy production constraint no_past_booking (real Postgres)", () => {
+  const migration = fs.readFileSync(
+    path.join(__dirname, "../../src/database/migrations/004_drop_no_past_booking.sql"),
+    "utf8"
+  )
+  const addLegacy = () =>
+    pool.query(
+      "ALTER TABLE bookings ADD CONSTRAINT no_past_booking CHECK (date >= CURRENT_DATE) NOT VALID"
+    )
+
+  it("the demo login still works (without bookings) while the constraint exists", async () => {
+    await addLegacy()
+    try {
+      const res = await login()
+      expect(res.status).toBe(200)
+      expect(res.body.sandbox).toBe(true)
+      const token = res.body.token as string
+      expect((await request(app).get("/services").set(auth(token))).body).toHaveLength(3)
+      expect((await request(app).get("/bookings").set(auth(token))).body).toHaveLength(0)
+    } finally {
+      await pool.query("ALTER TABLE bookings DROP CONSTRAINT IF EXISTS no_past_booking")
+    }
+  })
+
+  it("migration 004 removes it: past bookings can be inserted, updated and cancelled", async () => {
+    await addLegacy()
+    await pool.query(migration)
+    await pool.query(migration) // idempotent
+    const left = await pool.query(
+      "SELECT 1 FROM pg_constraint WHERE conname = 'no_past_booking' AND conrelid = 'public.bookings'::regclass"
+    )
+    expect(left.rows).toHaveLength(0)
+
+    // a sandbox now receives the copied (past) bookings again
+    const v = (await login()).body
+    const bookings = (await request(app).get("/bookings").set(auth(v.token))).body
+    expect(bookings).toHaveLength(6)
+    // and a booking whose date already passed can be cancelled from the dashboard
+    const past = bookings.find(
+      (b: { date: string }) => b.date < new Date().toISOString().slice(0, 10)
+    )
+    if (past) {
+      await request(app).patch(`/bookings/${past.id}/cancel`).set(auth(v.token)).expect(200)
+    }
+  })
+})
