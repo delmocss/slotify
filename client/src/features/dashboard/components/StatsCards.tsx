@@ -1,40 +1,36 @@
 import Card from "@/components/ui/Card"
 import { useI18n } from "@/lib/i18n/useI18n"
-import { Booking } from "@/types"
+import { todayLocal } from "@/lib/dates"
+import { Booking, DashboardMetrics } from "@/types"
 
 type Props = {
   bookings: Booking[]
-  metrics?: {
-    total_revenue: number
-    revenue_this_month: number
-    bookings_last_7_days: number
-    total_bookings: number
-    cancelled_bookings: number
-  }
+  metrics?: DashboardMetrics
 }
 
 export default function StatsCards({ bookings, metrics }: Props) {
-  const { t } = useI18n()
-  const today = new Date().toISOString().split("T")[0]
+  const { t, locale } = useI18n()
+  const today = todayLocal()
 
   const todayCount = bookings.filter((b) => b.date === today).length
-
   const confirmedCount = bookings.filter((b) => b.status === "confirmed").length
+
+  const money = (value: string | number | undefined) =>
+    new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(Number(value ?? 0))
+
+  // total_bookings counts confirmed ones only, so the rate is cancelled / (confirmed + cancelled).
+  const confirmed = Number(metrics?.total_bookings ?? 0)
+  const cancelled = Number(metrics?.cancelled_bookings ?? 0)
+  const cancelRate =
+    confirmed + cancelled > 0 ? Math.round((cancelled / (confirmed + cancelled)) * 100) : 0
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-4">
-        <Card title={t("stats.totalRevenue")} value={`€${metrics?.total_revenue ?? 0}`} />
-        <Card title={t("stats.revenueMonth")} value={`€${metrics?.revenue_this_month ?? 0}`} />
-        <Card title={t("stats.bookings7")} value={metrics?.bookings_last_7_days ?? 0} />
-        <Card
-          title={t("stats.cancelRate")}
-          value={
-            metrics?.total_bookings
-              ? `${Math.round((metrics.cancelled_bookings / metrics.total_bookings) * 100)}%`
-              : "0%"
-          }
-        />
+        <Card title={t("stats.totalRevenue")} value={money(metrics?.total_revenue)} />
+        <Card title={t("stats.revenueMonth")} value={money(metrics?.revenue_this_month)} />
+        <Card title={t("stats.bookings7")} value={Number(metrics?.bookings_last_7_days ?? 0)} />
+        <Card title={t("stats.cancelRate")} value={`${cancelRate}%`} />
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">

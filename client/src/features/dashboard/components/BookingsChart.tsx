@@ -9,6 +9,7 @@ import {
 } from "recharts"
 import { Activity, ArrowDownRight, ArrowUpRight, TrendingDown, TrendingUp } from "lucide-react"
 import { useI18n } from "@/lib/i18n/useI18n"
+import { fromISODate, toLocalISODate } from "@/lib/dates"
 import Skeleton from "@/components/ui/Skeleton"
 import { Booking } from "@/types"
 
@@ -24,13 +25,13 @@ export default function BookingsChart({ bookings }: Props) {
     const date = new Date()
     date.setDate(today.getDate() - (6 - index))
 
-    const dateString = date.toISOString().split("T")[0]
+    const dateString = toLocalISODate(date)
 
     const count = bookings.filter((b) => b.date === dateString && b.status === "confirmed").length
 
     return {
-      date: new Date(dateString).toLocaleDateString(locale, { weekday: "short" }),
-      fullDate: new Date(dateString).toLocaleDateString(locale, {
+      date: fromISODate(dateString).toLocaleDateString(locale, { weekday: "short" }),
+      fullDate: fromISODate(dateString).toLocaleDateString(locale, {
         month: "short",
         day: "numeric",
       }),

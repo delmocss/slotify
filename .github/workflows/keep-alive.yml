@@ -1,0 +1,33 @@
+name: Keep database alive
+
+# The free Supabase tier pauses a project after 7 days without activity (and a paused
+# project makes every login answer 500). This job calls GET /health/db once a day: the
+# API runs SELECT 1 against the database, which counts as activity. It also wakes the
+# Render free instance, which sleeps after 15 minutes without traffic.
+#
+# Notes:
+# - GitHub disables scheduled workflows after 60 days without any repository activity.
+#   A push re-enables it (GitHub also sends an e-mail when it disables one).
+# - If the check fails (database paused, API down) the run turns red and GitHub e-mails you.
+
+on:
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      HEALTH_URL: https://slotify-50re.onrender.com/health/db
+    steps:
+      - name: Ping /health/db (retries cover the Render cold start)
+        run: |
+          body=$(curl --silent --show-error --fail \
+            --max-time 120 --retry 4 --retry-delay 30 --retry-all-errors \
+            "$HEALTH_URL")
+          echo "Response: $body"
+          echo "$body" | grep -q '"status":"ok"'

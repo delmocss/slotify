@@ -9,6 +9,7 @@ import { useToast } from "../../../components/ui/toast/useToast"
 import { api } from "../../../lib/axios"
 import { CheckCircle2 } from "lucide-react"
 import { useI18n } from "@/lib/i18n/useI18n"
+import { getApiErrorMessage } from "@/lib/apiError"
 import DatePicker from "@/components/ui/DatePicker"
 import { todayLocal } from "@/lib/dates"
 import Skeleton from "@/components/ui/Skeleton"
@@ -74,8 +75,8 @@ export default function PublicBookingPage() {
       setConfirmation(result)
       addToast(t("booking.toastConfirmed"))
       setStep("success")
-    } catch {
-      addToast(t("booking.toastFailed"), "error")
+    } catch (error) {
+      addToast(getApiErrorMessage(error, t, "booking.toastFailed"), "error")
     } finally {
       setIsSubmitting(false)
     }

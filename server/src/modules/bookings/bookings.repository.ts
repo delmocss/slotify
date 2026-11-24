@@ -63,10 +63,15 @@ export class BookingsRepository {
       `
     SELECT 
       b.id,
+      b.service_id,
+      b.booking_code,
       TO_CHAR(b.date, 'YYYY-MM-DD') as date,
       b.start_time,
+      b.end_time,
       b.status,
       b.client_name,
+      b.client_email,
+      b.created_at,
       s.name as service_name
     FROM bookings b
     JOIN services s ON s.id = b.service_id
