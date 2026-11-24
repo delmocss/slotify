@@ -5,6 +5,7 @@ import BookingsTable from "../components/BookingsTable"
 import { useState } from "react"
 import BookingsChart from "../components/BookingsChart"
 import { useAuth } from "../../auth/hooks/useAuth"
+import { useI18n } from "@/lib/i18n/useI18n"
 import DatePicker from "@/components/ui/DatePicker"
 import { toLocalISODate, todayLocal } from "@/lib/dates"
 import Skeleton from "@/components/ui/Skeleton"
@@ -12,6 +13,7 @@ import { Booking } from "@/types"
 
 export default function DashboardHomePage() {
   const { user } = useAuth()
+  const { t } = useI18n()
   const [statusFilter, setStatusFilter] = useState("all")
   const [dateFilter, setDateFilter] = useState("")
   const [search, setSearch] = useState("")
@@ -73,11 +75,11 @@ export default function DashboardHomePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-white">{t("dashboard.title")}</h1>
 
       {slug && (
         <div className="bg-surface border border-white/5 rounded-xl p-6">
-          <p className="text-sm text-gray-400 mb-1">Your public booking page:</p>
+          <p className="text-sm text-gray-400 mb-1">{t("dashboard.publicPage")}</p>
           <a
             href={publicUrl}
             target="_blank"
@@ -91,35 +93,35 @@ export default function DashboardHomePage() {
 
       <div className="bg-surface border border-white/5 rounded-xl p-6 flex gap-4 flex-wrap items-end">
         <div>
-          <label className="text-sm text-gray-300">Status</label>
+          <label className="text-sm text-gray-300">{t("dashboard.filter.status")}</label>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="block bg-ashSoft border border-white/10 text-white placeholder-gray-400 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper"
           >
-            <option value="all">All</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="all">{t("dashboard.filter.all")}</option>
+            <option value="confirmed">{t("dashboard.filter.confirmed")}</option>
+            <option value="cancelled">{t("dashboard.filter.cancelled")}</option>
           </select>
         </div>
 
         <div>
-          <label className="text-sm text-gray-300">Date</label>
+          <label className="text-sm text-gray-300">{t("dashboard.filter.date")}</label>
           <DatePicker
             value={dateFilter}
             onChange={setDateFilter}
-            placeholder="Any date"
+            placeholder={t("dashboard.filter.anyDate")}
             clearable
-            aria-label="Filter by date"
+            aria-label={t("dashboard.filter.byDate")}
             className="w-44"
           />
         </div>
 
         <div>
-          <label className="text-sm text-gray-300">Search Client</label>
+          <label className="text-sm text-gray-300">{t("dashboard.filter.search")}</label>
           <input
             type="text"
-            placeholder="Client name"
+            placeholder={t("dashboard.filter.clientName")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="block bg-ashSoft border border-white/10 text-white placeholder-gray-400 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper"
@@ -132,25 +134,27 @@ export default function DashboardHomePage() {
 
       <div>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-3">
-          <h2 className="text-xl font-semibold text-white">Recent Bookings</h2>
+          <h2 className="text-xl font-semibold text-white">{t("dashboard.recent")}</h2>
           <div className="flex flex-wrap gap-3 items-end">
             <div>
-              <label className="text-sm text-gray-400 block mb-1">Export From</label>
+              <label className="text-sm text-gray-400 block mb-1">
+                {t("dashboard.exportFrom")}
+              </label>
               <DatePicker
                 value={fromDate}
                 onChange={setFromDate}
                 max={toDate || undefined}
-                aria-label="Export from date"
+                aria-label={t("dashboard.exportFromAria")}
                 className="w-44"
               />
             </div>
             <div>
-              <label className="text-sm text-gray-400 block mb-1">Export To</label>
+              <label className="text-sm text-gray-400 block mb-1">{t("dashboard.exportTo")}</label>
               <DatePicker
                 value={toDate}
                 onChange={setToDate}
                 min={fromDate || undefined}
-                aria-label="Export to date"
+                aria-label={t("dashboard.exportToAria")}
                 className="w-44"
               />
             </div>
@@ -158,7 +162,7 @@ export default function DashboardHomePage() {
               onClick={handleExport}
               className="bg-copper text-white px-4 py-2 rounded-lg font-medium hover:brightness-95 transition"
             >
-              Export CSV
+              {t("dashboard.exportCsv")}
             </button>
           </div>
         </div>

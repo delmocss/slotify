@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 export default function LandingPage() {
+  const { t } = useI18n()
+
   return (
     <div className="relative min-h-[100svh] w-full overflow-hidden px-6 py-16 text-white">
       <div className="pointer-events-none fixed inset-0 -z-10 bg-gradient-to-br from-[#2f302c] via-[#3B3C36] to-black">
@@ -25,7 +28,7 @@ export default function LandingPage() {
           transition={{ duration: 0.4 }}
           className="mb-4 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500"
         >
-          Scheduling, refined
+          {t("landing.eyebrow")}
         </motion.p>
 
         <motion.h1
@@ -34,9 +37,9 @@ export default function LandingPage() {
           transition={{ duration: 0.5 }}
           className="text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl"
         >
-          Slotify is the calm way to
+          {t("landing.titleLine1")}
           <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white via-white/80 to-copper">
-            run your bookings.
+            {t("landing.titleLine2")}
           </span>
         </motion.h1>
 
@@ -46,8 +49,7 @@ export default function LandingPage() {
           transition={{ delay: 0.2 }}
           className="mt-6 max-w-2xl text-base text-gray-300 sm:text-lg"
         >
-          A premium booking experience for professionals and small businesses. Designed to reduce
-          friction, delight clients, and keep schedules tidy.
+          {t("landing.subtitle")}
         </motion.p>
 
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
@@ -55,32 +57,23 @@ export default function LandingPage() {
             to="/register"
             className="rounded-full bg-copper px-8 py-3 text-sm font-semibold text-white transition hover:brightness-95"
           >
-            Get Started
+            {t("landing.getStarted")}
           </Link>
 
           <Link
             to="/login"
             className="rounded-full border border-white/10 px-8 py-3 text-sm font-semibold text-gray-200 transition hover:bg-white/5"
           >
-            Login
+            {t("landing.login")}
           </Link>
         </div>
       </div>
 
       <div className="relative mx-auto mt-16 grid w-full max-w-5xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {[
-          {
-            title: "Clarity by design",
-            text: "A calm interface that keeps the next step obvious and the noise low.",
-          },
-          {
-            title: "Faster confirmations",
-            text: "Clients move from selection to confirmation without friction.",
-          },
-          {
-            title: "Designed for trust",
-            text: "Elegant details, consistent typography, and a confident visual system.",
-          },
+          { title: t("landing.f1.title"), text: t("landing.f1.text") },
+          { title: t("landing.f2.title"), text: t("landing.f2.text") },
+          { title: t("landing.f3.title"), text: t("landing.f3.text") },
         ].map((item) => (
           <div
             key={item.title}

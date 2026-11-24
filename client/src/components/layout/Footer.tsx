@@ -1,6 +1,8 @@
 import Logo from "../ui/Logo"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 export default function Footer() {
+  const { t } = useI18n()
   const year = new Date().getFullYear()
 
   return (
@@ -12,10 +14,12 @@ export default function Footer() {
             <Logo className="h-4 w-4 text-copper/80" />
             <span>Slotify</span>
             <span className="w-1 h-1 rounded-full bg-white/20" />
-            <span className="text-gray-600 tracking-[0.12em] normal-case">Scheduling platform</span>
+            <span className="text-gray-600 tracking-[0.12em] normal-case">
+              {t("footer.tagline")}
+            </span>
           </div>
           <p className="text-[11px] text-gray-600 tracking-wide">
-            Copyright {year}. All rights reserved.
+            {t("footer.copyright", { year })}
           </p>
         </div>
       </div>

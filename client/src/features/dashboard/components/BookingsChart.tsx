@@ -8,6 +8,7 @@ import {
   ReferenceLine,
 } from "recharts"
 import { Activity, ArrowDownRight, ArrowUpRight, TrendingDown, TrendingUp } from "lucide-react"
+import { useI18n } from "@/lib/i18n/useI18n"
 import Skeleton from "@/components/ui/Skeleton"
 import { Booking } from "@/types"
 
@@ -16,6 +17,7 @@ type Props = {
 }
 
 export default function BookingsChart({ bookings }: Props) {
+  const { t, locale } = useI18n()
   const today = new Date()
 
   const data = Array.from({ length: 7 }).map((_, index) => {
@@ -27,8 +29,8 @@ export default function BookingsChart({ bookings }: Props) {
     const count = bookings.filter((b) => b.date === dateString && b.status === "confirmed").length
 
     return {
-      date: new Date(dateString).toLocaleDateString("en-US", { weekday: "short" }),
-      fullDate: new Date(dateString).toLocaleDateString("en-US", {
+      date: new Date(dateString).toLocaleDateString(locale, { weekday: "short" }),
+      fullDate: new Date(dateString).toLocaleDateString(locale, {
         month: "short",
         day: "numeric",
       }),
@@ -65,7 +67,7 @@ export default function BookingsChart({ bookings }: Props) {
             <div className="flex items-center gap-2">
               <div className="w-1 h-6 bg-gradient-to-b from-copper to-copper/50 rounded-full" />
               <p className="text-xs font-bold text-gray-400 uppercase tracking-[0.2em]">
-                Booking Activity
+                {t("chart.title")}
               </p>
             </div>
 
@@ -74,7 +76,7 @@ export default function BookingsChart({ bookings }: Props) {
                 <h3 className="text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400 tracking-tight leading-none">
                   {totalBookings}
                 </h3>
-                <p className="text-sm text-gray-500 mt-2 font-medium">Total bookings last 7 days</p>
+                <p className="text-sm text-gray-500 mt-2 font-medium">{t("chart.total7")}</p>
               </div>
 
               {/* Trend Badge */}
@@ -102,7 +104,7 @@ export default function BookingsChart({ bookings }: Props) {
                 <Activity className="h-5 w-5 text-copper" aria-hidden="true" />
               </div>
               <p className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wider">
-                Average
+                {t("chart.average")}
               </p>
               <p className="text-2xl font-bold text-white">{avgBookings.toFixed(1)}</p>
             </div>
@@ -112,7 +114,7 @@ export default function BookingsChart({ bookings }: Props) {
                 <TrendingUp className="h-5 w-5 text-green-400" aria-hidden="true" />
               </div>
               <p className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wider">
-                Peak
+                {t("chart.peak")}
               </p>
               <p className="text-2xl font-bold text-green-400">{maxBookings}</p>
             </div>
@@ -122,7 +124,7 @@ export default function BookingsChart({ bookings }: Props) {
                 <TrendingDown className="h-5 w-5 text-blue-400" aria-hidden="true" />
               </div>
               <p className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wider">
-                Lowest
+                {t("chart.lowest")}
               </p>
               <p className="text-2xl font-bold text-blue-400">{minBookings}</p>
             </div>
@@ -177,7 +179,7 @@ export default function BookingsChart({ bookings }: Props) {
                 strokeDasharray="3 3"
                 strokeOpacity={0.3}
                 label={{
-                  value: "Avg",
+                  value: t("chart.avgLine"),
                   position: "right",
                   fill: "#6B7280",
                   fontSize: 11,
@@ -195,7 +197,9 @@ export default function BookingsChart({ bookings }: Props) {
                         </p>
                         <div className="flex items-baseline gap-2">
                           <p className="text-3xl font-black text-white">{payload[0].value}</p>
-                          <span className="text-sm font-medium text-gray-400">bookings</span>
+                          <span className="text-sm font-medium text-gray-400">
+                            {t("chart.bookings")}
+                          </span>
                         </div>
                       </div>
                     )

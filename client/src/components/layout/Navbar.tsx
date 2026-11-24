@@ -11,12 +11,14 @@ import {
 } from "lucide-react"
 import { useAuth } from "../../features/auth/hooks/useAuth"
 import Logo from "../ui/Logo"
+import LanguageSwitcher from "../ui/LanguageSwitcher"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 const navItems = [
-  { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-  { label: "Services", path: "/dashboard/services", icon: Scissors },
-  { label: "Working Hours", path: "/dashboard/working-hours", icon: CalendarClock },
-]
+  { labelKey: "nav.dashboard", path: "/dashboard", icon: LayoutDashboard },
+  { labelKey: "nav.services", path: "/dashboard/services", icon: Scissors },
+  { labelKey: "nav.workingHours", path: "/dashboard/working-hours", icon: CalendarClock },
+] as const
 
 function initialsOf(label: string) {
   const parts = label
@@ -29,11 +31,12 @@ function initialsOf(label: string) {
 export default function Navbar() {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
+  const { t } = useI18n()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  const businessName = user?.organizations[0]?.name ?? "My business"
+  const businessName = user?.organizations[0]?.name ?? t("nav.myBusiness")
   const sandbox = !!user?.sandbox
   // Sandbox emails are internal identifiers, not something a visitor should see.
   const shownEmail = sandbox ? "demo@demo.com" : (user?.user.email ?? "")
@@ -63,7 +66,7 @@ export default function Navbar() {
           <button
             onClick={() => navigate("/dashboard")}
             className="group flex flex-shrink-0 items-center gap-3"
-            aria-label="Go to dashboard"
+            aria-label={t("nav.goToDashboard")}
           >
             <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-copper/30 bg-gradient-to-br from-copper/25 to-copper/5 text-copper shadow-inner shadow-copper/10 transition group-hover:border-copper/60">
               <Logo className="h-5 w-5" />
@@ -75,10 +78,10 @@ export default function Navbar() {
 
           {/* Desktop navigation */}
           <nav
-            aria-label="Main"
+            aria-label={t("nav.main")}
             className="hidden items-center gap-1 rounded-xl border border-white/[0.07] bg-white/[0.03] p-1 md:flex"
           >
-            {navItems.map(({ label, path, icon: Icon }) => (
+            {navItems.map(({ labelKey, path, icon: Icon }) => (
               <NavLink
                 key={path}
                 to={path}
@@ -97,7 +100,7 @@ export default function Navbar() {
                       className={`h-4 w-4 ${isActive ? "text-copper" : ""}`}
                       aria-hidden="true"
                     />
-                    {label}
+                    {t(labelKey)}
                   </>
                 )}
               </NavLink>
@@ -106,13 +109,15 @@ export default function Navbar() {
 
           {/* Right section */}
           <div className="flex items-center gap-2 sm:gap-3">
+            <LanguageSwitcher className="hidden sm:inline-flex" />
+
             {sandbox && (
               <span
-                title="Your changes are private to this session and are discarded automatically"
+                title={t("demo.badgeTitle")}
                 className="hidden items-center gap-1.5 rounded-full border border-copper/30 bg-copper/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-copper lg:inline-flex"
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-copper" />
-                Demo session
+                {t("demo.badge")}
               </span>
             )}
 
@@ -150,7 +155,7 @@ export default function Navbar() {
                     className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-gray-300 transition hover:bg-white/[0.05] hover:text-white"
                   >
                     <LogOut className="h-4 w-4" aria-hidden="true" />
-                    Log out
+                    {t("nav.logout")}
                   </button>
                 </div>
               )}
@@ -160,7 +165,7 @@ export default function Navbar() {
             <button
               onClick={() => setMobileOpen((o) => !o)}
               className="rounded-lg border border-white/10 p-2 text-gray-300 transition hover:bg-white/[0.06] md:hidden"
-              aria-label="Toggle menu"
+              aria-label={t("nav.toggleMenu")}
               aria-expanded={mobileOpen}
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -171,7 +176,7 @@ export default function Navbar() {
         {/* Mobile navigation */}
         {mobileOpen && (
           <div className="mb-4 space-y-1 rounded-xl border border-white/10 bg-[#1a1b17]/95 p-2 md:hidden">
-            {navItems.map(({ label, path, icon: Icon }) => (
+            {navItems.map(({ labelKey, path, icon: Icon }) => (
               <NavLink
                 key={path}
                 to={path}
@@ -186,16 +191,17 @@ export default function Navbar() {
                 }
               >
                 <Icon className="h-4 w-4 text-copper" aria-hidden="true" />
-                {label}
+                {t(labelKey)}
               </NavLink>
             ))}
 
             <div className="mt-2 border-t border-white/[0.06] px-3 pt-3">
+              <LanguageSwitcher className="mb-3" />
               <p className="truncate text-sm font-semibold text-white">{businessName}</p>
               <p className="truncate text-xs text-gray-500">{shownEmail}</p>
               {sandbox && (
                 <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-copper">
-                  Demo session
+                  {t("demo.badge")}
                 </p>
               )}
             </div>
@@ -204,7 +210,7 @@ export default function Navbar() {
               className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-300 transition hover:bg-white/[0.05] hover:text-white"
             >
               <LogOut className="h-4 w-4" aria-hidden="true" />
-              Log out
+              {t("nav.logout")}
             </button>
           </div>
         )}

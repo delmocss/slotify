@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { cancelBooking } from "../api/dashboard.api"
+import { useI18n } from "@/lib/i18n/useI18n"
 import { useToast } from "../../../components/ui/toast/useToast"
 import { Booking } from "@/types"
 
@@ -10,15 +11,16 @@ interface BookingsTableProps {
 export default function BookingsTable({ bookings }: BookingsTableProps) {
   const queryClient = useQueryClient()
   const { addToast } = useToast()
+  const { t, locale } = useI18n()
 
   const mutation = useMutation({
     mutationFn: cancelBooking,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bookings"] })
-      addToast("Booking cancelled successfully")
+      addToast(t("table.cancelled"))
     },
     onError: () => {
-      addToast("Failed to cancel booking", "error")
+      addToast(t("table.cancelFailed"), "error")
     },
   })
 
@@ -34,11 +36,9 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
               <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
             </div>
             <p className="text-sm font-semibold text-gray-500 mb-2 tracking-tight">
-              No bookings yet
+              {t("table.empty.title")}
             </p>
-            <p className="text-xs text-gray-700 tracking-wide">
-              Adjust your filters or create new bookings
-            </p>
+            <p className="text-xs text-gray-700 tracking-wide">{t("table.empty.text")}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -46,22 +46,22 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
               <thead>
                 <tr className="border-b border-white/[0.03]">
                   <th className="px-8 py-5 text-[9px] font-extrabold text-gray-600 uppercase tracking-[0.2em] bg-gradient-to-b from-white/[0.01] to-transparent">
-                    Date
+                    {t("table.date")}
                   </th>
                   <th className="px-8 py-5 text-[9px] font-extrabold text-gray-600 uppercase tracking-[0.2em]">
-                    Time
+                    {t("table.time")}
                   </th>
                   <th className="px-8 py-5 text-[9px] font-extrabold text-gray-600 uppercase tracking-[0.2em]">
-                    Client
+                    {t("table.client")}
                   </th>
                   <th className="px-8 py-5 text-[9px] font-extrabold text-gray-600 uppercase tracking-[0.2em]">
-                    Service
+                    {t("table.service")}
                   </th>
                   <th className="px-8 py-5 text-[9px] font-extrabold text-gray-600 uppercase tracking-[0.2em]">
-                    Status
+                    {t("table.status")}
                   </th>
                   <th className="px-8 py-5 text-[9px] font-extrabold text-gray-600 uppercase tracking-[0.2em] text-right bg-gradient-to-b from-white/[0.01] to-transparent">
-                    Actions
+                    {t("table.actions")}
                   </th>
                 </tr>
               </thead>
@@ -82,13 +82,13 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
                         </div>
                         <div className="flex flex-col gap-1">
                           <span className="text-sm font-bold text-white/90 tracking-tight leading-none">
-                            {new Date(booking.date).toLocaleDateString("en-US", {
+                            {new Date(booking.date).toLocaleDateString(locale, {
                               month: "short",
                               day: "numeric",
                             })}
                           </span>
                           <span className="text-[10px] text-gray-700 font-semibold uppercase tracking-[0.1em]">
-                            {new Date(booking.date).toLocaleDateString("en-US", {
+                            {new Date(booking.date).toLocaleDateString(locale, {
                               weekday: "short",
                             })}
                           </span>
@@ -136,7 +136,9 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
                             booking.status === "confirmed" ? "text-gray-400" : "text-gray-700"
                           }`}
                         >
-                          {booking.status === "confirmed" ? "Confirmed" : "Cancelled"}
+                          {booking.status === "confirmed"
+                            ? t("status.confirmed")
+                            : t("status.cancelled")}
                         </span>
                       </div>
                     </td>
@@ -148,7 +150,7 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
                           className="relative text-[11px] font-bold text-gray-600 hover:text-red-400 tracking-wide transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed group-hover:translate-x-0 translate-x-1"
                         >
                           <span className="relative">
-                            {mutation.isPending ? "···" : "Cancel"}
+                            {mutation.isPending ? "···" : t("table.cancel")}
                             <span className="absolute bottom-0 left-0 w-0 h-px bg-red-400 group-hover:w-full transition-all duration-300" />
                           </span>
                         </button>

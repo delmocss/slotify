@@ -1,4 +1,5 @@
 import { X } from "lucide-react"
+import { useI18n } from "@/lib/i18n/useI18n"
 import { WorkingHoursDay } from "@/types"
 
 type Props = {
@@ -9,6 +10,7 @@ type Props = {
 }
 
 export default function DaySchedule({ day: _day, label, value, onChange }: Props) {
+  const { t } = useI18n()
   return (
     <div className="bg-surface border border-white/5 rounded-xl p-6 space-y-3">
       <div className="flex justify-between items-center">
@@ -53,8 +55,8 @@ export default function DaySchedule({ day: _day, label, value, onChange }: Props
                 onChange({ ...value, slots: newSlots })
               }}
               className="px-3 py-2 rounded-md bg-red-500/20 text-red-400 hover:bg-red-500/30 transition text-sm font-medium"
-              title="Remove time range"
-              aria-label="Remove time range"
+              title={t("hours.removeRange")}
+              aria-label={t("hours.removeRange")}
             >
               <X className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -72,7 +74,7 @@ export default function DaySchedule({ day: _day, label, value, onChange }: Props
           }
           className="text-sm text-gray-300"
         >
-          + Add time range
+          {t("hours.addRange")}
         </button>
       )}
     </div>

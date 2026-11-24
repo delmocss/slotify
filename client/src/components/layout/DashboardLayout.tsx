@@ -3,9 +3,11 @@ import { Info } from "lucide-react"
 import Navbar from "./Navbar"
 import Footer from "./Footer"
 import { useAuth } from "../../features/auth/hooks/useAuth"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 export default function DashboardLayout() {
   const { user } = useAuth()
+  const { t } = useI18n()
 
   return (
     <div className="flex flex-col min-h-screen bg-ashLight">
@@ -16,8 +18,7 @@ export default function DashboardLayout() {
           <div className="mx-auto flex max-w-7xl items-start gap-2.5 px-4 py-2.5 text-sm text-copper/90 sm:px-6 lg:px-8">
             <Info className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
             <p>
-              <span className="font-semibold">Demo session.</span> Everything you add or change here
-              is private to your session and is discarded automatically — nobody else will see it.
+              <span className="font-semibold">{t("demo.bannerTitle")}</span> {t("demo.bannerText")}
             </p>
           </div>
         </div>

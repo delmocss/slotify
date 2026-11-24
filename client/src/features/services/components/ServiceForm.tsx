@@ -2,10 +2,12 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Loader2, Plus, Save } from "lucide-react"
-import { serviceSchema, ServiceFormData } from "../schemas"
+import { useMemo } from "react"
+import { createServiceSchema, ServiceFormData } from "../schemas"
 import { createService, updateService } from "../api/services.api"
 import { useToast } from "@/components/ui/toast/useToast"
 import { getApiErrorMessage, getApiStatus } from "@/lib/apiError"
+import { useI18n } from "@/lib/i18n/useI18n"
 import { Service } from "@/types"
 
 type Props = {
@@ -44,6 +46,8 @@ function blockInvalidKeys(allowDecimal: boolean) {
 export default function ServiceForm({ service, onDone, onCancel }: Props) {
   const queryClient = useQueryClient()
   const { addToast } = useToast()
+  const { t, locale } = useI18n()
+  const serviceSchema = useMemo(() => createServiceSchema(t, locale), [t, locale])
   const isEdit = !!service
   const uid = service?.id ?? "new"
 
@@ -70,7 +74,7 @@ export default function ServiceForm({ service, onDone, onCancel }: Props) {
       isEdit ? updateService(service.id, data) : createService(data),
     onSuccess: (_result, data) => {
       queryClient.invalidateQueries({ queryKey: ["services"] })
-      addToast(isEdit ? `"${data.name}" updated` : `"${data.name}" created`)
+      addToast(t(isEdit ? "services.updated" : "services.created", { name: data.name }))
       if (!isEdit) {
         // "" (not undefined) is what actually empties a number input.
         reset({
@@ -83,7 +87,7 @@ export default function ServiceForm({ service, onDone, onCancel }: Props) {
       onDone?.()
     },
     onError: (error) => {
-      const message = getApiErrorMessage(error, "Could not save the service. Please try again.")
+      const message = getApiErrorMessage(error, t, "services.saveFailed")
       // A duplicate name belongs to the name field; anything else is a toast.
       if (getApiStatus(error) === 409) {
         setError("name", { message })
@@ -104,22 +108,20 @@ export default function ServiceForm({ service, onDone, onCancel }: Props) {
     >
       {!isEdit && (
         <div>
-          <h3 className="text-base font-semibold text-white">New service</h3>
-          <p className="text-sm text-gray-400">
-            Clients will be able to book it from your public page.
-          </p>
+          <h3 className="text-base font-semibold text-white">{t("services.new")}</h3>
+          <p className="text-sm text-gray-400">{t("services.newHint")}</p>
         </div>
       )}
 
       <div className="grid gap-4 sm:grid-cols-[2fr,1fr,1fr]">
         <div>
           <label htmlFor={`name-${uid}`} className="mb-1.5 block text-sm text-gray-300">
-            Name
+            {t("services.name")}
           </label>
           <input
             id={`name-${uid}`}
             {...register("name")}
-            placeholder="e.g. Haircut"
+            placeholder={t("services.namePlaceholder")}
             maxLength={80}
             autoComplete="off"
             aria-invalid={!!errors.name}
@@ -131,7 +133,7 @@ export default function ServiceForm({ service, onDone, onCancel }: Props) {
 
         <div>
           <label htmlFor={`duration-${uid}`} className="mb-1.5 block text-sm text-gray-300">
-            Duration
+            {t("services.duration")}
           </label>
           <div className="relative">
             <input
@@ -148,7 +150,7 @@ export default function ServiceForm({ service, onDone, onCancel }: Props) {
               className={inputClass(!!errors.duration_minutes, "pr-12")}
             />
             <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-gray-500">
-              min
+              {t("services.minUnit")}
             </span>
           </div>
           <FieldError id={`duration-error-${uid}`} message={errors.duration_minutes?.message} />
@@ -156,7 +158,7 @@ export default function ServiceForm({ service, onDone, onCancel }: Props) {
 
         <div>
           <label htmlFor={`price-${uid}`} className="mb-1.5 block text-sm text-gray-300">
-            Price
+            {t("services.price")}
           </label>
           <div className="relative">
             <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm text-gray-500">
@@ -193,7 +195,7 @@ export default function ServiceForm({ service, onDone, onCancel }: Props) {
           ) : (
             <Plus className="h-4 w-4" aria-hidden="true" />
           )}
-          {pending ? "Saving..." : isEdit ? "Save changes" : "Create service"}
+          {pending ? t("services.saving") : isEdit ? t("services.save") : t("services.create")}
         </button>
 
         {isEdit && (
@@ -203,7 +205,7 @@ export default function ServiceForm({ service, onDone, onCancel }: Props) {
             disabled={pending}
             className="rounded-lg border border-white/10 px-4 py-2.5 text-sm font-medium text-gray-300 transition hover:bg-white/[0.05] disabled:opacity-60"
           >
-            Cancel
+            {t("common.cancel")}
           </button>
         )}
       </div>

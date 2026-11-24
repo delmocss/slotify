@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react"
 import { DayPicker } from "react-day-picker"
+import { enGB, es as esLocale } from "react-day-picker/locale"
+import { useI18n } from "@/lib/i18n/useI18n"
 import { Calendar, ChevronLeft, ChevronRight, X } from "lucide-react"
 
 type Props = {
@@ -30,23 +32,23 @@ function format(date: Date) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }
 
-const display = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-})
-
 export default function DatePicker({
   value,
   onChange,
   min,
   max,
-  placeholder = "Select date",
+  placeholder,
   clearable = false,
   className = "",
   "aria-label": ariaLabel,
 }: Props) {
+  const { t, lang, locale } = useI18n()
   const [open, setOpen] = useState(false)
+  const display = new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  })
   const rootRef = useRef<HTMLDivElement>(null)
   const panelId = useId()
 
@@ -92,13 +94,13 @@ export default function DatePicker({
       >
         <Calendar className="h-4 w-4 shrink-0 text-copper" aria-hidden="true" />
         <span className={`flex-1 truncate ${selected ? "text-white" : "text-gray-400"}`}>
-          {selected ? display.format(selected) : placeholder}
+          {selected ? display.format(selected) : (placeholder ?? t("datepicker.placeholder"))}
         </span>
         {clearable && selected && (
           <span
             role="button"
             tabIndex={0}
-            aria-label="Clear date"
+            aria-label={t("datepicker.clear")}
             onClick={(e) => {
               e.stopPropagation()
               onChange("")
@@ -121,7 +123,7 @@ export default function DatePicker({
         <div
           id={panelId}
           role="dialog"
-          aria-label="Choose a date"
+          aria-label={t("datepicker.dialog")}
           className="absolute left-0 top-full z-50 mt-2 rounded-2xl border border-white/10 bg-[#1f201c] p-3 shadow-2xl shadow-black/50"
         >
           <DayPicker
@@ -136,6 +138,7 @@ export default function DatePicker({
             }}
             disabled={disabled}
             weekStartsOn={1}
+            locale={lang === "es" ? esLocale : enGB}
             showOutsideDays
             autoFocus
             components={{

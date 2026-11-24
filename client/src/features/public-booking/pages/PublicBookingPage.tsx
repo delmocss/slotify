@@ -8,6 +8,7 @@ import { createBooking } from "../api/public.api"
 import { useToast } from "../../../components/ui/toast/useToast"
 import { api } from "../../../lib/axios"
 import { CheckCircle2 } from "lucide-react"
+import { useI18n } from "@/lib/i18n/useI18n"
 import DatePicker from "@/components/ui/DatePicker"
 import { todayLocal } from "@/lib/dates"
 import Skeleton from "@/components/ui/Skeleton"
@@ -34,6 +35,7 @@ function groupSlots(slots: string[]) {
 export default function PublicBookingPage() {
   const { slug } = useParams()
   const { addToast } = useToast()
+  const { t, locale } = useI18n()
 
   const [step, setStep] = useState<Step>("service")
   const [selectedService, setSelectedService] = useState<Service | null>(null)
@@ -70,10 +72,10 @@ export default function PublicBookingPage() {
       setIsSubmitting(true)
       const result = await createBooking(slug!, data)
       setConfirmation(result)
-      addToast("Booking confirmed successfully")
+      addToast(t("booking.toastConfirmed"))
       setStep("success")
     } catch {
-      addToast("Failed to create booking", "error")
+      addToast(t("booking.toastFailed"), "error")
     } finally {
       setIsSubmitting(false)
     }
@@ -82,21 +84,34 @@ export default function PublicBookingPage() {
   const handleCancel = async () => {
     await api.post(`/public/cancel/${confirmation?.cancel_token}`)
     setConfirmation(null)
-    alert("Booking cancelled")
+    addToast(t("booking.toastCancelled"))
+  }
+
+  const formatPrice = (price: number | string) =>
+    new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(Number(price))
+  const formatDay = (value: string) => {
+    const [y, m, d] = value.split("-").map(Number)
+    return new Intl.DateTimeFormat(locale, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }).format(new Date(y, m - 1, d))
   }
 
   const steps = [
-    { key: "service", label: "Service" },
-    { key: "date", label: "Date" },
-    { key: "time", label: "Time" },
-    { key: "client", label: "Details" },
+    { key: "service", label: t("booking.step.service") },
+    { key: "date", label: t("booking.step.date") },
+    { key: "time", label: t("booking.step.time") },
+    { key: "client", label: t("booking.step.client") },
   ] as const
 
-  const summaryService = selectedService?.name ?? "Select a service"
-  const summaryDuration = selectedService ? `${selectedService.duration_minutes} min` : "—"
-  const summaryPrice = selectedService ? `EUR ${selectedService.price}` : "—"
-  const summaryDate = selectedDate || "Pick a date"
-  const summaryTime = selectedTime || "Pick a time"
+  const summaryService = selectedService?.name ?? t("booking.selectService")
+  const summaryDuration = selectedService
+    ? `${selectedService.duration_minutes} ${t("services.minUnit")}`
+    : "—"
+  const summaryPrice = selectedService ? formatPrice(selectedService.price) : "—"
+  const summaryDate = selectedDate ? formatDay(selectedDate) : t("booking.pickDate")
+  const summaryTime = selectedTime || t("booking.pickTime")
 
   const renderSlot = (slot: string) => (
     <button
@@ -120,15 +135,15 @@ export default function PublicBookingPage() {
             <CheckCircle2 className="h-8 w-8" aria-hidden="true" />
           </div>
 
-          <h1 className="mb-3 text-2xl font-bold sm:text-3xl">Booking Confirmed</h1>
+          <h1 className="mb-3 text-2xl font-bold sm:text-3xl">{t("booking.confirmed")}</h1>
 
           <p className="mx-auto mb-6 max-w-sm text-sm text-gray-300 sm:mb-8 sm:text-base">
-            Your reservation has been successfully scheduled.
+            {t("booking.confirmedText")}
           </p>
 
           <div className="mb-6 rounded-2xl border border-white/10 bg-ashSoft/90 px-4 py-5 sm:mb-8 sm:px-6 sm:py-6">
             <p className="mb-2 text-xs uppercase tracking-[0.18em] text-gray-400 sm:text-sm">
-              Booking Code
+              {t("booking.code")}
             </p>
 
             <p className="break-all text-xl font-mono font-bold tracking-[0.14em] text-copper sm:text-2xl">
@@ -141,21 +156,21 @@ export default function PublicBookingPage() {
               onClick={() => navigator.clipboard.writeText(confirmation.booking_code)}
               className="w-full rounded-xl bg-copper px-6 py-3 font-semibold text-white transition hover:brightness-95 sm:w-auto"
             >
-              Copy Code
+              {t("booking.copyCode")}
             </button>
 
             <button
               onClick={handleCancel}
               className="text-sm text-red-400 transition hover:text-red-300 sm:text-base"
             >
-              Cancel this booking
+              {t("booking.cancelThis")}
             </button>
 
             <button
               onClick={() => window.location.reload()}
               className="text-sm text-gray-400 transition hover:text-white sm:text-base"
             >
-              Book another appointment
+              {t("booking.another")}
             </button>
           </div>
         </div>
@@ -184,12 +199,12 @@ export default function PublicBookingPage() {
       >
         <div className="mb-8 text-center">
           <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-500">
-            Book an appointment
+            {t("booking.eyebrow")}
           </p>
           <h1 className="text-2xl font-bold leading-tight sm:text-3xl lg:text-4xl">
             {businessQuery.data?.name}
           </h1>
-          <p className="mt-2 text-sm text-gray-400">Choose a service, pick a date, and confirm.</p>
+          <p className="mt-2 text-sm text-gray-400">{t("booking.subtitle")}</p>
         </div>
 
         <div className="mb-8">
@@ -218,7 +233,7 @@ export default function PublicBookingPage() {
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-500">
-                    Summary
+                    {t("booking.summary")}
                   </p>
                   <p className="text-sm font-semibold text-white/90">{summaryService}</p>
                   <p className="text-xs text-gray-500">
@@ -263,11 +278,11 @@ export default function PublicBookingPage() {
                             <div>
                               <p className="text-sm font-semibold sm:text-base">{service.name}</p>
                               <p className="text-xs text-white/70 sm:text-sm">
-                                Duration {service.duration_minutes} min
+                                {t("booking.duration", { minutes: service.duration_minutes })}
                               </p>
                             </div>
                             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80">
-                              EUR {service.price}
+                              {formatPrice(service.price)}
                             </span>
                           </div>
                         </button>
@@ -287,23 +302,23 @@ export default function PublicBookingPage() {
                   className="space-y-4 sm:space-y-5"
                 >
                   <p className="text-sm font-semibold sm:text-base">
-                    Selected: {selectedService?.name}
+                    {t("booking.selected", { name: selectedService?.name ?? "" })}
                   </p>
 
                   <DatePicker
                     value={selectedDate}
                     min={todayLocal()}
                     onChange={setSelectedDate}
-                    placeholder="Choose a date"
-                    aria-label="Booking date"
+                    placeholder={t("booking.choose")}
+                    aria-label={t("booking.dateAria")}
                   />
 
                   {availabilityQuery.isLoading && (
-                    <p className="text-gray-500">Checking availability...</p>
+                    <p className="text-gray-500">{t("booking.checking")}</p>
                   )}
 
                   {availabilityQuery.data?.slots?.length === 0 && selectedDate && (
-                    <p className="text-red-500">No available slots for this date.</p>
+                    <p className="text-red-500">{t("booking.noSlots")}</p>
                   )}
 
                   <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -311,7 +326,7 @@ export default function PublicBookingPage() {
                       onClick={() => setStep("service")}
                       className="self-start text-sm text-gray-400 transition hover:text-white"
                     >
-                      Back
+                      {t("common.back")}
                     </button>
 
                     {availabilityQuery.data?.slots?.length > 0 && (
@@ -322,7 +337,7 @@ export default function PublicBookingPage() {
                         }}
                         className="w-full rounded-full bg-copper px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-95 sm:w-auto sm:text-base"
                       >
-                        Continue
+                        {t("common.continue")}
                       </button>
                     )}
                   </div>
@@ -339,7 +354,7 @@ export default function PublicBookingPage() {
                   className="space-y-5 sm:space-y-6"
                 >
                   <p className="text-sm font-semibold sm:text-base">
-                    {selectedService?.name} - {selectedDate}
+                    {selectedService?.name} - {formatDay(selectedDate)}
                   </p>
 
                   {availabilityQuery.isLoading ? (
@@ -352,8 +367,8 @@ export default function PublicBookingPage() {
                     <>
                       {availabilityData.length === 0 && (
                         <div className="text-center text-gray-400 py-10">
-                          <p className="text-lg font-medium mb-2">No availability for this date</p>
-                          <p className="text-sm">Please select another day.</p>
+                          <p className="text-lg font-medium mb-2">{t("booking.noAvailability")}</p>
+                          <p className="text-sm">{t("booking.selectAnother")}</p>
                         </div>
                       )}
 
@@ -362,7 +377,7 @@ export default function PublicBookingPage() {
                           {groupedSlots.morning.length > 0 && (
                             <div className="mb-8">
                               <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500 mb-3">
-                                Morning
+                                {t("booking.morning")}
                               </h3>
                               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                                 {groupedSlots.morning.map(renderSlot)}
@@ -373,7 +388,7 @@ export default function PublicBookingPage() {
                           {groupedSlots.afternoon.length > 0 && (
                             <div className="mb-8">
                               <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500 mb-3">
-                                Afternoon
+                                {t("booking.afternoon")}
                               </h3>
                               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                                 {groupedSlots.afternoon.map(renderSlot)}
@@ -384,7 +399,7 @@ export default function PublicBookingPage() {
                           {groupedSlots.evening.length > 0 && (
                             <div>
                               <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500 mb-3">
-                                Evening
+                                {t("booking.evening")}
                               </h3>
                               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                                 {groupedSlots.evening.map(renderSlot)}
@@ -401,7 +416,7 @@ export default function PublicBookingPage() {
                       onClick={() => next("client")}
                       className="w-full rounded-full bg-copper py-2.5 text-sm font-semibold text-white transition hover:brightness-95 sm:text-base"
                     >
-                      Continue
+                      {t("common.continue")}
                     </button>
                   )}
 
@@ -409,7 +424,7 @@ export default function PublicBookingPage() {
                     onClick={() => setStep("date")}
                     className="text-sm text-gray-400 transition hover:text-white"
                   >
-                    Back
+                    {t("common.back")}
                   </button>
                 </motion.div>
               )}
@@ -424,11 +439,12 @@ export default function PublicBookingPage() {
                   className="space-y-5 sm:space-y-6"
                 >
                   <p className="text-sm font-semibold sm:text-base">
-                    {selectedService?.name} - {selectedDate} at {selectedTime}
+                    {selectedService?.name} - {formatDay(selectedDate)} {t("booking.at")}{" "}
+                    {selectedTime}
                   </p>
 
                   <p className="text-xs text-gray-400 sm:text-sm">
-                    You are booking:{" "}
+                    {t("booking.youAreBooking")}{" "}
                     <span className="text-white font-medium">{selectedService?.name}</span>
                   </p>
 
@@ -450,7 +466,7 @@ export default function PublicBookingPage() {
                   >
                     <input
                       name="name"
-                      placeholder="Your name"
+                      placeholder={t("booking.yourName")}
                       required
                       className="w-full rounded-xl border border-white/10 bg-ashSoft/90 p-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-copper sm:text-base"
                     />
@@ -458,7 +474,7 @@ export default function PublicBookingPage() {
                     <input
                       name="email"
                       type="email"
-                      placeholder="Your email"
+                      placeholder={t("booking.yourEmail")}
                       required
                       className="w-full rounded-xl border border-white/10 bg-ashSoft/90 p-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-copper sm:text-base"
                     />
@@ -468,7 +484,7 @@ export default function PublicBookingPage() {
                       disabled={isSubmitting}
                       className="w-full rounded-full bg-copper py-2.5 text-sm font-semibold text-white transition hover:brightness-95 sm:text-base"
                     >
-                      {isSubmitting ? "Booking..." : "Confirm Booking"}
+                      {isSubmitting ? t("booking.booking") : t("booking.confirm")}
                     </button>
                   </form>
 
@@ -476,7 +492,7 @@ export default function PublicBookingPage() {
                     onClick={() => setStep("time")}
                     className="text-sm text-gray-400 transition hover:text-white"
                   >
-                    Back
+                    {t("common.back")}
                   </button>
                 </motion.div>
               )}
@@ -491,13 +507,13 @@ export default function PublicBookingPage() {
                 >
                   <h2 className="flex items-center justify-center gap-2 text-xl font-bold sm:text-2xl">
                     <CheckCircle2 className="h-6 w-6 text-copper" aria-hidden="true" />
-                    Booking Confirmed
+                    {t("booking.confirmed")}
                   </h2>
 
                   <p>{selectedService?.name}</p>
 
                   <p>
-                    {selectedDate} at {selectedTime}
+                    {formatDay(selectedDate)} {t("booking.at")} {selectedTime}
                   </p>
 
                   <button
@@ -510,7 +526,7 @@ export default function PublicBookingPage() {
                     }}
                     className="mt-4 rounded-lg border border-white/20 px-4 py-2 text-sm transition hover:bg-white/5 sm:text-base"
                   >
-                    Book Another
+                    {t("booking.anotherShort")}
                   </button>
                 </motion.div>
               )}
@@ -520,26 +536,32 @@ export default function PublicBookingPage() {
           <aside className="hidden lg:block">
             <div className="sticky top-24 rounded-2xl border border-white/10 bg-[#1f201b]/80 p-5 shadow-xl shadow-black/20">
               <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-gray-500">
-                Booking summary
+                {t("booking.summaryTitle")}
               </p>
               <div className="mt-4 space-y-4">
                 <div>
-                  <p className="text-[11px] text-gray-600 uppercase tracking-[0.2em]">Service</p>
+                  <p className="text-[11px] text-gray-600 uppercase tracking-[0.2em]">
+                    {t("booking.step.service")}
+                  </p>
                   <p className="text-sm font-semibold text-white/90">{summaryService}</p>
                   <p className="text-xs text-gray-500">{summaryDuration}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] text-gray-600 uppercase tracking-[0.2em]">Date</p>
+                  <p className="text-[11px] text-gray-600 uppercase tracking-[0.2em]">
+                    {t("booking.step.date")}
+                  </p>
                   <p className="text-sm font-semibold text-white/90">{summaryDate}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] text-gray-600 uppercase tracking-[0.2em]">Time</p>
+                  <p className="text-[11px] text-gray-600 uppercase tracking-[0.2em]">
+                    {t("booking.step.time")}
+                  </p>
                   <p className="text-sm font-semibold text-white/90">{summaryTime}</p>
                 </div>
               </div>
               <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
                 <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-600">
-                  Total
+                  {t("booking.total")}
                 </span>
                 <span className="text-sm font-semibold text-white/90">{summaryPrice}</span>
               </div>
