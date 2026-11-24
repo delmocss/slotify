@@ -15,6 +15,9 @@
 
 **Public Booking:** https://slotify-client-theta.vercel.app/b/demo-negocio
 
+> Every demo login opens a **private copy** of the demo business: add, edit or delete whatever you like, nobody else will see it and it is discarded after 24 hours (see [Demo mode](#demo-mode-private-sandboxes)). The interface is available in **English and Spanish** (ES | EN switch) and adapts to phones, tablets and desktops.
+> The free tier sleeps when idle: the first request can take 30-60 s.
+
 ---
 
 ## 📸 Screenshots
@@ -76,7 +79,6 @@ Slotify provides:
 - Analytics dashboard
 - Revenue tracking
 - CSV export for reporting
-- Branding customization
 
 ### Data model
 
@@ -112,6 +114,8 @@ The project follows a feature-based modular architecture both in frontend and ba
 - React Hook Form + Zod
 - Framer Motion
 - Recharts
+- react-day-picker (themed calendar) and lucide-react (icons)
+- Lightweight built-in i18n (typed English / Spanish dictionaries, no extra dependency)
 
 ### Backend
 
@@ -125,6 +129,7 @@ The project follows a feature-based modular architecture both in frontend and ba
 - Automated tests (Vitest + Supertest)
 - Secure cancellation tokens
 - Centralized error handling
+- Private demo sandboxes per login (auto-purged) and a daily keep-alive for the free tier
 
 ---
 
@@ -147,7 +152,7 @@ slotify/
 │       ├── app/             # router and providers
 │       ├── components/      # shared UI components
 │       ├── features/        # auth, dashboard, landing, public-booking, services, working-hours
-│       ├── lib/             # axios instance, helpers
+│       ├── lib/             # axios instance, helpers, i18n (en/es dictionaries)
 │       └── types/
 │
 └── server/                  # Express + PostgreSQL
@@ -155,9 +160,11 @@ slotify/
     │   ├── config/          # env validation, db pool
     │   ├── middlewares/     # auth, validation, errors, rate limits
     │   ├── modules/         # analytics, auth, availability, bookings, public, services, working-hours
-    │   ├── database/        # schema.sql (fresh install) + migrations/ (upgrade path)
-    │   └── utils/
-    └── tests/               # Vitest + Supertest
+    │   ├── database/        # schema.sql (fresh install), migrations/ (upgrade path), seeds/ (demo data)
+    │   └── utils/           # jwt, hashing, csv, errors
+    └── tests/               # Vitest + Supertest (unit) and tests/integration (real Postgres)
+
+.github/workflows/           # ci.yml (lint, build, tests) and keep-alive.yml (daily DB ping)
 ```
 
 ### Design Principles
@@ -165,7 +172,7 @@ slotify/
 - Separation of concerns
 - Feature-based organization
 - Explicit typing
-- Non-destructive operations
+- Destructive actions ask for confirmation (deleting a service also removes its bookings)
 - Clear public vs authenticated boundaries
 
 ---
@@ -176,7 +183,7 @@ slotify/
 - Registration is atomic: user, organization, membership and business are created in a single
   transaction (rolled back on any failure) and public slugs are collision-safe.
 - Schema changes ship as numbered SQL migrations that preserve existing data.
-- Non-destructive operations (soft toggles).
+- Services can be deactivated (soft toggle, hidden from the public page) or deleted.
 - Separation between public and authenticated routes.
 - Explicit typing to prevent runtime inconsistencies.
 
@@ -198,12 +205,14 @@ slotify/
 
 ### 🔹 Business Dashboard
 
-- Revenue metrics
-- Monthly performance overview
-- Date range filtering
-- CSV export
-- Service activation / deactivation
-- Business branding (logo + primary color)
+- Revenue metrics (total and current month) and bookings of the last 7 days
+- Booking activity chart and cancel rate
+- Filters by status, date and client
+- Bookings list (table on desktop, cards on phones and tablets)
+- CSV export by date range
+- Services: create, edit, delete (with confirmation) and activate / deactivate, with inline validation
+- Working hours per weekday, with several time ranges
+- Cancel bookings from the dashboard
 
 ---
 
@@ -218,12 +227,10 @@ slotify/
 
 ### 🔹 Analytics
 
-- Total revenue aggregation
-- Revenue by month
-- Booking volume tracking
-- Cancel rate calculation
-- Default current month view
-- Range-based filtering
+- Total revenue and current-month revenue
+- Booking volume of the last 7 days (same window as the chart)
+- Cancel rate = cancelled / (confirmed + cancelled)
+- Range-based CSV export (validated dates, spreadsheet-formula-safe)
 
 ---
 
@@ -234,7 +241,9 @@ slotify/
 - Animated transitions
 - Clear booking progression
 - SaaS-style dark theme
-- Responsive design
+- Responsive design: phones, tablets, desktops and window resizing
+- English / Spanish interface with a persistent language switch
+- Custom calendar date picker
 - Copyable booking codes
 
 ---
@@ -303,7 +312,6 @@ This project intentionally goes beyond CRUD.
 - Revenue tracking
 - Export functionality
 - Service soft activation
-- Branding per business
 
 Slotify was designed with SaaS thinking, not simple data manipulation.
 
@@ -338,13 +346,19 @@ Environment variables (`server/.env`):
 | `JWT_SECRET` | yes | at least 32 characters, e.g. `openssl rand -base64 48` |
 | `CORS_ORIGIN` | recommended | frontend origin(s), comma-separated. If unset, any origin is accepted (a warning is logged) |
 | `PORT` | no | defaults to 4000 |
+| `DEMO_EMAIL` | no | public demo account whose logins get a private sandbox copy (default `demo@demo.com`) |
+| `DEMO_SLUG` | no | slug of the template business copied for each demo login (default `demo-negocio`) |
 
 The server refuses to start if `DATABASE_URL` or `JWT_SECRET` are missing or invalid.
 
+`CORS_ORIGIN` must match the exact origin the frontend is served from. The dev server runs on `http://localhost:3000` (it is the value in `.env.example`); a different port or host (for example opening the HTML with Live Server on `127.0.0.1:5500`) is blocked by CORS.
+
 ```bash
 npm run dev     # http://localhost:4000
-npm test
+npm test        # unit tests, no database needed
 ```
+
+The demo account and its template business are ordinary data: register `demo@demo.com` with the business name "Demo Negocio" (its slug becomes `demo-negocio`) and add some services if you want to try the sandbox locally.
 
 ---
 
@@ -387,7 +401,7 @@ Steps:
 3. Root directory: `server`
 4. Build command: `npm install && npm run build`
 5. Start command: `npm run start`
-6. Health check path: `/health`
+6. Health check path: `/health` (`/health/db` also queries the database)
 
 ---
 
@@ -415,6 +429,8 @@ Supabase pauses free projects after 7 days without activity, and Render puts fre
 - **Availability is per service:** two different services can be booked at the same time (there is no staff/resource model).
 - **No email notifications:** the booking code and cancellation link are only shown on the confirmation screen.
 - **No frontend tests** yet.
+- **Demo copies are temporary:** a demo session is deleted after 24 hours; anything created with a real account is permanent.
+- **Error messages from the API** are translated when they are known; any other message is shown as received (in English).
 
 ---
 
@@ -424,13 +440,13 @@ If evolving this into a production SaaS:
 
 - Email confirmation integration
 - Stripe payment flow
-- Role-based access control
-- Multi-business tenancy
+- Per-role permissions (owner / admin / member roles are stored, but every member currently has the same access)
+- Organization switcher in the UI (the data model already supports several organizations per user)
+- Business branding (logo and colors)
 - Timezone support
 - File upload storage (S3 / Supabase Storage)
 - Dockerization
-- CI/CD pipeline
-- Integration and end-to-end tests
+- End-to-end and frontend tests
 
 ---
 

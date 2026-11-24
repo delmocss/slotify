@@ -102,7 +102,7 @@ INSERT INTO bookings
 SELECT tpl.id,
        svc.id,
        'SLT-DEMO' || lpad(plan.i::text, 2, '0'),
-       replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', ''),
+       substr(replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', ''), 1, 48),
        people.client_name,
        people.client_email,
        CURRENT_DATE + plan.day_offset,

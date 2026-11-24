@@ -27,6 +27,15 @@ beforeAll(async () => {
   const schema = fs.readFileSync(path.join(__dirname, "../../src/database/schema.sql"), "utf8")
   await pool.query("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
   await pool.query(schema)
+  // Some deployed databases were created with varchar(50) columns (older schema). Reproduce
+  // that here so generated codes/tokens can never silently outgrow production again.
+  await pool.query(
+    `ALTER TABLE bookings
+       ALTER COLUMN booking_code TYPE varchar(50),
+       ALTER COLUMN cancel_token TYPE varchar(50),
+       ALTER COLUMN client_name  TYPE varchar(50),
+       ALTER COLUMN client_email TYPE varchar(50)`
+  )
 
   // Template: the demo account registered normally (its business slug is "demo-negocio").
   const reg = await request(app)
@@ -180,7 +189,7 @@ describe("demo sandbox (real Postgres)", () => {
     expect(codes).toHaveLength(6)
     expect(codes.every((x) => /^SLT-[0-9A-F]{8}$/.test(x.booking_code))).toBe(true)
     expect(new Set(codes.map((x) => x.booking_code)).size).toBe(6)
-    expect(codes.every((x) => x.token_len === 64)).toBe(true)
+    expect(codes.every((x) => x.token_len === 48)).toBe(true)
     expect(
       await count(
         `SELECT count(*) FROM bookings k JOIN businesses b ON b.id = k.business_id
