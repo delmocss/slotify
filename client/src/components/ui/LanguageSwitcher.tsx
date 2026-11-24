@@ -27,7 +27,7 @@ export default function LanguageSwitcher({ className = "" }: Props) {
             aria-pressed={active}
             title={name}
             lang={code}
-            className={`rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-wider transition ${
+            className={`rounded-full px-3 py-1.5 text-[11px] font-semibold tracking-wider transition sm:px-2.5 sm:py-1 ${
               active
                 ? "bg-copper text-[#1a1b17]"
                 : "text-gray-400 hover:bg-white/[0.06] hover:text-gray-100"

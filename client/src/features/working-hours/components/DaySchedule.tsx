@@ -12,12 +12,14 @@ type Props = {
 export default function DaySchedule({ day: _day, label, value, onChange }: Props) {
   const { t } = useI18n()
   return (
-    <div className="bg-surface border border-white/5 rounded-xl p-6 space-y-3">
+    <div className="space-y-3 rounded-xl border border-white/5 bg-surface p-4 sm:p-6">
       <div className="flex justify-between items-center">
         <h3 className="font-bold text-gray-300">{label}</h3>
 
         <input
           type="checkbox"
+          className="h-5 w-5 cursor-pointer accent-[#D99058]"
+          aria-label={label}
           checked={value.enabled}
           onChange={(e) => onChange({ ...value, enabled: e.target.checked })}
         />
@@ -54,7 +56,7 @@ export default function DaySchedule({ day: _day, label, value, onChange }: Props
                 const newSlots = value.slots.filter((_, i) => i !== index)
                 onChange({ ...value, slots: newSlots })
               }}
-              className="px-3 py-2 rounded-md bg-red-500/20 text-red-400 hover:bg-red-500/30 transition text-sm font-medium"
+              className="flex h-10 w-10 items-center justify-center rounded-md bg-red-500/20 text-red-400 hover:bg-red-500/30 transition text-sm font-medium"
               title={t("hours.removeRange")}
               aria-label={t("hours.removeRange")}
             >
@@ -72,7 +74,7 @@ export default function DaySchedule({ day: _day, label, value, onChange }: Props
               slots: [...value.slots, { start_time: "09:00", end_time: "17:00" }],
             })
           }
-          className="text-sm text-gray-300"
+          className="py-1 text-sm text-gray-300 hover:text-white"
         >
           {t("hours.addRange")}
         </button>

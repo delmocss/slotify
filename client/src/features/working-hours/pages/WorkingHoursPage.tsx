@@ -78,7 +78,7 @@ export default function WorkingHoursPage() {
   }
 
   return (
-    <div className="bg-surface border border-white/5 rounded-xl p-6 text-white space-y-6">
+    <div className="space-y-6 rounded-xl border border-white/5 bg-surface p-4 text-white sm:p-6">
       <h2 className="text-2xl font-bold">{t("hours.title")}</h2>
 
       <div className="grid gap-4">
@@ -96,7 +96,7 @@ export default function WorkingHoursPage() {
       <button
         onClick={handleSave}
         disabled={mutation.isPending}
-        className="bg-copper text-white hover:brightness-95 transition px-6 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full rounded-lg bg-copper px-6 py-2.5 font-semibold text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
       >
         {mutation.isPending ? t("hours.saving") : t("hours.save")}
       </button>

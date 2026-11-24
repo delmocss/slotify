@@ -54,14 +54,14 @@ export default function BookingsChart({ bookings }: Props) {
   }
 
   return (
-    <div className="relative bg-gradient-to-br from-[#2A2B27] via-[#252621] to-[#1f201c] border border-white/10 rounded-3xl p-8 overflow-hidden shadow-2xl">
+    <div className="relative bg-gradient-to-br from-[#2A2B27] via-[#252621] to-[#1f201c] border border-white/10 rounded-3xl p-5 sm:p-8 overflow-hidden shadow-2xl">
       {/* Decorative elements */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-copper/10 via-transparent to-transparent" />
       <div className="absolute bottom-0 right-0 w-64 h-64 bg-copper/5 rounded-full blur-3xl" />
 
       <div className="relative">
         {/* Header Section */}
-        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-10">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-6 sm:mb-10">
           {/* Main Metric */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
@@ -71,9 +71,9 @@ export default function BookingsChart({ bookings }: Props) {
               </p>
             </div>
 
-            <div className="flex items-end gap-4">
+            <div className="flex flex-wrap items-end gap-x-4 gap-y-3">
               <div>
-                <h3 className="text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400 tracking-tight leading-none">
+                <h3 className="text-5xl sm:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400 tracking-tight leading-none">
                   {totalBookings}
                 </h3>
                 <p className="text-sm text-gray-500 mt-2 font-medium">{t("chart.total7")}</p>
@@ -98,7 +98,7 @@ export default function BookingsChart({ bookings }: Props) {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
             <div className="text-center lg:text-right">
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-copper/10 mb-2">
                 <Activity className="h-5 w-5 text-copper" aria-hidden="true" />
@@ -133,7 +133,7 @@ export default function BookingsChart({ bookings }: Props) {
 
         {/* Chart Section */}
         <div className="relative">
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={260} minWidth={0}>
             <AreaChart data={data} margin={{ top: 20, right: 10, left: -20, bottom: 10 }}>
               <defs>
                 <linearGradient id="colorBookings" x1="0" y1="0" x2="0" y2="1">

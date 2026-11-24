@@ -80,7 +80,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
           disabled={toggleMutation.isPending}
           aria-pressed={service.is_active}
           title={service.is_active ? t("services.clickDeactivate") : t("services.clickActivate")}
-          className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition disabled:opacity-60 ${
+          className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-semibold transition sm:py-1.5 disabled:opacity-60 ${
             service.is_active
               ? "border-green-500/30 bg-green-500/10 text-green-300 hover:bg-green-500/20"
               : "border-white/10 bg-white/5 text-gray-400 hover:bg-white/10"
@@ -98,7 +98,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
 
         <button
           onClick={() => setEditing(true)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-sm text-gray-300 transition hover:bg-white/[0.06] hover:text-white"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3.5 py-2 text-sm text-gray-300 sm:px-3 sm:py-1.5 transition hover:bg-white/[0.06] hover:text-white"
         >
           <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
           {t("common.edit")}
@@ -128,7 +128,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
         ) : (
           <button
             onClick={() => setConfirmingDelete(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-gray-400 transition hover:bg-white/[0.06] hover:text-white"
+            className="inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm text-gray-400 sm:px-3 sm:py-1.5 transition hover:bg-white/[0.06] hover:text-white"
           >
             <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
             {t("common.delete")}

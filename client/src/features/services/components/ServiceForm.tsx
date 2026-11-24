@@ -104,7 +104,7 @@ export default function ServiceForm({ service, onDone, onCancel }: Props) {
     <form
       onSubmit={handleSubmit((data) => mutation.mutate(data))}
       noValidate
-      className="space-y-4 rounded-xl border border-white/5 bg-surface p-6"
+      className="space-y-4 rounded-xl border border-white/5 bg-surface p-4 sm:p-6"
     >
       {!isEdit && (
         <div>
@@ -113,8 +113,8 @@ export default function ServiceForm({ service, onDone, onCancel }: Props) {
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-[2fr,1fr,1fr]">
-        <div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[2fr,1fr,1fr]">
+        <div className="sm:col-span-2 lg:col-span-1">
           <label htmlFor={`name-${uid}`} className="mb-1.5 block text-sm text-gray-300">
             {t("services.name")}
           </label>
@@ -186,7 +186,7 @@ export default function ServiceForm({ service, onDone, onCancel }: Props) {
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-copper px-4 py-2.5 text-sm font-semibold text-[#1a1b17] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-copper px-4 py-2.5 sm:w-auto text-sm font-semibold text-[#1a1b17] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {pending ? (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -203,7 +203,7 @@ export default function ServiceForm({ service, onDone, onCancel }: Props) {
             type="button"
             onClick={onCancel}
             disabled={pending}
-            className="rounded-lg border border-white/10 px-4 py-2.5 text-sm font-medium text-gray-300 transition hover:bg-white/[0.05] disabled:opacity-60"
+            className="flex-1 rounded-lg border border-white/10 px-4 py-2.5 text-sm font-medium text-gray-300 sm:flex-none transition hover:bg-white/[0.05] disabled:opacity-60"
           >
             {t("common.cancel")}
           </button>

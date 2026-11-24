@@ -8,7 +8,7 @@ export default function Footer() {
   return (
     <footer className="relative w-full border-t border-white/[0.04] bg-[#12130f]/50 backdrop-blur-2xl">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-[11px] font-semibold text-gray-500 tracking-[0.18em] uppercase">
             <Logo className="h-4 w-4 text-copper/80" />

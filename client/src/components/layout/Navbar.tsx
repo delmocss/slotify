@@ -58,10 +58,10 @@ export default function Navbar() {
   }, [menuOpen])
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-white/[0.06] bg-[#141512]/80 text-white backdrop-blur-xl">
+    <header className="sticky top-0 z-40 w-full border-b border-white/[0.06] bg-[#141512]/80 pt-[env(safe-area-inset-top)] text-white backdrop-blur-xl">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-copper/50 to-transparent" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-4">
+        <div className="flex h-14 items-center justify-between gap-3 sm:h-16 sm:gap-4">
           {/* Brand */}
           <button
             onClick={() => navigate("/dashboard")}
@@ -71,7 +71,7 @@ export default function Navbar() {
             <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-copper/30 bg-gradient-to-br from-copper/25 to-copper/5 text-copper shadow-inner shadow-copper/10 transition group-hover:border-copper/60">
               <Logo className="h-5 w-5" />
             </span>
-            <span className="hidden text-lg font-semibold tracking-tight text-white sm:block">
+            <span className="text-lg font-semibold tracking-tight text-white md:max-lg:hidden">
               Slotify
             </span>
           </button>
@@ -114,7 +114,7 @@ export default function Navbar() {
             {sandbox && (
               <span
                 title={t("demo.badgeTitle")}
-                className="hidden items-center gap-1.5 rounded-full border border-copper/30 bg-copper/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-copper lg:inline-flex"
+                className="hidden items-center gap-1.5 rounded-full border border-copper/30 bg-copper/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-copper xl:inline-flex"
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-copper" />
                 {t("demo.badge")}
@@ -126,12 +126,12 @@ export default function Navbar() {
                 onClick={() => setMenuOpen((o) => !o)}
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
-                className="flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.03] py-1 pl-1 pr-3 transition hover:border-white/20 hover:bg-white/[0.06]"
+                className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] py-1 pl-1 pr-2.5 transition hover:border-white/20 hover:bg-white/[0.06] xl:gap-2.5 xl:pr-3"
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-copper to-[#a8683a] text-[11px] font-bold text-[#1a1b17]">
                   {initialsOf(businessName)}
                 </span>
-                <span className="max-w-[9rem] truncate text-sm font-medium text-gray-200">
+                <span className="hidden max-w-[9rem] truncate text-sm font-medium text-gray-200 xl:block">
                   {businessName}
                 </span>
                 <ChevronDown
@@ -164,7 +164,7 @@ export default function Navbar() {
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileOpen((o) => !o)}
-              className="rounded-lg border border-white/10 p-2 text-gray-300 transition hover:bg-white/[0.06] md:hidden"
+              className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-gray-300 transition hover:bg-white/[0.06] md:hidden"
               aria-label={t("nav.toggleMenu")}
               aria-expanded={mobileOpen}
             >
@@ -183,7 +183,7 @@ export default function Navbar() {
                 end={path === "/dashboard"}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+                  `flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
                     isActive
                       ? "bg-copper/15 text-white ring-1 ring-copper/30"
                       : "text-gray-400 hover:bg-white/[0.05] hover:text-gray-100"
@@ -207,7 +207,7 @@ export default function Navbar() {
             </div>
             <button
               onClick={logout}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-300 transition hover:bg-white/[0.05] hover:text-white"
+              className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-300 transition hover:bg-white/[0.05] hover:text-white"
             >
               <LogOut className="h-4 w-4" aria-hidden="true" />
               {t("nav.logout")}

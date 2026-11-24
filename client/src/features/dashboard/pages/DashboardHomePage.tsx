@@ -78,26 +78,26 @@ export default function DashboardHomePage() {
       <h1 className="text-2xl font-bold text-white">{t("dashboard.title")}</h1>
 
       {slug && (
-        <div className="bg-surface border border-white/5 rounded-xl p-6">
-          <p className="text-sm text-gray-400 mb-1">{t("dashboard.publicPage")}</p>
+        <div className="rounded-xl border border-white/5 bg-surface p-4 sm:p-6">
+          <p className="mb-1 text-sm text-gray-400">{t("dashboard.publicPage")}</p>
           <a
             href={publicUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-400 hover:underline font-medium"
+            className="break-all font-medium text-gray-300 hover:underline"
           >
             {publicUrl}
           </a>
         </div>
       )}
 
-      <div className="bg-surface border border-white/5 rounded-xl p-6 flex gap-4 flex-wrap items-end">
+      <div className="grid grid-cols-1 gap-4 rounded-xl border border-white/5 bg-surface p-4 sm:grid-cols-2 sm:p-6 lg:flex lg:flex-wrap lg:items-end">
         <div>
           <label className="text-sm text-gray-300">{t("dashboard.filter.status")}</label>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="block bg-ashSoft border border-white/10 text-white placeholder-gray-400 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper"
+            className="block w-full rounded-md border border-white/10 bg-ashSoft p-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-copper lg:w-auto lg:p-2"
           >
             <option value="all">{t("dashboard.filter.all")}</option>
             <option value="confirmed">{t("dashboard.filter.confirmed")}</option>
@@ -113,7 +113,7 @@ export default function DashboardHomePage() {
             placeholder={t("dashboard.filter.anyDate")}
             clearable
             aria-label={t("dashboard.filter.byDate")}
-            className="w-44"
+            className="w-full lg:w-44"
           />
         </div>
 
@@ -124,7 +124,7 @@ export default function DashboardHomePage() {
             placeholder={t("dashboard.filter.clientName")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="block bg-ashSoft border border-white/10 text-white placeholder-gray-400 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper"
+            className="block w-full rounded-md border border-white/10 bg-ashSoft p-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-copper lg:w-auto lg:p-2"
           />
         </div>
       </div>
@@ -133,9 +133,9 @@ export default function DashboardHomePage() {
       <BookingsChart bookings={bookings} />
 
       <div>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-3">
+        <div className="mb-3 flex flex-col items-stretch justify-between gap-4 lg:flex-row lg:items-end">
           <h2 className="text-xl font-semibold text-white">{t("dashboard.recent")}</h2>
-          <div className="flex flex-wrap gap-3 items-end">
+          <div className="grid grid-cols-2 items-end gap-3 sm:flex sm:flex-wrap [&>div]:min-w-0">
             <div>
               <label className="text-sm text-gray-400 block mb-1">
                 {t("dashboard.exportFrom")}
@@ -145,7 +145,7 @@ export default function DashboardHomePage() {
                 onChange={setFromDate}
                 max={toDate || undefined}
                 aria-label={t("dashboard.exportFromAria")}
-                className="w-44"
+                className="w-full sm:w-44"
               />
             </div>
             <div>
@@ -155,12 +155,12 @@ export default function DashboardHomePage() {
                 onChange={setToDate}
                 min={fromDate || undefined}
                 aria-label={t("dashboard.exportToAria")}
-                className="w-44"
+                className="w-full sm:w-44"
               />
             </div>
             <button
               onClick={handleExport}
-              className="bg-copper text-white px-4 py-2 rounded-lg font-medium hover:brightness-95 transition"
+              className="col-span-2 rounded-lg bg-copper px-4 py-2.5 font-medium text-white transition hover:brightness-95 sm:col-span-1"
             >
               {t("dashboard.exportCsv")}
             </button>

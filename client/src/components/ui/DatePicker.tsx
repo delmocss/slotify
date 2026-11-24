@@ -44,6 +44,7 @@ export default function DatePicker({
 }: Props) {
   const { t, lang, locale } = useI18n()
   const [open, setOpen] = useState(false)
+  const [alignRight, setAlignRight] = useState(false)
   const display = new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "short",
@@ -87,7 +88,17 @@ export default function DatePicker({
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          // Open towards the side with room so the calendar never spills off-screen.
+          const rect = rootRef.current?.getBoundingClientRect()
+          if (rect) {
+            const PANEL_WIDTH = 340
+            setAlignRight(
+              rect.left + PANEL_WIDTH > window.innerWidth - 8 && rect.right - PANEL_WIDTH >= 8
+            )
+          }
+          setOpen((o) => !o)
+        }}
         className={`flex w-full items-center gap-2 rounded-md border bg-ashSoft px-3 py-2 text-left text-sm transition focus:outline-none focus:ring-2 focus:ring-copper ${
           open ? "border-copper/60" : "border-white/10 hover:border-white/25"
         }`}
@@ -124,7 +135,7 @@ export default function DatePicker({
           id={panelId}
           role="dialog"
           aria-label={t("datepicker.dialog")}
-          className="absolute left-0 top-full z-50 mt-2 rounded-2xl border border-white/10 bg-[#1f201c] p-3 shadow-2xl shadow-black/50"
+          className={`absolute top-full z-50 mt-2 max-w-[calc(100vw-1.5rem)] overflow-x-auto rounded-2xl ${alignRight ? "right-0" : "left-0"} border border-white/10 bg-[#1f201c] p-3 shadow-2xl shadow-black/50`}
         >
           <DayPicker
             mode="single"
