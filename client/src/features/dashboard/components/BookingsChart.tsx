@@ -135,7 +135,7 @@ export default function BookingsChart({ bookings }: Props) {
         {/* Chart Section */}
         <div className="relative">
           <ResponsiveContainer width="100%" height={260} minWidth={0}>
-            <AreaChart data={data} margin={{ top: 20, right: 10, left: -20, bottom: 10 }}>
+            <AreaChart data={data} margin={{ top: 20, right: 34, left: -20, bottom: 10 }}>
               <defs>
                 <linearGradient id="colorBookings" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#C87D4D" stopOpacity={0.5} />

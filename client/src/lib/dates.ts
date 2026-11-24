@@ -14,3 +14,8 @@ export function fromISODate(value: string) {
   const [y, m, d] = value.split("-").map(Number)
   return new Date(y, m - 1, d)
 }
+
+/** Postgres TIME comes as "10:00:00": show it as "10:00". */
+export function formatTime(value: string | null | undefined) {
+  return value ? value.slice(0, 5) : ""
+}

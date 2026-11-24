@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { cancelBooking } from "../api/dashboard.api"
 import { useI18n } from "@/lib/i18n/useI18n"
-import { fromISODate } from "@/lib/dates"
+import { formatTime, fromISODate } from "@/lib/dates"
 import { useToast } from "../../../components/ui/toast/useToast"
 import { Booking } from "@/types"
 
@@ -79,7 +79,7 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
                         })}
                       </span>
                       <span className="font-mono tracking-wider">
-                        {booking.start_time} · {booking.end_time}
+                        {formatTime(booking.start_time)} · {formatTime(booking.end_time)}
                       </span>
                       <span className="truncate">{booking.service_name}</span>
                     </div>
@@ -153,9 +153,9 @@ export default function BookingsTable({ bookings }: BookingsTableProps) {
                       </td>
                       <td className="px-5 py-6 xl:px-8">
                         <div className="font-mono text-[11px] text-gray-500 tracking-wider leading-relaxed">
-                          {booking.start_time}
+                          {formatTime(booking.start_time)}
                           <span className="mx-2 text-gray-700">·</span>
-                          {booking.end_time}
+                          {formatTime(booking.end_time)}
                         </div>
                       </td>
                       <td className="px-5 py-6 xl:px-8">
