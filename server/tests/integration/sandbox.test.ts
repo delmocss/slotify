@@ -1,5 +1,6 @@
 import fs from "fs"
 import path from "path"
+import jwt from "jsonwebtoken"
 import request from "supertest"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { app } from "../../src/app"
@@ -67,6 +68,13 @@ describe("demo sandbox (real Postgres)", () => {
     expect(a.sandbox).toBe(true)
     expect(a.business.slug).toMatch(/^demo-negocio-[0-9a-f]{6}$/)
     expect(a.business.id).not.toBe(b.business.id)
+
+    // the token expires together with the sandbox (24h), and /auth/me exposes the demo e-mail
+    const { exp, iat } = jwt.decode(a.token) as { exp: number; iat: number }
+    expect(exp - iat).toBe(24 * 3600)
+    const me = await request(app).get("/auth/me").set(auth(a.token))
+    expect(me.body.sandbox).toBe(true)
+    expect(me.body.demoEmail).toBe("demo@demo.com")
 
     // each copy starts with the template data
     const aServices = await request(app).get("/services").set(auth(a.token))
@@ -160,6 +168,25 @@ describe("demo sandbox (real Postgres)", () => {
     const bookings = (await request(app).get("/bookings").set(auth(v.token))).body as {
       date: string
     }[]
+    // codes are generated in SQL: right format, all different, none reused from the template
+    expect(bookings).toHaveLength(6)
+    const codes = (
+      await pool.query(
+        `SELECT k.booking_code, length(k.cancel_token) AS token_len
+         FROM bookings k JOIN businesses b ON b.id = k.business_id WHERE b.id = $1`,
+        [v.organization.id]
+      )
+    ).rows as { booking_code: string; token_len: number }[]
+    expect(codes).toHaveLength(6)
+    expect(codes.every((x) => /^SLT-[0-9A-F]{8}$/.test(x.booking_code))).toBe(true)
+    expect(new Set(codes.map((x) => x.booking_code)).size).toBe(6)
+    expect(codes.every((x) => x.token_len === 64)).toBe(true)
+    expect(
+      await count(
+        `SELECT count(*) FROM bookings k JOIN businesses b ON b.id = k.business_id
+         WHERE b.slug = 'demo-negocio' AND k.booking_code LIKE 'SLT-T%'`
+      )
+    ).toBe(6)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const dates = bookings.map((x) => new Date(x.date).getTime())

@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken"
 import { describe, expect, it, vi } from "vitest"
 
 const state = vi.hoisted(() => ({
@@ -76,12 +77,15 @@ describe("login de la cuenta demo (sandbox)", () => {
     expect(res.user.email).toMatch(/^sandbox-.+@sandbox\.slotify\.local$/)
     expect(res.business.slug).toMatch(/^demo-negocio-[0-9a-f]{6}$/)
     expect(res.token).toBeTruthy()
+    // the token must not outlive the sandbox (24h), unlike a normal 7-day session
+    const { exp, iat } = jwt.decode(res.token) as { exp: number; iat: number }
+    expect(exp - iat).toBe(24 * 3600)
     expect(state.sqls).toContain("BEGIN")
     expect(state.sqls).toContain("COMMIT")
     // servicios, horarios y reservas se copian al sandbox
     expect(state.sqls.some((s) => s.startsWith("INSERT INTO services"))).toBe(true)
     expect(state.sqls.some((s) => s.startsWith("INSERT INTO working_hours"))).toBe(true)
-    expect(state.sqls.some((s) => s.startsWith("INSERT INTO bookings"))).toBe(true)
+    expect(state.sqls.some((s) => s.includes("INSERT INTO bookings"))).toBe(true)
     // the date shift is computed in SQL, not by trusting JS dates
     expect(state.sqls.some((s) => s.includes("GREATEST(0, CURRENT_DATE - MAX(date))"))).toBe(true)
   })

@@ -39,7 +39,7 @@ export default function Navbar() {
   const businessName = user?.organizations[0]?.name ?? t("nav.myBusiness")
   const sandbox = !!user?.sandbox
   // Sandbox emails are internal identifiers, not something a visitor should see.
-  const shownEmail = sandbox ? "demo@demo.com" : (user?.user.email ?? "")
+  const shownEmail = sandbox ? (user?.demoEmail ?? "demo") : (user?.user.email ?? "")
 
   useEffect(() => {
     if (!menuOpen) return

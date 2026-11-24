@@ -60,6 +60,22 @@ export default function WorkingHoursPage() {
   if (isLoading) return <div>{t("common.loading")}</div>
 
   const handleSave = () => {
+    // Validate here so the user gets a clear message instead of a failed request.
+    for (const day of Object.keys(schedule)) {
+      const { enabled, slots } = schedule[Number(day)]
+      if (!enabled) continue
+      for (const slot of slots) {
+        if (!slot.start_time || !slot.end_time) {
+          addToast(t("hours.v.timeRequired"), "error")
+          return
+        }
+        if (slot.start_time.slice(0, 5) >= slot.end_time.slice(0, 5)) {
+          addToast(t("hours.v.endAfterStart"), "error")
+          return
+        }
+      }
+    }
+
     const formatted: { day_of_week: number; start_time: string; end_time: string }[] = []
 
     Object.keys(schedule).forEach((day) => {

@@ -5,4 +5,6 @@ export interface MeResponse {
   slug: string | null
   /** True when this session runs on a private, throwaway copy of the demo data. */
   sandbox: boolean
+  /** Public demo account e-mail (shown instead of the internal sandbox address). */
+  demoEmail: string | null
 }

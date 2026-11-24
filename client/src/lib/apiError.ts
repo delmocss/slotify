@@ -11,6 +11,11 @@ const EXTRA_SERVER_MESSAGES: Record<string, TranslationKey> = {
   "Email already in use": "error.emailInUse",
 }
 
+// Server messages that embed a value (so they cannot be matched verbatim).
+const PATTERNS: { re: RegExp; key: TranslationKey; param: string }[] = [
+  { re: /^Price cannot exceed (\d+(?:\.\d+)?)$/, key: "services.v.priceMax", param: "max" },
+]
+
 const messageToKey = new Map<string, TranslationKey>(
   (Object.entries(en) as [TranslationKey, string][]).map(([key, value]) => [value, key])
 )
@@ -28,7 +33,12 @@ export function getApiErrorMessage(
     const message = (error.response.data as { message?: unknown } | undefined)?.message
     if (typeof message === "string" && message) {
       const key = EXTRA_SERVER_MESSAGES[message] ?? messageToKey.get(message)
-      return key ? t(key) : message
+      if (key) return t(key)
+      for (const { re, key: patternKey, param } of PATTERNS) {
+        const match = re.exec(message)
+        if (match) return t(patternKey, { [param]: Number(match[1]).toLocaleString() })
+      }
+      return message
     }
   }
   return t(fallback)

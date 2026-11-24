@@ -12,6 +12,12 @@ import { useI18n } from "@/lib/i18n/useI18n"
 export default function LoginPage() {
   const navigate = useNavigate()
   const [loginError, setLoginError] = useState<string | null>(null)
+  // Set by the axios interceptor when a session was rejected (expired token / demo sandbox).
+  // A timestamp (not a one-shot flag): the redirect can mount this page twice in a row.
+  const [sessionEnded] = useState(() => {
+    const at = Number(sessionStorage.getItem("slotify-session-ended"))
+    return at > 0 && Date.now() - at < 30_000
+  })
   const { addToast } = useToast()
   const { t } = useI18n()
 
@@ -25,6 +31,7 @@ export default function LoginPage() {
     mutationFn: login,
     onSuccess: (data) => {
       localStorage.setItem("token", data.token)
+      sessionStorage.removeItem("slotify-session-ended")
       setLoginError(null)
       navigate("/dashboard")
     },
@@ -58,6 +65,15 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {sessionEnded && !loginError && (
+              <p
+                role="status"
+                className="rounded-lg border border-copper/30 bg-copper/10 p-3 text-sm text-copper"
+              >
+                {t("auth.login.sessionEnded")}
+              </p>
+            )}
+
             {loginError && (
               <p className="text-red-400 text-sm rounded-lg bg-red-400/10 border border-red-400/20 p-3">
                 {loginError}

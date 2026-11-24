@@ -3,6 +3,7 @@ import { hashPassword, comparePassword } from "../../utils/hash.utils"
 import { generateAccessToken } from "../../utils/jwt.utils"
 import { AppError } from "../../utils/appError"
 import { pool } from "../../config/db"
+import { env } from "../../config/env"
 import { DemoSandboxService, isDemoEmail, isSandboxEmail } from "./demo-sandbox.service"
 
 export class AuthService {
@@ -137,6 +138,8 @@ export class AuthService {
       organizations,
       slug,
       sandbox: isSandboxEmail(user.email),
+      // Public demo account shown in the UI for sandbox sessions (its real e-mail is internal).
+      demoEmail: isSandboxEmail(user.email) ? env.demoEmail : null,
     }
   }
 }

@@ -21,12 +21,19 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status
+    const message = error.response?.data?.message
     const url: string = error.config?.url ?? ""
     const isAuthForm = url.startsWith("/auth/login") || url.startsWith("/auth/register")
 
-    if ((status === 401 || status === 403) && !isAuthForm && localStorage.getItem("token")) {
+    // 401 = the token is bad/expired. 403 only when the account no longer belongs to the
+    // organization (e.g. an expired demo sandbox); any other 403 or a 5xx keeps the session.
+    const sessionRejected =
+      status === 401 || (status === 403 && message === "Forbidden: Invalid organization")
+
+    if (sessionRejected && !isAuthForm && localStorage.getItem("token")) {
       localStorage.removeItem("token")
       if (window.location.pathname.startsWith("/dashboard")) {
+        sessionStorage.setItem("slotify-session-ended", String(Date.now()))
         window.location.href = "/login"
       }
     }

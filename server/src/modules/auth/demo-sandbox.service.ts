@@ -25,10 +25,6 @@ function randomSuffix(length = 6) {
   return crypto.randomBytes(8).toString("hex").slice(0, length)
 }
 
-function bookingCode() {
-  return `SLT-${crypto.randomBytes(5).toString("hex").slice(0, 8).toUpperCase()}`
-}
-
 export class DemoSandboxService {
   /**
    * Creates a private copy of the demo business and returns a login result for it,
@@ -87,20 +83,14 @@ export class DemoSandboxService {
         )
       ).rows[0]
 
-      // Services: copy and remember old id -> new id so bookings can be re-linked.
-      const serviceIds = new Map<string, string>()
-      const services = await client.query(
-        "SELECT id, name, slug, duration_minutes, price, is_active FROM services WHERE business_id = $1",
-        [templateId]
+      // Everything below is set-based (one statement per table, not one per row) so the
+      // login stays fast even against a remote database with a big template.
+      await client.query(
+        `INSERT INTO services (business_id, name, slug, duration_minutes, price, is_active)
+         SELECT $1, name, slug, duration_minutes, price, is_active
+         FROM services WHERE business_id = $2`,
+        [org.id, templateId]
       )
-      for (const s of services.rows) {
-        const created = await client.query(
-          `INSERT INTO services (business_id, name, slug, duration_minutes, price, is_active)
-           VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
-          [org.id, s.name, s.slug, s.duration_minutes, s.price, s.is_active]
-        )
-        serviceIds.set(s.id, created.rows[0].id)
-      }
 
       await client.query(
         `INSERT INTO working_hours (business_id, day_of_week, start_time, end_time)
@@ -108,49 +98,39 @@ export class DemoSandboxService {
         [org.id, templateId]
       )
 
-      // Keep the demo looking alive: if the template's latest booking is in the past,
-      // slide every copied booking forward so that one lands on today (spacing is kept).
-      // Bookings already in the future are left untouched (shift = 0).
-      const shift = (
-        await client.query(
-          `SELECT GREATEST(0, CURRENT_DATE - MAX(date))::int AS days
-           FROM bookings WHERE business_id = $1`,
-          [templateId]
-        )
-      ).rows[0].days as number
-
-      const bookings = await client.query(
-        `SELECT service_id, client_name, client_email,
-                to_char(date + $2::int, 'YYYY-MM-DD') AS date, start_time, end_time, status
-         FROM bookings WHERE business_id = $1 ORDER BY date DESC LIMIT 500`,
-        [templateId, shift]
+      // Bookings are re-linked to the copied services through the (business_id, slug)
+      // unique key. Keep the demo looking alive: if the template's latest booking is in the
+      // past, slide every copied booking forward so that one lands on today (spacing is
+      // kept); bookings already in the future are left alone (shift = 0).
+      await client.query(
+        `WITH shift AS (
+           SELECT GREATEST(0, CURRENT_DATE - MAX(date))::int AS days
+           FROM bookings WHERE business_id = $2
+         )
+         INSERT INTO bookings
+           (business_id, service_id, booking_code, cancel_token, client_name, client_email,
+            date, start_time, end_time, status)
+         SELECT $1, ns.id,
+                'SLT-' || upper(substr(replace(uuid_generate_v4()::text, '-', ''), 1, 8)),
+                replace(uuid_generate_v4()::text || uuid_generate_v4()::text, '-', ''),
+                k.client_name, k.client_email,
+                k.date + shift.days, k.start_time, k.end_time, k.status
+         FROM bookings k
+         CROSS JOIN shift
+         JOIN services os ON os.id = k.service_id
+         JOIN services ns ON ns.business_id = $1 AND ns.slug = os.slug
+         WHERE k.business_id = $2
+         ORDER BY k.date DESC
+         LIMIT 500`,
+        [org.id, templateId]
       )
-      for (const b of bookings.rows) {
-        const serviceId = serviceIds.get(b.service_id)
-        if (!serviceId) continue
-        await client.query(
-          `INSERT INTO bookings
-             (business_id, service_id, booking_code, cancel_token, client_name, client_email,
-              date, start_time, end_time, status)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-          [
-            org.id,
-            serviceId,
-            bookingCode(),
-            crypto.randomBytes(24).toString("hex"),
-            b.client_name,
-            b.client_email,
-            b.date,
-            b.start_time,
-            b.end_time,
-            b.status,
-          ]
-        )
-      }
 
       await client.query("COMMIT")
 
-      const token = generateAccessToken({ sub: user.id, org: org.id, role: "owner" })
+      const token = generateAccessToken(
+        { sub: user.id, org: org.id, role: "owner" },
+        `${SANDBOX_TTL_HOURS}h`
+      )
 
       return {
         user: { id: user.id, email: user.email },

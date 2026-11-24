@@ -24,7 +24,9 @@ type Props = {
 function parse(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined
   const [y, m, d] = value.split("-").map(Number)
-  return new Date(y, m - 1, d)
+  const date = new Date(y, m - 1, d)
+  const valid = date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d
+  return valid ? date : undefined
 }
 
 function format(date: Date) {
@@ -51,6 +53,7 @@ export default function DatePicker({
     year: "numeric",
   })
   const rootRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
   const panelId = useId()
 
   const selected = parse(value)
@@ -64,7 +67,10 @@ export default function DatePicker({
       if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
     }
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false)
+      if (event.key === "Escape") {
+        setOpen(false)
+        triggerRef.current?.focus()
+      }
     }
 
     document.addEventListener("pointerdown", onPointerDown)
@@ -83,6 +89,7 @@ export default function DatePicker({
   return (
     <div ref={rootRef} className={`relative ${className}`}>
       <button
+        ref={triggerRef}
         type="button"
         aria-label={ariaLabel}
         aria-haspopup="dialog"
@@ -99,36 +106,29 @@ export default function DatePicker({
           }
           setOpen((o) => !o)
         }}
-        className={`flex w-full items-center gap-2 rounded-md border bg-ashSoft px-3 py-2 text-left text-sm transition focus:outline-none focus:ring-2 focus:ring-copper ${
-          open ? "border-copper/60" : "border-white/10 hover:border-white/25"
-        }`}
+        className={`flex w-full items-center gap-2 rounded-md border bg-ashSoft py-2 pl-3 text-left text-sm transition focus:outline-none focus:ring-2 focus:ring-copper ${
+          clearable && selected ? "pr-10" : "pr-3"
+        } ${open ? "border-copper/60" : "border-white/10 hover:border-white/25"}`}
       >
         <Calendar className="h-4 w-4 shrink-0 text-copper" aria-hidden="true" />
         <span className={`flex-1 truncate ${selected ? "text-white" : "text-gray-400"}`}>
           {selected ? display.format(selected) : (placeholder ?? t("datepicker.placeholder"))}
         </span>
-        {clearable && selected && (
-          <span
-            role="button"
-            tabIndex={0}
-            aria-label={t("datepicker.clear")}
-            onClick={(e) => {
-              e.stopPropagation()
-              onChange("")
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault()
-                e.stopPropagation()
-                onChange("")
-              }
-            }}
-            className="rounded p-0.5 text-gray-400 hover:bg-white/10 hover:text-white"
-          >
-            <X className="h-3.5 w-3.5" />
-          </span>
-        )}
       </button>
+
+      {clearable && selected && (
+        <button
+          type="button"
+          aria-label={t("datepicker.clear")}
+          onClick={() => {
+            onChange("")
+            triggerRef.current?.focus()
+          }}
+          className="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded text-gray-400 hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-copper"
+        >
+          <X className="h-3.5 w-3.5" aria-hidden="true" />
+        </button>
+      )}
 
       {open && (
         <div
@@ -146,6 +146,7 @@ export default function DatePicker({
               if (!date) return
               onChange(format(date))
               setOpen(false)
+              triggerRef.current?.focus()
             }}
             disabled={disabled}
             weekStartsOn={1}
