@@ -3,6 +3,7 @@ import { getWorkingHours, updateWorkingHours } from "../api/workingHours.api"
 import DaySchedule from "../components/DaySchedule"
 import { useState } from "react"
 import { useToast } from "../../../components/ui/toast/useToast"
+import { getApiErrorMessage } from "@/lib/apiError"
 import { WorkingHours, WorkingHoursDay } from "@/types"
 
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
@@ -40,8 +41,8 @@ export default function WorkingHoursPage() {
       queryClient.invalidateQueries({ queryKey: ["working-hours"] })
       addToast("Working hours saved successfully")
     },
-    onError: () => {
-      addToast("Failed to save working hours", "error")
+    onError: (error) => {
+      addToast(getApiErrorMessage(error, "Failed to save working hours"), "error")
     },
   })
 

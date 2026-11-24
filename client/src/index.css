@@ -1,3 +1,4 @@
+@import "react-day-picker/style.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,4 +8,68 @@ body,
 #root {
   height: 100%;
   width: 100%;
+}
+
+/* Native form controls (time pickers, scrollbars, checkboxes) follow the dark theme. */
+:root {
+  color-scheme: dark;
+}
+
+/* Number fields: no browser spinner arrows (value is typed, never nudged by accident). */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Calendar popover (react-day-picker) themed with the app's copper palette. */
+.slotify-calendar {
+  --rdp-accent-color: #d99058;
+  --rdp-accent-background-color: rgba(217, 144, 88, 0.16);
+  --rdp-day-height: 40px;
+  --rdp-day-width: 40px;
+  --rdp-day_button-height: 36px;
+  --rdp-day_button-width: 36px;
+  --rdp-day_button-border-radius: 10px;
+  --rdp-selected-border: 0;
+  --rdp-today-color: #d99058;
+  --rdp-weekday-opacity: 0.55;
+  --rdp-disabled-opacity: 0.3;
+  --rdp-outside-opacity: 0.35;
+  color: #e5e7eb;
+  font-size: 0.875rem;
+}
+.slotify-calendar .rdp-month_caption {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #fff;
+}
+.slotify-calendar .rdp-weekday {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.slotify-calendar .rdp-chevron {
+  color: #9ca3af;
+}
+.slotify-calendar .rdp-button_previous:hover .rdp-chevron,
+.slotify-calendar .rdp-button_next:hover .rdp-chevron {
+  color: #fff;
+}
+.slotify-calendar .rdp-day_button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+.slotify-calendar .rdp-selected .rdp-day_button {
+  background: #d99058;
+  color: #1a1b17;
+  font-weight: 700;
+}
+.slotify-calendar .rdp-today:not(.rdp-selected) .rdp-day_button {
+  border: 1px solid rgba(217, 144, 88, 0.5);
 }

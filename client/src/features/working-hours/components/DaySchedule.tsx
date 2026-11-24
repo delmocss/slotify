@@ -1,3 +1,4 @@
+import { X } from "lucide-react"
 import { WorkingHoursDay } from "@/types"
 
 type Props = {
@@ -53,8 +54,9 @@ export default function DaySchedule({ day: _day, label, value, onChange }: Props
               }}
               className="px-3 py-2 rounded-md bg-red-500/20 text-red-400 hover:bg-red-500/30 transition text-sm font-medium"
               title="Remove time range"
+              aria-label="Remove time range"
             >
-              ✕
+              <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
         ))}

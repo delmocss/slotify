@@ -1,4 +1,5 @@
 import { api } from "../../../lib/axios"
+import type { MeResponse } from "@/types"
 
 interface LoginRequest {
   email: string
@@ -21,7 +22,7 @@ export async function register(data: RegisterRequest) {
   return res.data
 }
 
-export async function getMe() {
-  const res = await api.get("/auth/me")
+export async function getMe(): Promise<MeResponse> {
+  const res = await api.get<MeResponse>("/auth/me")
   return res.data
 }

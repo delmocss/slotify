@@ -7,6 +7,9 @@ import { getAvailability } from "../api/public.api"
 import { createBooking } from "../api/public.api"
 import { useToast } from "../../../components/ui/toast/useToast"
 import { api } from "../../../lib/axios"
+import { CheckCircle2 } from "lucide-react"
+import DatePicker from "@/components/ui/DatePicker"
+import { todayLocal } from "@/lib/dates"
 import Skeleton from "@/components/ui/Skeleton"
 import { Service, CreateBookingRequest, CreateBookingResponse } from "@/types"
 
@@ -113,8 +116,8 @@ export default function PublicBookingPage() {
     return (
       <div className="min-h-screen w-full bg-gradient-to-br from-[#2f302c] via-[#3B3C36] to-black px-4 py-8 sm:px-6 sm:py-12 lg:py-16">
         <div className="mx-auto w-full max-w-xl rounded-3xl border border-white/10 bg-[#2A2B27]/95 p-6 text-center text-white shadow-2xl backdrop-blur-sm sm:p-10 lg:p-12">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-copper/20 text-4xl sm:mb-5">
-            🎉
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-copper/15 text-copper ring-1 ring-copper/30 sm:mb-5">
+            <CheckCircle2 className="h-8 w-8" aria-hidden="true" />
           </div>
 
           <h1 className="mb-3 text-2xl font-bold sm:text-3xl">Booking Confirmed</h1>
@@ -287,12 +290,12 @@ export default function PublicBookingPage() {
                     Selected: {selectedService?.name}
                   </p>
 
-                  <input
-                    type="date"
+                  <DatePicker
                     value={selectedDate}
-                    min={new Date().toISOString().split("T")[0]}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-ashSoft/90 p-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-copper sm:text-base"
+                    min={todayLocal()}
+                    onChange={setSelectedDate}
+                    placeholder="Choose a date"
+                    aria-label="Booking date"
                   />
 
                   {availabilityQuery.isLoading && (
@@ -486,7 +489,10 @@ export default function PublicBookingPage() {
                   transition={{ duration: 0.3 }}
                   className="space-y-4 text-center sm:space-y-5"
                 >
-                  <h2 className="text-xl font-bold sm:text-2xl">🎉 Booking Confirmed</h2>
+                  <h2 className="flex items-center justify-center gap-2 text-xl font-bold sm:text-2xl">
+                    <CheckCircle2 className="h-6 w-6 text-copper" aria-hidden="true" />
+                    Booking Confirmed
+                  </h2>
 
                   <p>{selectedService?.name}</p>
 

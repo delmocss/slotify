@@ -5,6 +5,8 @@ import BookingsTable from "../components/BookingsTable"
 import { useState } from "react"
 import BookingsChart from "../components/BookingsChart"
 import { useAuth } from "../../auth/hooks/useAuth"
+import DatePicker from "@/components/ui/DatePicker"
+import { toLocalISODate, todayLocal } from "@/lib/dates"
 import Skeleton from "@/components/ui/Skeleton"
 import { Booking } from "@/types"
 
@@ -16,9 +18,9 @@ export default function DashboardHomePage() {
   // user from useAuth() is the full /auth/me response: { user, organizations, slug }
   const slug = (user as { slug?: string } | undefined)?.slug
   const publicUrl = `${window.location.origin}/b/${slug}`
-  const today = new Date().toISOString().split("T")[0]
-  const [fromDate, setFromDate] = useState(
-    () => new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+  const today = todayLocal()
+  const [fromDate, setFromDate] = useState(() =>
+    toLocalISODate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
   )
   const [toDate, setToDate] = useState(today)
 
@@ -103,11 +105,13 @@ export default function DashboardHomePage() {
 
         <div>
           <label className="text-sm text-gray-300">Date</label>
-          <input
-            type="date"
+          <DatePicker
             value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className="block bg-ashSoft border border-white/10 text-white placeholder-gray-400 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper"
+            onChange={setDateFilter}
+            placeholder="Any date"
+            clearable
+            aria-label="Filter by date"
+            className="w-44"
           />
         </div>
 
@@ -132,20 +136,22 @@ export default function DashboardHomePage() {
           <div className="flex flex-wrap gap-3 items-end">
             <div>
               <label className="text-sm text-gray-400 block mb-1">Export From</label>
-              <input
-                type="date"
+              <DatePicker
                 value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="bg-ashSoft border border-white/10 text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper text-sm"
+                onChange={setFromDate}
+                max={toDate || undefined}
+                aria-label="Export from date"
+                className="w-44"
               />
             </div>
             <div>
               <label className="text-sm text-gray-400 block mb-1">Export To</label>
-              <input
-                type="date"
+              <DatePicker
                 value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="bg-ashSoft border border-white/10 text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-copper text-sm"
+                onChange={setToDate}
+                min={fromDate || undefined}
+                aria-label="Export to date"
+                className="w-44"
               />
             </div>
             <button

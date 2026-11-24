@@ -1,3 +1,4 @@
+import Logo from "../../../components/ui/Logo"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { registerSchema, RegisterFormData } from "../schemas"
@@ -52,8 +53,8 @@ export default function RegisterPage() {
       <div className="grid gap-8 lg:grid-cols-[1.1fr,0.9fr]">
         <div>
           <div className="mb-8 text-center lg:text-left">
-            <div className="mx-auto mb-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-[11px] font-semibold text-white/70 lg:mx-0">
-              S
+            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-copper/30 bg-gradient-to-br from-copper/25 to-copper/5 text-copper lg:mx-0">
+              <Logo className="h-5 w-5" />
             </div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500">
               Get started

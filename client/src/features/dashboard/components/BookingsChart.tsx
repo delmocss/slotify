@@ -7,6 +7,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts"
+import { Activity, ArrowDownRight, ArrowUpRight, TrendingDown, TrendingUp } from "lucide-react"
 import Skeleton from "@/components/ui/Skeleton"
 import { Booking } from "@/types"
 
@@ -84,7 +85,11 @@ export default function BookingsChart({ bookings }: Props) {
                     : "bg-red-500/10 text-red-400 border border-red-500/20"
                 }`}
               >
-                <span className="text-base">{isPositiveTrend ? "↗" : "↘"}</span>
+                {isPositiveTrend ? (
+                  <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+                ) : (
+                  <ArrowDownRight className="h-4 w-4" aria-hidden="true" />
+                )}
                 <span>{Math.abs(Number(trendPercentage))}%</span>
               </div>
             </div>
@@ -94,7 +99,7 @@ export default function BookingsChart({ bookings }: Props) {
           <div className="grid grid-cols-3 gap-6 lg:gap-8">
             <div className="text-center lg:text-right">
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-copper/10 mb-2">
-                <span className="text-copper text-lg">📊</span>
+                <Activity className="h-5 w-5 text-copper" aria-hidden="true" />
               </div>
               <p className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wider">
                 Average
@@ -104,7 +109,7 @@ export default function BookingsChart({ bookings }: Props) {
 
             <div className="text-center lg:text-right">
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-green-500/10 mb-2">
-                <span className="text-green-400 text-lg">📈</span>
+                <TrendingUp className="h-5 w-5 text-green-400" aria-hidden="true" />
               </div>
               <p className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wider">
                 Peak
@@ -114,7 +119,7 @@ export default function BookingsChart({ bookings }: Props) {
 
             <div className="text-center lg:text-right">
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-500/10 mb-2">
-                <span className="text-blue-400 text-lg">📉</span>
+                <TrendingDown className="h-5 w-5 text-blue-400" aria-hidden="true" />
               </div>
               <p className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wider">
                 Lowest
