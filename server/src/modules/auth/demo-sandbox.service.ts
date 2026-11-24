@@ -112,7 +112,7 @@ export class DemoSandboxService {
             date, start_time, end_time, status)
          SELECT $1, ns.id,
                 'SLT-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8)),
-                replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', ''),
+                substr(replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', ''), 1, 48),
                 k.client_name, k.client_email,
                 k.date + shift.days, k.start_time, k.end_time, k.status
          FROM bookings k
