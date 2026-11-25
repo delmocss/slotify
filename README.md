@@ -1,473 +1,85 @@
-# 🚀 Slotify — Smart Booking SaaS Platform
+# Slotify
 
-> A production-oriented full-stack booking system designed to simulate a real-world SaaS product with business-driven logic, scalable architecture and professional UX patterns.
+[![CI](https://github.com/delmocss/slotify/actions/workflows/ci.yml/badge.svg)](https://github.com/delmocss/slotify/actions/workflows/ci.yml)
 
----
+Multi-tenant booking platform for small businesses: public booking page, availability engine, dashboard with metrics and CSV export.
 
-## 🌐 Live Demo
+![Landing page](img/landing.png)
 
-**Frontend:** https://slotify-client-theta.vercel.app  
-**Backend API:** https://slotify-50re.onrender.com
+## Demo
 
-**Demo Credentials:**  
-- Email: demo@demo.com  
-- Password: demo1234
+**https://slotify-client-theta.vercel.app** | [Public booking page](https://slotify-client-theta.vercel.app/b/demo-negocio) | API: https://slotify-50re.onrender.com
 
-**Public Booking:** https://slotify-client-theta.vercel.app/b/demo-negocio
+Demo account: `demo@demo.com` / `demo1234`
 
-> Every demo login opens a **private copy** of the demo business: add, edit or delete whatever you like, nobody else will see it and it is discarded after 24 hours (see [Demo mode](#demo-mode-private-sandboxes)). The interface is available in **English and Spanish** (ES | EN switch) and adapts to phones, tablets and desktops.
-> The free tier sleeps when idle: the first request can take 30-60 s.
+> Every demo login opens a private copy of the demo business that is discarded after 24 hours, so you can add or delete anything. The backend runs on a free tier: the first request can take 30-60 s if it was asleep.
 
----
+## The problem
 
-## 📸 Screenshots
+Many small businesses still manage appointments by phone, WhatsApp or spreadsheets. That leads to double bookings, no-shows nobody tracks and no reporting. Slotify gives them a public booking page, availability that respects their opening hours, and a dashboard with revenue and cancellations.
 
-### Landing 
+## Technically interesting
 
-![Landing Page](img/landing.png)
+- **Race-safe bookings:** booking creation takes a PostgreSQL advisory lock per business, service and day, so two visitors cannot book the same slot at the same time.
+- **Multi-tenancy:** users, organizations and memberships with roles. Every authenticated query is scoped to the organization in the JWT, and membership and role are re-checked against the database on each request, so a revoked user cannot keep using an old token.
+- **Atomic registration:** user, organization, membership and business are created in a single transaction, rolled back on any failure, with collision-safe public slugs.
+- **Private demo sandboxes:** each demo login clones a template business into a throwaway copy that is purged after 24 hours (capped at 300 active copies).
+- **Secure public cancellation:** cancellation links use crypto-generated tokens, with rate limits on login and on public booking endpoints.
 
-### Public booking
-
-![Public Booking Flow](img/public_booking.png)
-
-### Confirmation screen
-
-![Confirmation Screen](img/confirmation.png)
-
-### Dashboard metrics
-
-![Dashboard Metrics](img/dashboard.png)
-
-### Services page
-
-![Services Management](img/services.png)
-
----
-
-## 📌 Project Overview
-
-Slotify is a full-stack booking platform designed with a SaaS-oriented architecture to simulate a production-ready product for small businesses with a strong focus on:
-
-- Real business constraints
-- Clean architecture
-- Scalable design
-- Type-safe frontend
-- Modular backend structure
-- SaaS-oriented thinking (not just CRUD)
-- Multi-tenant data model (users, organizations and memberships with roles)
-
-The goal of this project was not to build a simple reservation app, but to simulate how a real booking SaaS product would be architected, structured and extended in production.
-
----
-
-## 🎯 Problem Statement
-
-Many small businesses still rely on:
-
-- Manual scheduling
-- Phone calls
-- WhatsApp messages
-- Spreadsheets
-
-This creates inefficiencies, double bookings and lack of reporting.
-
-Slotify provides:
-
-- Smart availability generation
-- Booking flow with business rules
-- Secure public cancellation
-- Analytics dashboard
-- Revenue tracking
-- CSV export for reporting
-
-### Data model
+## Architecture
 
 ```mermaid
-erDiagram
-    users ||--o{ organization_members : "belongs to"
-    organizations ||--o{ organization_members : "has"
-    organizations ||--|| businesses : "public profile (same id)"
-    businesses ||--o{ services : offers
-    businesses ||--o{ working_hours : "opens"
-    businesses ||--o{ bookings : receives
-    services ||--o{ bookings : "booked for"
+flowchart LR
+    Visitor[Visitor / business owner] --> Client[React + TypeScript SPA<br/>Vercel]
+    Client -->|REST + JWT| API[Express API<br/>Render]
+    API --> Modules[Modules: auth, availability,<br/>bookings, services, analytics]
+    Modules --> DB[(PostgreSQL<br/>Supabase)]
 ```
 
-A user can belong to several organizations (`owner` / `admin` / `member`). Each organization has one
-business with a unique public slug (`/b/:slug`). Every authenticated query is scoped to the
-organization carried in the JWT, and the membership and role are re-checked against the database on
-each request, so a stale token cannot keep privileges that were revoked.
+Data model, project structure and design principles: [docs/features-and-architecture.md](docs/features-and-architecture.md).
 
----
+## Stack
 
-## 🏗 Architecture
+| Layer | Technology |
+| --- | --- |
+| Frontend | React, TypeScript (strict), Vite, Tailwind CSS, TanStack Query, React Hook Form + Zod, Recharts |
+| Backend | Node.js, Express, JWT, helmet, express-rate-limit, Zod |
+| Database | PostgreSQL (schema.sql and numbered migrations) |
+| Tests | Vitest, Supertest, real PostgreSQL in CI |
+| Deployment | Vercel, Render, Supabase, GitHub Actions |
 
-The project follows a feature-based modular architecture both in frontend and backend.
-
-### Frontend
-
-- React
-- TypeScript (strict mode enabled)
-- Vite
-- Tailwind CSS
-- TanStack React Query
-- React Hook Form + Zod
-- Framer Motion
-- Recharts
-- react-day-picker (themed calendar) and lucide-react (icons)
-- Lightweight built-in i18n (typed English / Spanish dictionaries, no extra dependency)
-
-### Backend
-
-- Node.js
-- Express
-- PostgreSQL
-- Modular feature-based architecture
-- JWT authentication
-- Rate limiting (express-rate-limit) and security headers (helmet)
-- Environment validation at startup (zod)
-- Automated tests (Vitest + Supertest)
-- Secure cancellation tokens
-- Centralized error handling
-- Private demo sandboxes per login (auto-purged) and a daily keep-alive for the free tier
-
----
-
-## ⚙️ Deployment Architecture
-
-Frontend: Vercel  
-Backend: Render  
-Database: Supabase PostgreSQL  
-
-The application is deployed in a production-like environment with separated frontend and backend services.
-
----
-
-## 📁 Project Structure
-
-```text
-slotify/
-├── client/                  # React + Vite + TypeScript
-│   └── src/
-│       ├── app/             # router and providers
-│       ├── components/      # shared UI components
-│       ├── features/        # auth, dashboard, landing, public-booking, services, working-hours
-│       ├── lib/             # axios instance, helpers, i18n (en/es dictionaries)
-│       └── types/
-│
-└── server/                  # Express + PostgreSQL
-    ├── src/
-    │   ├── config/          # env validation, db pool
-    │   ├── middlewares/     # auth, validation, errors, rate limits
-    │   ├── modules/         # analytics, auth, availability, bookings, public, services, working-hours
-    │   ├── database/        # schema.sql (fresh install), migrations/ (upgrade path), seeds/ (demo data)
-    │   └── utils/           # jwt, hashing, csv, errors
-    └── tests/               # Vitest + Supertest (unit) and tests/integration (real Postgres)
-
-.github/workflows/           # ci.yml (lint, build, tests) and keep-alive.yml (daily DB ping)
-```
-
-### Design Principles
-
-- Separation of concerns
-- Feature-based organization
-- Explicit typing
-- Destructive actions ask for confirmation (deleting a service also removes its bookings)
-- Clear public vs authenticated boundaries
-
----
-
-## 🧠 Architectural Considerations
-
-- Tenant-scoped queries prevent data leakage between organizations.
-- Registration is atomic: user, organization, membership and business are created in a single
-  transaction (rolled back on any failure) and public slugs are collision-safe.
-- Schema changes ship as numbered SQL migrations that preserve existing data.
-- Services can be deactivated (soft toggle, hidden from the public page) or deleted.
-- Separation between public and authenticated routes.
-- Explicit typing to prevent runtime inconsistencies.
-
----
-
-## 🧩 Core Functional Features
-
-### 🔹 Public Booking Flow
-
-- Service selection
-- Smart slot generation
-- Time grouping (Morning / Afternoon / Evening)
-- Fully booked state handling
-- Unique booking code generation
-- Secure public cancellation via token
-- Professional confirmation screen
-
----
-
-### 🔹 Business Dashboard
-
-- Revenue metrics (total and current month) and bookings of the last 7 days
-- Booking activity chart and cancel rate
-- Filters by status, date and client
-- Bookings list (table on desktop, cards on phones and tablets)
-- CSV export by date range
-- Services: create, edit, delete (with confirmation) and activate / deactivate, with inline validation
-- Working hours per weekday, with several time ranges
-- Cancel bookings from the dashboard
-
----
-
-### 🔹 Availability Engine
-
-- Dynamic slot generation
-- Conflict detection
-- Status-based filtering (confirmed vs cancelled)
-- Non-overlapping time slots
-
----
-
-### 🔹 Analytics
-
-- Total revenue and current-month revenue
-- Booking volume of the last 7 days (same window as the chart)
-- Cancel rate = cancelled / (confirmed + cancelled)
-- Range-based CSV export (validated dates, spreadsheet-formula-safe)
-
----
-
-### 🔹 UX & Product Considerations
-
-- Skeleton loading states
-- Explicit empty states
-- Animated transitions
-- Clear booking progression
-- SaaS-style dark theme
-- Responsive design: phones, tablets, desktops and window resizing
-- English / Spanish interface with a persistent language switch
-- Custom calendar date picker
-- Copyable booking codes
-
----
-
-## 🔐 Security & Robustness
-
-- JWT-based authentication (HS256 pinned, secret validated at startup)
-- CORS restricted to the configured frontend origin (`CORS_ORIGIN`)
-- Security headers with `helmet`
-- Rate limiting: general API, login/register (brute force) and public bookings/cancellation (spam)
-- Secure cancellation tokens (crypto-based)
-- Race-safe booking creation (Postgres advisory lock per business/service/day)
-- Strict TypeScript (no `any`)
-- Centralized error middleware
-- Tenant-scoped queries with a live membership/role check on every request
-- Malformed or oversized JSON bodies are rejected with 400/413, not 500
-
----
-
-## 🧪 Testing
+## Run it locally
 
 ```bash
-cd server
-npm test
+cd server && npm install && cp .env.example .env   # set DATABASE_URL and JWT_SECRET
+npm run dev                                         # http://localhost:4000
+
+cd client && npm install && npm run dev             # http://localhost:3000
 ```
 
-Vitest + Supertest. **50 unit tests** need no database. They cover the availability logic (slot generation, conflict detection), the API surface (security headers, CORS allowlist, JWT rejection, request validation, login rate limit, 400/413 on bad bodies) and the atomic registration flow (single transaction, collision-safe slugs, rollback on failure) against a mocked pool, plus the demo sandbox, the auth middleware, `/health/db` and CSV escaping.
+Create the tables with `server/src/database/schema.sql`. Full setup, environment variables, deployment and demo mode: [docs/development-and-deployment.md](docs/development-and-deployment.md).
 
-**10 integration tests** run against a real PostgreSQL (the schema is recreated from `schema.sql`, so use a throwaway local database; the config refuses any non-local URL):
+## Tests
 
 ```bash
-docker run -d --name slotify-pg-test -e POSTGRES_PASSWORD=test -e POSTGRES_DB=slotify_test -p 55432:5432 postgres:16-alpine
-cd server
-TEST_DATABASE_URL=postgresql://postgres:test@localhost:55432/slotify_test npm run test:integration
+cd server && npm test
 ```
 
-They verify visitor isolation in the demo, expiry and purge of demo copies, concurrent logins, service and working-hours hardening, dashboard data (bookings, metrics) and the CSV export. CI runs them with a Postgres service container.
+- **50 unit tests** (no database): availability logic, API surface (security headers, CORS, JWT rejection, validation, rate limits) and registration flow against a mocked pool.
+- **12 integration tests** against a real PostgreSQL: demo sandbox isolation and purge, input hardening, dashboard data and CSV export. They run in CI with a Postgres service container; locally they need `TEST_DATABASE_URL` pointing to a throwaway database.
+- CI also runs ESLint (`no-explicit-any` as an error), Prettier, TypeScript and the production build.
 
-Code quality is enforced in CI for both packages: ESLint (`no-explicit-any` as an error), Prettier, TypeScript and the production build.
+Not covered yet: the concurrent-booking lock and the frontend.
 
-```bash
-npm run lint && npm run format:check   # in client/ or server/
-```
+## Decisions and limitations
 
-Not covered yet: the concurrent-booking lock and frontend tests.
+- No timezone support: "past slot" checks use the server clock (UTC).
+- Availability is per service: there is no staff or resource model.
+- No email notifications: the booking code and cancellation link are shown on the confirmation screen only.
+- No frontend tests yet.
 
----
+More detail in [docs/scope-and-limitations.md](docs/scope-and-limitations.md).
 
-## 🧠 SaaS vs CRUD — Conceptual Difference
+## Author
 
-This project intentionally goes beyond CRUD.
-
-### CRUD Application
-
-- Basic create/read/update/delete
-- No business constraints
-- No product-level logic
-- No analytics or reporting
-
-### SaaS Application (Slotify Approach)
-
-- Business rules (conflict detection, past-slot protection, race-safe bookings)
-- Smart availability engine
-- Public + private flows
-- Secure cancellation mechanism
-- Revenue tracking
-- Export functionality
-- Service soft activation
-
-Slotify was designed with SaaS thinking, not simple data manipulation.
-
----
-
-## 🚀 Local Development
-
-### 1️⃣ Clone repository
-
-- git clone https://github.com/delmocss/slotify
-- cd slotify
-
----
-
-### 2️⃣ Backend Setup
-
-```bash
-cd server
-npm install
-cp .env.example .env     # then fill in the values
-```
-
-Create the tables by running `server/src/database/schema.sql` against an empty Postgres database.
-To upgrade a database created before the multi-tenant release, apply the files in
-`server/src/database/migrations/` in order instead (they keep existing data). Migration `004` drops a legacy `no_past_booking` check (`date >= CURRENT_DATE`) that some older databases carry: it stops past bookings from being updated (e.g. cancelled) and rejects the demo's sample bookings. It is safe to run on any database.
-
-Environment variables (`server/.env`):
-
-| Variable | Required | Notes |
-|---|---|---|
-| `DATABASE_URL` | yes | PostgreSQL connection string |
-| `JWT_SECRET` | yes | at least 32 characters, e.g. `openssl rand -base64 48` |
-| `CORS_ORIGIN` | recommended | frontend origin(s), comma-separated. If unset, any origin is accepted (a warning is logged) |
-| `PORT` | no | defaults to 4000 |
-| `DEMO_EMAIL` | no | public demo account whose logins get a private sandbox copy (default `demo@demo.com`) |
-| `DEMO_SLUG` | no | slug of the template business copied for each demo login (default `demo-negocio`) |
-
-The server refuses to start if `DATABASE_URL` or `JWT_SECRET` are missing or invalid.
-
-`CORS_ORIGIN` must match the exact origin the frontend is served from. The dev server runs on `http://localhost:3000` (it is the value in `.env.example`); a different port or host (for example opening the HTML with Live Server on `127.0.0.1:5500`) is blocked by CORS.
-
-```bash
-npm run dev     # http://localhost:4000
-npm test        # unit tests, no database needed
-```
-
-The demo account and its template business are ordinary data: register `demo@demo.com` with the business name "Demo Negocio" (its slug becomes `demo-negocio`) and add some services if you want to try the sandbox locally.
-
----
-
-### 3️⃣ Frontend Setup
-
-```bash
-cd client
-npm install
-npm run dev     # http://localhost:3000
-```
-
-Optionally set `VITE_API_URL` (defaults to `http://localhost:4000`).
-
----
-
-## 🌍 Deployment Guide
-
-### Database
-
-Recommended providers:
-
-- Supabase
-- Neon
-- Railway PostgreSQL
-
-Steps:
-1. Create PostgreSQL instance
-2. Run `server/src/database/schema.sql`
-3. Add connection string to backend environment
-
----
-
-### Backend Deployment (Render / Railway)
-
-1. Connect GitHub repository
-2. Configure environment variables:
-   - DATABASE_URL
-   - JWT_SECRET (32+ characters)
-   - CORS_ORIGIN (your Vercel URL, without trailing slash)
-3. Root directory: `server`
-4. Build command: `npm install && npm run build`
-5. Start command: `npm run start`
-6. Health check path: `/health` (`/health/db` also queries the database)
-
----
-
-### Demo mode (private sandboxes)
-
-Logging in with the public demo account (`DEMO_EMAIL`, default `demo@demo.com`) never shows shared data: each login creates a **private, throwaway copy** of the template business (`DEMO_SLUG`, default `demo-negocio`) with its own user, services, working hours and bookings. Visitors can add, edit and delete anything without affecting anyone else. Copies are deleted automatically 24 hours after creation (their token expires at the same time) and are capped at 300 active copies. Bookings of the template are slid forward so the newest one lands on today.
-
-To give the template realistic bookings (and remove the leftover test service), run `server/src/database/seeds/demo_sample_bookings.sql` in the database SQL editor (on databases that still have the legacy `no_past_booking` check, run migration `004` first; the script stops with a clear message otherwise). It is safe to re-run. If copying the template's bookings is ever refused by the database, the demo login still works, just without bookings.
-
-### Keeping the free tier alive
-
-Supabase pauses free projects after 7 days without activity, and Render puts free services to sleep after 15 minutes. The scheduled workflow `.github/workflows/keep-alive.yml` calls `GET /health/db` (which runs `SELECT 1`) every day, so the database counts as active and the service is warm. If the check fails, the run turns red and GitHub e-mails you. GitHub disables scheduled workflows after 60 days without repository activity; any push re-enables it.
-
-### Frontend Deployment (Vercel)
-
-1. Import repository, root directory `client`
-2. VITE_API_URL=https://your-render-backend-url
-3. Deploy
-
----
-
-## ⚠️ Known Limitations
-
-- **No timezone support:** "past slot" checks for today use the server clock (UTC on Render).
-- **Availability is per service:** two different services can be booked at the same time (there is no staff/resource model).
-- **No email notifications:** the booking code and cancellation link are only shown on the confirmation screen.
-- **No frontend tests** yet.
-- **Demo copies are temporary:** a demo session is deleted after 24 hours; anything created with a real account is permanent.
-- **Error messages from the API** are translated when they are known; any other message is shown as received (in English).
-
----
-
-## 📈 Production-Ready Improvements
-
-If evolving this into a production SaaS:
-
-- Email confirmation integration
-- Stripe payment flow
-- Per-role permissions (owner / admin / member roles are stored, but every member currently has the same access)
-- Organization switcher in the UI (the data model already supports several organizations per user)
-- Business branding (logo and colors)
-- Timezone support
-- File upload storage (S3 / Supabase Storage)
-- Dockerization
-- End-to-end and frontend tests
-
----
-
-## 🎯 What This Project Demonstrates
-
-- Full-stack ownership
-- Business-oriented feature design
-- Scalable architecture
-- Strong TypeScript discipline
-- Secure public flows
-- Product thinking beyond CRUD
-- Professional UX implementation
-- Clean code structure
-
----
-
-## 👨‍💻 Author
-
-Developed by Sergio Del Moral
-
-Frontend Developer focused on building scalable SaaS-oriented applications with strong TypeScript discipline and business-driven logic.
-
-LinkedIn: https://www.linkedin.com/in/sergio-del-moral-carrillo-6619b7234/
-Portfolio: https://delmocss.github.io/
+Sergio Del Moral | [LinkedIn](https://www.linkedin.com/in/sergio-del-moral-carrillo/) | [Portfolio](https://delmocss.github.io) | delmoralcs@gmail.com
